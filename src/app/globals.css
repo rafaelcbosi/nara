@@ -1,26 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-nara-bg:          #0F0E0D;
+  --color-nara-surface:     #1A1917;
+  --color-nara-surface2:    #201E1B;
+  --color-nara-border:      #2C2A27;
+  --color-nara-accent:      #C8924A;
+  --color-nara-soft:        #E8B97A;
+  --color-nara-text:        #F0EDE8;
+  --color-nara-muted:       #8A8480;
+  --color-nara-success:     #6DAF7A;
+  --color-nara-error:       #D97066;
+  --font-display:           'Playfair Display', serif;
+  --font-sans:              'DM Sans', sans-serif;
+  --font-mono:              'DM Mono', monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --nara-bg:          #0F0E0D;
+  --nara-surface:     #1A1917;
+  --nara-surface2:    #201E1B;
+  --nara-border:      #2C2A27;
+  --nara-accent:      #C8924A;
+  --nara-soft:        #E8B97A;
+  --nara-text:        #F0EDE8;
+  --nara-muted:       #8A8480;
+  --nara-success:     #6DAF7A;
+  --nara-error:       #D97066;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--nara-bg);
+  color: var(--nara-text);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 0.8s step-end infinite;
+  color: var(--nara-accent);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeInUp 0.3s ease both; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--nara-bg); }
+::-webkit-scrollbar-thumb { background: var(--nara-border); border-radius: 3px; }
