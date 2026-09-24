@@ -211,6 +211,17 @@
     width: 8px; height: 8px; border-radius: 50%;
     background: var(--verde);
   }
+  .inclui .guias { list-style: none; margin: 10px 0 4px; padding: 0; display: grid; gap: 6px; }
+  .inclui .guias li {
+    padding: 10px 12px; margin: 0;
+    background: var(--fundo); border-radius: 12px;
+    color: var(--texto); font-weight: 600;
+  }
+  .inclui .guias li::before { content: none; }
+  .inclui .guias span {
+    display: block; font-size: 0.75rem; font-weight: 700;
+    color: var(--verde); letter-spacing: 0.02em; margin-bottom: 2px;
+  }
   .rodape-cartao { margin-top: auto; padding-top: 24px; }
   .preco {
     font-family: var(--titulo); font-weight: 800; letter-spacing: -0.03em;
@@ -271,7 +282,8 @@
         </ul>
       </div>
       <div class="foto">
-        <img src="https://static.wixstatic.com/media/fab50f_bcecba526f0344b8b4cdc1714b928180~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_80,enc_auto/rafael-bosi.jpg"
+        <img data-original="https://static.wixstatic.com/media/fab50f_bcecba526f0344b8b4cdc1714b928180~mv2.jpg" decoding="async"
+             src="https://static.wixstatic.com/media/fab50f_bcecba526f0344b8b4cdc1714b928180~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_80,enc_auto/rafael-bosi.jpg"
              width="900" height="1200"
              alt="Rafael Bosi em foto preto e branco, sobre fundo claro">
       </div>
@@ -282,8 +294,9 @@
   <section class="secao" aria-labelledby="titulo-sobre">
     <div class="container sobre-grid">
       <div class="foto">
-        <img src="https://static.wixstatic.com/media/fab50f_a70e771f04504572a1493ebdbd3d3e86~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_80,enc_auto/rafael-bosi-sobre.jpg"
-             width="900" height="1200" loading="lazy"
+        <img data-original="https://static.wixstatic.com/media/fab50f_a70e771f04504572a1493ebdbd3d3e86~mv2.jpg" decoding="async"
+             src="https://static.wixstatic.com/media/fab50f_a70e771f04504572a1493ebdbd3d3e86~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_80,enc_auto/rafael-bosi-sobre.jpg"
+             width="900" height="1200"
              alt="Retrato de Rafael Bosi em preto e branco">
       </div>
       <div>
@@ -339,11 +352,14 @@
           <p class="para-quem">Pra quem quer dar os primeiros passos com clareza, no próprio ritmo.</p>
           <p class="rotulo">O que inclui</p>
           <ul class="inclui">
-            <li>4 guias práticos</li>
-            <li>IA sem complicação</li>
-            <li>Canva do zero</li>
-            <li>90 dias de conteúdo</li>
-            <li>WhatsApp que vende</li>
+            <li>4 guias práticos, um pra cada frente:
+              <ol class="guias">
+                <li><span>Guia 01</span>IA sem complicação</li>
+                <li><span>Guia 02</span>Canva do zero</li>
+                <li><span>Guia 03</span>90 dias de conteúdo</li>
+                <li><span>Guia 04</span>WhatsApp que vende</li>
+              </ol>
+            </li>
           </ul>
           <div class="rodape-cartao">
             <p class="preco">R$ 74</p>
@@ -403,6 +419,16 @@
           window.parent.postMessage({ tipo: 'cta', destino: el.getAttribute('data-cta') }, '*');
         } catch (e) {}
       });
+    });
+
+    // Fotos: se a versão otimizada do Wix não carregar, tenta o arquivo original
+    document.querySelectorAll('img[data-original]').forEach(function (img) {
+      function fallback() {
+        var orig = img.getAttribute('data-original');
+        if (orig && img.src !== orig) { img.src = orig; }
+      }
+      img.addEventListener('error', fallback);
+      if (img.complete && img.naturalWidth === 0) fallback();
     });
 
     // Botão do hero: rola até os produtos e leva o foco junto
