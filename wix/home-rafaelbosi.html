@@ -446,12 +446,9 @@
         ev.preventDefault();
         var reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         var y = alvo.getBoundingClientRect().top + (window.scrollY || 0);
-        if (window.top !== window) {
-          // Dentro do Wix: pede pra página rolar até a seção
-          avisar({ tipo: 'rolar', y: Math.round(y), suave: !reduzir });
-        } else {
-          alvo.scrollIntoView({ behavior: reduzir ? 'auto' : 'smooth', block: 'start' });
-        }
+        // Rola dentro do bloco (quando ele tem rolagem própria) e pede pra página do Wix rolar também
+        alvo.scrollIntoView({ behavior: reduzir ? 'auto' : 'smooth', block: 'start' });
+        if (window.top !== window) avisar({ tipo: 'rolar', y: Math.round(y), suave: !reduzir });
         alvo.focus({ preventScroll: true });
       });
     }
