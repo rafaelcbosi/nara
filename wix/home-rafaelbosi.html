@@ -412,11 +412,17 @@
 
 <script>
   (function () {
+    // Fala com a página do Wix (o bloco HTML pode estar dentro de mais de um iframe)
+    function avisar(msg) {
+      try { if (window.top && window.top !== window) window.top.postMessage(msg, '*'); } catch (e) {}
+      try { if (window.parent !== window && window.parent !== window.top) window.parent.postMessage(msg, '*'); } catch (e) {}
+    }
+
     // Rastreamento: avisa a página do Wix a cada clique em CTA
     document.querySelectorAll('[data-cta]').forEach(function (el) {
       el.addEventListener('click', function () {
         try {
-          window.parent.postMessage({ tipo: 'cta', destino: el.getAttribute('data-cta') }, '*');
+          avisar({ tipo: 'cta', destino: el.getAttribute('data-cta') });
         } catch (e) {}
       });
     });
@@ -439,7 +445,13 @@
         if (!alvo) return;
         ev.preventDefault();
         var reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        alvo.scrollIntoView({ behavior: reduzir ? 'auto' : 'smooth', block: 'start' });
+        var y = alvo.getBoundingClientRect().top + (window.scrollY || 0);
+        if (window.top !== window) {
+          // Dentro do Wix: pede pra página rolar até a seção
+          avisar({ tipo: 'rolar', y: Math.round(y), suave: !reduzir });
+        } else {
+          alvo.scrollIntoView({ behavior: reduzir ? 'auto' : 'smooth', block: 'start' });
+        }
         alvo.focus({ preventScroll: true });
       });
     }

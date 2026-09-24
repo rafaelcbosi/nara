@@ -20,9 +20,24 @@
     try { if (window._hsq) window._hsq.push(['trackCustomBehavioralEvent',{name:'cta_click',properties:{destino:destino}}]); } catch(e){}
   }
   // Cliques vindos do bloco HTML da home (postMessage { tipo:'cta', destino })
+  // Acha o iframe da página que contém quem mandou a mensagem
+  function frameOf(src){
+    var w = src;
+    try { while (w && w.parent && w.parent !== window) w = w.parent; } catch(err){}
+    var fs = document.getElementsByTagName('iframe');
+    for (var i = 0; i < fs.length; i++) { if (fs[i].contentWindow === w) return fs[i]; }
+    return null;
+  }
   window.addEventListener('message', function(e){
     var d = e && e.data;
-    if (d && d.tipo === 'cta' && typeof d.destino === 'string') track(d.destino, 'home');
+    if (!d || typeof d !== 'object') return;
+    if (d.tipo === 'cta' && typeof d.destino === 'string') track(d.destino, 'home');
+    if (d.tipo === 'rolar' && typeof d.y === 'number') {
+      var f = frameOf(e.source);
+      if (!f) return;
+      var top = f.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0) + d.y - 16;
+      try { window.scrollTo({ top: Math.max(0, top), behavior: d.suave ? 'smooth' : 'auto' }); } catch(err){ window.scrollTo(0, Math.max(0, top)); }
+    }
   });
   function waUrl(){
     var path = location.pathname || '/';
