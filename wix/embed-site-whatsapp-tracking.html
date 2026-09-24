@@ -31,7 +31,7 @@
   window.addEventListener('message', function(e){
     var d = e && e.data;
     if (!d || typeof d !== 'object') return;
-    if (d.tipo === 'cta' && typeof d.destino === 'string') track(d.destino, 'home');
+    if (d.tipo === 'cta' && typeof d.destino === 'string') track(d.destino, typeof d.origem === 'string' ? d.origem : 'home');
     if (d.tipo === 'rolar' && typeof d.y === 'number') {
       var f = frameOf(e.source);
       if (!f) return;
