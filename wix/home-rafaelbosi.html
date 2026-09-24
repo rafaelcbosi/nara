@@ -107,6 +107,18 @@
   .hero-grid { display: grid; gap: 32px; }
   .hero h1 { margin-bottom: 20px; }
   .hero .sub { font-size: 1.1875rem; color: var(--texto-2); max-width: 30em; margin-bottom: 28px; }
+  .selos { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+  .selos li {
+    font-size: 0.875rem; font-weight: 600; color: var(--verde);
+    background: #E0E6DF; border-radius: 999px; padding: 6px 12px;
+  }
+  .etiqueta {
+    align-self: flex-start;
+    font-size: 0.8125rem; font-weight: 700;
+    background: var(--verde-escuro); color: var(--branco);
+    border-radius: 999px; padding: 6px 12px; margin-bottom: 16px;
+  }
+  #caminhos { scroll-margin-top: 16px; }
   .foto {
     border-radius: var(--raio);
     overflow: hidden;
@@ -252,6 +264,11 @@
         <h1 id="titulo-hero" class="entrada">Direção pro seu negócio. Sem fórmula pronta.</h1>
         <p class="sub">Sou o Rafael Bosi, empreendo há 19 anos e ajudo você a enxergar o próximo passo com clareza.</p>
         <a class="botao" href="#caminhos" data-rolar="caminhos">Escolher meu caminho</a>
+        <ul class="selos" aria-label="Sobre o Rafael">
+          <li>19 anos empreendendo</li>
+          <li>Fundador da Cobo.ag</li>
+          <li>Clientes no Brasil e no Canadá</li>
+        </ul>
       </div>
       <div class="foto">
         <img src="https://static.wixstatic.com/media/fab50f_bcecba526f0344b8b4cdc1714b928180~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_80,enc_auto/rafael-bosi.jpg"
@@ -336,6 +353,7 @@
         </article>
 
         <article class="cartao destaque" aria-labelledby="titulo-mentoria">
+          <p class="etiqueta">Até 3 mentorados por mês</p>
           <h3 id="titulo-mentoria">Quero alguém comigo</h3>
           <p class="produto">Mentoria Estratégica</p>
           <p class="para-quem">Pra quem quer sair com diagnóstico, estratégia e plano de ação de 30 dias, usando as ferramentas que já tem.</p>
@@ -348,7 +366,7 @@
           </ul>
           <div class="rodape-cartao">
             <p class="preco">R$ 2.300</p>
-            <p class="nota">No máximo 3 mentorados por mês. 7 dias de garantia.</p>
+            <p class="nota">7 dias de garantia após a contratação.</p>
             <a class="botao" data-cta="mentoria" href="https://www.rafaelbosi.com/mentoria-estrategica" target="_top">Conhecer a mentoria</a>
           </div>
         </article>
