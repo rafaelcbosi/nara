@@ -1,0 +1,42 @@
+{
+  "id": "preco-003-N1-T1",
+  "tema": "Preço",
+  "pergunta": "Meu preço tá caro? Ninguém compra.",
+  "variacoes": [
+    "Acho que estou cobrando caro demais",
+    "Todo mundo acha meu serviço caro",
+    "Devo baixar meu preço pra vender mais?"
+  ],
+  "nivel": "N1",
+  "tipo_negocio": "T1",
+  "complexidade": "C2",
+  "diagnostico_perguntas": [
+    "Quanto você cobra hoje e o que está incluído?",
+    "Quando a pessoa some, é depois de ver o preço ou antes?"
+  ],
+  "como_o_rafael_pensa": "Raramente o problema é o preço. Quase sempre o cliente não enxerga o valor, porque recebe o preço solto, sem resultado e sem prova. Baixar o preço antes de arrumar a apresentação só diminui a margem.",
+  "diagnostico": "O que tá travando não é o valor, é a forma como ele chega no cliente.",
+  "solucao_rapida": {
+    "prazo": "Esta semana",
+    "acao": "Parar de mandar só o preço. Mandar resultado, prova e preço, nessa ordem.",
+    "mostrar": "Em vez de: 'O design de sobrancelha fica R$ 90.'\nMande: 'O design com henna deixa sua sobrancelha alinhada por até 15 dias, sem precisar de maquiagem de manhã. Olha o antes e depois da Juliana 👇 [foto]. O valor é R$ 90 e tenho horário quinta às 15h ou sexta às 10h. Qual fica melhor?'",
+    "sinal_de_sucesso": "Mais respostas depois do preço e pelo menos 1 agendamento novo."
+  },
+  "solucao_media": {
+    "prazo": "30 a 90 dias",
+    "resumo": "Montar 3 pacotes (básico, completo e premium) para o cliente escolher entre opções em vez de decidir entre sim e não, e juntar 10 depoimentos com foto."
+  },
+  "solucao_longa": {
+    "prazo": "6 a 12 meses",
+    "resumo": "Posicionar a marca como especialista em um público específico para poder cobrar acima da média da região, com agenda recorrente e plano de fidelidade."
+  },
+  "oferta_recomendada": "Série Clareza Digital (R$ 74), com a Mentoria Estratégica se a pessoa quiser montar os pacotes e o posicionamento com o Rafael.",
+  "sinais_lead_quente": [
+    "Já fatura, mas diz que está estagnado",
+    "Pergunta como montar pacotes",
+    "Fala em aumentar o preço"
+  ],
+  "resposta_whatsapp": "Entendo, [nome]! Quase sempre não é o preço, é que o valor chega sem contexto. Faz um teste essa semana: em vez de mandar só o valor, manda resultado, prova e preço, nessa ordem.\n\nOlha um exemplo pro seu caso:\n\"O design com henna deixa sua sobrancelha alinhada por até 15 dias, sem maquiagem de manhã. Olha o antes e depois da Juliana 👇 O valor é R$ 90 e tenho horário quinta às 15h ou sexta às 10h. Qual fica melhor?\"\n\nE no médio prazo, 3 pacotes pra cliente escolher mudam o jogo. Quer que eu te mostre como montar?",
+  "status": "exemplo",
+  "aprovado_por_rafael": false
+}
