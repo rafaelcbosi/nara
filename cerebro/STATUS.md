@@ -10,6 +10,9 @@ Atualizado em 27/09/2026.
 - Base de respostas (`cerebro/base/`): estrutura para 10.000 respostas e 105 respostas de ouro em 21 temas (30 aprovadas pelo Rafael, 75 no estilo aprovado).
 - Wix Bookings verificado: só existe o serviço antigo "Clareza em Movimento" (oculto).
 
+- Painel da Clara construído e testado localmente (`clara-worker/`): Seu dia, conversas, perfil com IA, filtros, funil com meta, briefing, sugestões, modelos da Meta, pagamento manual, aprendizado. Falta ligar no Worker de produção (`clara-worker/INTEGRACAO.md`).
+- Modelos de mensagem para a Meta prontos (`clara-worker/templates-meta.md`).
+
 ## Em aberto
 | # | Tarefa | Quem |
 |---|---|---|

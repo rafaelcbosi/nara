@@ -1,0 +1,13 @@
+{
+  "name": "clara-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:cerebro": "node ../cerebro/scripts/build-cerebro.mjs && cp ../cerebro/dist/cerebro.js src/cerebro.js",
+    "db:local": "wrangler d1 execute clara --local --file=seed/dev-schema.sql && wrangler d1 execute clara --local --file=migrations/0001_painel.sql && wrangler d1 execute clara --local --file=seed/dev-seed.sql",
+    "dev": "wrangler dev --local --port 8787"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
