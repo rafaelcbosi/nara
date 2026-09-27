@@ -32,6 +32,7 @@
   --hot:#FB923C; --hot-soft:#3B2317; --ok:#4ADE80; --ok-soft:#15301F; --warn:#FACC15; --warn-soft:#352C0E; --info:#93B4FF; --info-soft:#1B2A4A;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
 }
+[hidden]{display:none!important}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
 *{box-sizing:border-box}
@@ -182,13 +183,39 @@ button{cursor:pointer}
 .kcard:hover{border-color:var(--accent)}
 .kcard b{font-size:13px}
 .views{display:flex;gap:8px;flex-wrap:wrap}
+.today{display:flex;flex-direction:column;gap:10px}
+.task{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.task.p1{border-left-color:var(--hot)} .task.p2{border-left-color:var(--accent)} .task.p3{border-left-color:var(--ok)}
+.task b{font-size:14px} .task p{margin:0;color:var(--muted);font-size:13px;grid-column:1}
+.task .go{grid-row:1 / span 2;grid-column:2}
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.goal .track{background:var(--surface-2);border-radius:8px;height:12px;overflow:hidden;position:relative}
+.goal .fill{height:100%;background:var(--ok)} .goal .fore{position:absolute;top:0;bottom:0;background:var(--accent);opacity:.45}
+.goal .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.goal .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.goal input{width:110px;border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--surface-2);font-family:var(--mono)}
+.sug{display:flex;flex-direction:column;gap:6px}
+.sug .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.sug button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 10px;text-align:left;font-size:13px;color:var(--ink)}
+.sug button:hover{border-color:var(--accent)}
+.tpl{background:var(--warn-soft);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.tpl select{border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--surface);color:var(--ink)}
+.tpl .pv{background:var(--surface);border-radius:8px;padding:8px;color:var(--ink);white-space:pre-wrap}
+.modal{position:fixed;inset:0;background:rgba(10,15,20,.45);display:grid;place-items:center;padding:16px;z-index:10}
+.sheet{background:var(--surface);border-radius:16px;max-width:620px;width:100%;max-height:88vh;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.sheet h2{font-family:var(--display);margin:0;font-size:20px}
+.sheet h3{margin:6px 0 0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sheet ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.colval{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.auto{font-size:12px;color:var(--ok);background:var(--ok-soft);border-radius:8px;padding:8px 10px}
 </style>
 
 <div class="app" id="app">
   <aside class="rail">
     <div class="brand"><b>Clara</b><span>WhatsApp do Rafael Bosi</span><span class="num">+55 11 91086-6616</span></div>
     <nav class="nav" aria-label="Seções">
-      <button data-view="conversas" aria-current="true">Conversas <span class="count" id="c-conv">0</span></button>
+      <button data-view="dia" aria-current="true">Seu dia <span class="count" id="c-dia">0</span></button>
+      <button data-view="conversas">Conversas <span class="count" id="c-conv">0</span></button>
       <button data-view="funil">Funil</button>
       <button data-view="aprendizado">Aprendizado <span class="count" id="c-apr">0</span></button>
       <button data-view="numeros">Números</button>
@@ -221,6 +248,8 @@ button{cursor:pointer}
     <div id="banners"></div>
     <div class="msgs" id="msgs"></div>
     <div class="composer">
+      <div class="sug" id="sug"></div>
+      <div id="tplbox"></div>
       <div class="quick" id="quick">
         <button data-q="diag">Enviar link do Diagnóstico</button>
         <button data-q="serie">Enviar link da Série Clareza</button>
@@ -250,6 +279,7 @@ button{cursor:pointer}
   <section class="page" id="pageView" hidden></section>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 
 <script>
 const TAGS={quente:{l:"Lead quente",c:"t-quente"},cliente:{l:"Cliente ativo",c:"t-cliente"},mentoria:{l:"Interesse Mentoria",c:"t-mentoria"},serie:{l:"Série Clareza",c:"t-serie"},whatsapp:{l:"Clara WhatsApp",c:"t-whatsapp"},rafael:{l:"Precisa do Rafael",c:"t-rafael"}};
@@ -274,6 +304,17 @@ const EXTRA={
  5:{empresa:"Pequenos Passos Kids",segmento:"Moda e varejo",tipo:"Comércio / ponto físico",fat:"Começando (até R$ 5 mil)",etapa:"Qualificando",uf:"SC",cidade:"Florianópolis",interesse:"Série Clareza",score:57},
 };
 C.forEach(c=>Object.assign(c,EXTRA[c.id]));
+const VAL={"Mentoria":2300,"Série Clareza":74,"Ainda não definido":0};
+const SUG={
+ 1:["Oi, Juliana! Aqui é o Rafael. Segue a Série: rafaelbosi.com/clareza. Começa pelo guia de preço, é exatamente o seu caso.","Juliana, adorei suas perguntas. Os pacotes são o próximo passo natural pra você. Quer que eu te mostre como montar os 3?","Oi, Ju! Vi que você quer a Série. Qualquer dúvida no caminho, me chama aqui."],
+ 2:["Marcos, olhei seu caso. Antes da call, me conta: quantas vendas vocês fecham por mês hoje?","Oi, Marcos! Confirmado nosso Diagnóstico. Leva os números do último trimestre que a gente já trabalha em cima.","Marcos, com 2 pessoas na equipe, o primeiro passo é o roteiro de venda. Na call eu te mostro como montar."],
+ 3:["Oi, Beatriz! Aqui é o Rafael. Faz a conta: quanto você gasta por pote e quantas horas leva? Esse é o seu piso.","Bia, antes de pensar em preço de mercado, vende 10 potes pra quem você conhece. Assim você valida e ajusta.","Oi, Bia! Me conta quanto custa cada pote pra você fazer que eu te ajudo com o preço."],
+ 4:["Rodrigo, bora pro segundo encontro? Já deixa marcado aqui: rafaelbosi.com/agendamento-mentoria","Oi, Rodrigo! Como foi a aplicação depois do primeiro encontro?","Rodrigo, lembra do exercício que combinamos? Me manda quando tiver pronto."],
+ 5:["Oi, Camila! Mães de 30 a 40 anos: que tal uma parceria com uma fotógrafa de família da sua cidade?","Camila, uma ideia: pega o WhatsApp de toda cliente que compra e manda as novidades da semana.","Oi, Camila! Quer que eu te mostre como montar uma parceria com outro negócio infantil?"]};
+const DIAG={2:{quando:"amanhã, 10h",resumo:"Consultoria financeira para PMEs em São Paulo, com 2 pessoas na equipe. Fatura entre R$ 5 e 30 mil por mês. Tudo depende dele e ele não sabe organizar a equipe.",dores:["Centralização: tudo passa por ele","Equipe de 2 pessoas sem processo","Quer crescer sem trabalhar mais"],perguntas:["Tudo depende de mim no negócio. Como delego?","Tenho 2 pessoas mas não sei organizar"],objecoes:["Pode questionar tempo para aplicar (rotina cheia)","Pode comparar com contratar um gerente"],oferta:"Mentoria Estratégica (R$ 2.300). Ângulo: sair do operacional com manual de procedimento e roteiro de venda para a equipe.",abertura:"Marcos, pelo que você me contou, seu negócio já provou que vende. O que trava é que tudo passa por você. Hoje eu quero te mostrar o caminho pra isso mudar."}};
+const TPLS=[["retomada_diagnostico","Oi, {{nome}}! O Rafael abriu 2 horários pro Diagnóstico Estratégico essa semana. Quer que eu reserve um pra você?"],["retomada_serie","Oi, {{nome}}! Lembrei de você. A Série Clareza Digital tá com garantia de 7 dias, dá pra testar sem risco. Quer o link?"],["retomada_pergunta","Oi, {{nome}}! Tudo certo por aí? Ficou alguma dúvida da nossa conversa?"]];
+const EVENTS=[{t:"Pagamento confirmado pela Kiwify",d:"Rodrigo Nunes comprou a Mentoria. Etapa mudou para Cliente e as boas-vindas foram enviadas sozinhas.",id:4}];
+let meta=8333;
 const ETAPAS=["Novo","Qualificando","Oferta enviada","Diagnóstico marcado","Cliente","Perdido"];
 const OPTS={segmento:["Beleza e estética","Alimentação","Educação e mentoria","Finanças e contabilidade","Moda e varejo","Saúde e bem-estar","Serviços profissionais","Tecnologia"],
  tipo:["Serviço local","Serviço online / consultoria","Produto físico","Produto digital","Comércio / ponto físico"],
@@ -287,7 +328,7 @@ const QS=[
  {q:"Posso usar o Instagram pessoal pro meu negócio?",who:"Pedro Lima",a:"Pode, e é bom. Vida real aproxima.\n\nO segredo é ligar a vida ao seu trabalho: uma viagem vira uma lição sobre planejamento, um erro vira aprendizado pro cliente.",src:"Base: Marca pessoal"},
  {q:"Minha sócia quer investir em anúncio mas a gente ainda não vendeu nada",who:"Luana Dias",a:"Anúncio acelera o que já funciona.\n\nSe vocês ainda não vendem sem anúncio, acerta a oferta primeiro com 5 a 10 vendas. Depois começa pequeno: R$ 10 a R$ 20 por dia.",src:"Base: Anúncios"},
 ];
-let cur=1,filter="todas",view="conversas";
+let cur=1,filter="todas",view="dia";
 const $=s=>document.querySelector(s);
 const ago=t=>{const h=(now-t)/H;return h<1?Math.max(1,Math.round(h*60))+" min":h<24?Math.round(h)+" h":Math.round(h/24)+" d"};
 const hhmm=off=>{const d=new Date(now+off*H);return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})};
@@ -315,6 +356,8 @@ function renderChat(){const c=C.find(x=>x.id===cur);if(!c)return;c.unread=0;
  $("#banners").innerHTML=b;
  $("#msgs").innerHTML=`<div class="day">Conversa</div>`+c.m.map(m=>`<div class="m ${m[0]}"><span class="by">${m[0]==="cliente"?c.name.split(" ")[0]:m[0]==="clara"?"Clara":"Rafael"}</span>${m[3]?`<span class="audio">${m[1]} · transcrição:</span>${m[3]}`:m[1]}<span class="tm">${hhmm(m[2])}</span></div>`).join("");
  $("#msgs").scrollTop=1e6;
+ $("#sug").innerHTML=open?`<span class="lbl">Sugestões no seu estilo</span>${(SUG[c.id]||[]).map((x,i)=>`<button data-sug="${i}">${x}</button>`).join("")}`:"";
+ $("#tplbox").innerHTML=open?"":`<div class="tpl"><b>Reabrir a conversa com um modelo aprovado pela Meta</b><select id="tplsel">${TPLS.map((t,i)=>`<option value="${i}">${t[0]}</option>`).join("")}</select><div class="pv" id="tplpv">${TPLS[0][1].replace("{{nome}}",c.name.split(" ")[0])}</div><div><button class="btn primary" data-a="tpl" style="background:var(--accent);border-color:var(--accent);color:#1b1300">Enviar modelo</button></div></div>`;
  $("#send").disabled=!open;$("#text").disabled=!open;$("#text").placeholder=open?"Responder como Rafael":"Janela fechada: use um modelo aprovado";
  document.querySelectorAll("#quick button").forEach(x=>x.disabled=!open);
  const fld=(k,l)=>`<label>${l}<select data-pf="${k}">${OPTS[k].map(o=>`<option ${c[k]===o?"selected":""}>${o}</option>`).join("")}</select></label>`;
@@ -326,13 +369,40 @@ function renderChat(){const c=C.find(x=>x.id===cur);if(!c)return;c.unread=0;
  $("#tags").innerHTML=c.tags.map(t=>chip(t,true)).join("")||'<span class="hint">Sem etiquetas</span>';
  $("#tagsel").innerHTML=Object.keys(TAGS).filter(k=>!c.tags.includes(k)).map(k=>`<option value="${k}">${TAGS[k].l}</option>`).join("")||"<option>Todas aplicadas</option>";
  $("#notes").value=c.notes;
- $("#actions").innerHTML=c.tags.includes("cliente")?`<button class="btn" data-a="resumo">Enviar lembrete dos encontros</button>`:`<button class="btn" data-a="diag">Convidar para o Diagnóstico Estratégico</button><div id="paybox"><button class="btn primary" data-a="pago">Confirmar pagamento da Mentoria</button></div>`;
+ $("#actions").innerHTML=(DIAG[c.id]?`<button class="btn primary" data-brief="${c.id}">📋 Ver briefing do Diagnóstico (${DIAG[c.id].quando})</button>`:"")+(c.tags.includes("cliente")?`<div class="auto">✓ Cliente ativo. Pagamento confirmado automaticamente.</div><button class="btn" data-a="resumo">Enviar lembrete dos encontros</button>`:`<button class="btn" data-a="diag">Convidar para o Diagnóstico Estratégico</button><div class="hint">Pagamento na Kiwify ou no Wix é confirmado sozinho. Use o botão abaixo só se o cliente pagar por fora (Pix, transferência).</div><div id="paybox"><button class="btn" data-a="pago">Confirmar pagamento manualmente</button></div>`);
  renderList()}
 function add(role,text){const c=C.find(x=>x.id===cur);c.m.push([role,text,0]);c.last=Date.now();renderChat()}
 function setView(v){view=v;document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===v));
  const conv=v==="conversas";$("#listView").hidden=!conv;$("#chatView").hidden=!conv;$("#side").hidden=!conv;$("#pageView").hidden=conv;
- if(v==="funil")renderFunil();if(v==="aprendizado")renderLearn();if(v==="numeros")renderNums()}
-function renderFunil(){$("#pageView").innerHTML=`<h1>Funil de vendas</h1><p class="lead">Cada cliente numa etapa. A Clara move o card sozinha conforme a conversa avança. Clique para abrir a conversa.</p><div class="kanban">${ETAPAS.map(e=>{const L=C.filter(c=>c.etapa===e).sort((a,b)=>b.score-a.score);return `<div class="col"><h3>${e}<span class="count">${L.length}</span></h3>${L.map(c=>`<button class="kcard" data-open="${c.id}"><b>${c.name}</b><span class="co">${c.empresa} · ${c.segmento}</span><span class="co">${c.fat}</span><span><span class="score ${sc(c.score)}">${c.score}</span> <span class="co">${c.interesse}</span></span></button>`).join("")||'<span class="hint">Vazio</span>'}</div>`}).join("")}</div>`}
+ if(v==="dia")renderDia();if(v==="funil")renderFunil();if(v==="aprendizado")renderLearn();if(v==="numeros")renderNums()}
+function goalCard(){const P={"Qualificando":.1,"Oferta enviada":.3,"Diagnóstico marcado":.5};
+ const won=C.filter(c=>c.etapa==="Cliente").reduce((a,c)=>a+(VAL[c.interesse]||0),0)+222;
+ const pipe=C.filter(c=>P[c.etapa]).reduce((a,c)=>a+(VAL[c.interesse]||0),0);
+ const fore=Math.round(C.filter(c=>P[c.etapa]).reduce((a,c)=>a+(VAL[c.interesse]||0)*P[c.etapa],0));
+ const pw=Math.min(100,won/meta*100),pf=Math.min(100-pw,fore/meta*100);
+ return `<div class="goal"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><b>Meta do mês</b><label class="co">R$ <input id="meta" type="number" value="${meta}" aria-label="Meta do mês em reais"></label></div>
+ <div class="track"><div class="fill" style="width:${pw}%"></div><div class="fore" style="left:${pw}%;width:${pf}%"></div></div>
+ <div class="legend"><span><i style="background:var(--ok)"></i>Vendido R$ ${won.toLocaleString("pt-BR")}</span><span><i style="background:var(--accent);opacity:.6"></i>Previsão R$ ${fore.toLocaleString("pt-BR")}</span><span>Em negociação R$ ${pipe.toLocaleString("pt-BR")}</span><span>Faltam R$ ${Math.max(0,meta-won-fore).toLocaleString("pt-BR")}</span></div></div>`}
+function tasks(){const T=[];
+ for(const id in DIAG){const c=C.find(x=>x.id==id);T.push({p:1,t:`Diagnóstico com ${c.name.split(" ")[0]} ${DIAG[id].quando}`,d:"O briefing está pronto: negócio, dores, objeções e como abrir a call.",b:"Ver briefing",a:`data-brief="${id}"`})}
+ C.filter(c=>c.tags.includes("rafael")&&!c.ativa).forEach(c=>{});
+ C.filter(c=>c.unread&&c.score>=75).forEach(c=>T.push({p:1,t:`${c.name.split(" ")[0]} está quente e esperando`,d:`${c.empresa}. Última mensagem: "${c.m[c.m.length-1][1]}"`,b:"Responder",a:`data-open="${c.id}"`}));
+ C.filter(c=>{const l=Math.max(...c.m.filter(m=>m[0]==="cliente").map(m=>now+m[2]*H));return now-l>24*H&&c.etapa!=="Cliente"}).forEach(c=>T.push({p:2,t:`Resgatar ${c.name.split(" ")[0]}: parada há ${ago(Math.max(...c.m.filter(m=>m[0]==="cliente").map(m=>now+m[2]*H)))}`,d:`${c.empresa}. Janela de 24h fechada: envie um modelo aprovado para reabrir.`,b:"Reabrir conversa",a:`data-open="${c.id}"`}));
+ C.filter(c=>c.unread&&c.score<75).forEach(c=>T.push({p:2,t:`${c.name.split(" ")[0]} mandou ${c.unread} mensagens`,d:`${c.empresa} · ${c.fat}. A Clara está conduzindo.`,b:"Acompanhar",a:`data-open="${c.id}"`}));
+ if(QS.length)T.push({p:3,t:`${QS.length} respostas da Clara para revisar`,d:"Aprovar ou corrigir leva 2 minutos e ensina o seu jeito.",b:"Revisar",a:`data-view="aprendizado"`});
+ return T}
+function renderDia(){const T=tasks();$("#c-dia").textContent=T.length;
+ const d=new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+ $("#pageView").innerHTML=`<h1>Seu dia</h1><p class="lead">${d}. A Clara organizou o que precisa de você, do mais urgente para o menos urgente.</p>${goalCard()}
+ <div class="today">${T.map(x=>`<div class="task p${x.p}"><b>${x.t}</b><p>${x.d}</p><button class="btn go" ${x.a}>${x.b}</button></div>`).join("")}</div>
+ <div class="card"><b>O que a Clara fez sozinha</b>${EVENTS.map(e=>`<div class="auto">✓ <b>${e.t}.</b> ${e.d}</div>`).join("")}<div class="hint">Nas últimas 24h ela também respondeu 14 mensagens e qualificou 3 leads.</div></div>`}
+function brief(id){const c=C.find(x=>x.id==id),b=DIAG[id];$("#sheet").innerHTML=`<h2>Briefing: ${c.name}</h2><div class="co">${c.empresa} · ${c.segmento} · ${c.cidade}/${c.uf} · Diagnóstico ${b.quando}</div>
+ <h3>Resumo</h3><p style="margin:0">${b.resumo}</p><h3>Dores</h3><ul>${b.dores.map(x=>`<li>${x}</li>`).join("")}</ul>
+ <h3>O que perguntou para a Clara</h3><ul>${b.perguntas.map(x=>`<li>“${x}”</li>`).join("")}</ul>
+ <h3>Objeções prováveis</h3><ul>${b.objecoes.map(x=>`<li>${x}</li>`).join("")}</ul>
+ <h3>Oferta indicada</h3><p style="margin:0">${b.oferta}</p><h3>Sugestão de abertura</h3><div class="ans">${b.abertura}</div>
+ <div class="hint">Este briefing chega no seu WhatsApp 1h antes da call.</div><div><button class="btn" data-close="1">Fechar</button></div>`;$("#modal").hidden=false}
+function renderFunil(){$("#pageView").innerHTML=`<h1>Funil de vendas</h1>${goalCard()}<p class="lead">Cada cliente numa etapa. A Clara move o card sozinha conforme a conversa avança. Clique para abrir a conversa.</p><div class="kanban">${ETAPAS.map(e=>{const L=C.filter(c=>c.etapa===e).sort((a,b)=>b.score-a.score);const v=L.reduce((a,c)=>a+(VAL[c.interesse]||0),0);return `<div class="col"><h3>${e}<span class="count">${L.length}</span></h3><span class="colval">R$ ${v.toLocaleString("pt-BR")}</span>${L.map(c=>`<button class="kcard" data-open="${c.id}"><b>${c.name}</b><span class="co">${c.empresa} · ${c.segmento}</span><span class="co">${c.fat}</span><span><span class="score ${sc(c.score)}">${c.score}</span> <span class="co">${c.interesse}</span></span></button>`).join("")||'<span class="hint">Vazio</span>'}</div>`}).join("")}</div>`}
 function renderLearn(){$("#pageView").innerHTML=`<h1>Aprendizado da Clara</h1><p class="lead">Perguntas novas da semana com a resposta que a Clara deu. Aprovar coloca a resposta na base. Corrigir ensina o seu jeito para todas as respostas parecidas.</p>`+
  (QS.length?QS.map((x,i)=>`<div class="card"><div class="q">“${x.q}”</div><div class="hint">${x.who}</div><div class="ans" id="ans${i}">${x.a}</div><div class="foot"><span class="src">${x.src}</span><button class="btn" data-fix="${i}">Corrigir</button><button class="btn primary" style="background:var(--accent);border-color:var(--accent);color:#1b1300" data-ok="${i}">Aprovar</button></div></div>`).join(""):`<div class="card">Tudo revisado nesta semana. ✨</div>`);
  $("#c-apr").textContent=QS.length}
@@ -343,6 +413,8 @@ function renderNums(){const f=[["Conversas novas",42],["Responderam 1 pergunta",
  <div class="card"><b>De onde vêm</b><div class="funnel">${[["Anúncio Pergunte ao Rafael",23],["Link da bio",14],["Indicação",5]].map(([l,n])=>`<div class="bar"><span>${l}</span><div class="track"><div class="fill" style="width:${n/42*100}%"></div></div><span class="n">${n}</span></div>`).join("")}</div></div>`}
 
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
+ if(t.dataset.close||t.id==="modal"){$("#modal").hidden=true;return}
+ if(t.dataset.brief){brief(t.dataset.brief);return}
  if(t.dataset.view){setView(t.dataset.view);return}
  if(t.id==="advbtn"){const a=$("#adv");a.hidden=!a.hidden;t.setAttribute("aria-expanded",!a.hidden);t.textContent=a.hidden?"Filtros avançados":"Fechar filtros";return}
  if(t.id==="limpar"){for(const k in adv)adv[k]="";ordem="recente";renderAdv();renderList();return}
@@ -354,6 +426,8 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  const c=C.find(x=>x.id===cur);
  if(t.id==="pause"){c.ativa=!c.ativa;renderChat();toast(c.ativa?"Clara retomada nesta conversa":"Clara pausada nesta conversa");return}
  if(t.id==="send"){const v=$("#text").value.trim();if(!v)return;add("rafael",v);$("#text").value="";if(c.ativa){c.ativa=false;renderChat()}toast("Mensagem enviada. Clara pausada por 12h.");return}
+ if(t.dataset.sug!==undefined){$("#text").value=(SUG[cur]||[])[+t.dataset.sug];$("#text").focus();return}
+ if(t.dataset.a==="tpl"){const i=+$("#tplsel").value;const txt=TPLS[i][1].replace("{{nome}}",c.name.split(" ")[0]);add("clara","📨 Modelo "+TPLS[i][0]+":\n"+txt);toast("Modelo enviado. A conversa reabre quando o cliente responder.");return}
  if(t.dataset.q){const T={diag:"Pelo que você me contou, vale uma conversa comigo. Marca o Diagnóstico Estratégico de 30 min aqui: rafaelbosi.com/30-min",serie:"Aqui está a Série Clareza Digital, 4 guias por R$ 74, com garantia de 7 dias: rafaelbosi.com/clareza",ok:"Já te respondo!"};$("#text").value=T[t.dataset.q];$("#text").focus();return}
  if(t.dataset.rm){c.tags=c.tags.filter(x=>x!==t.dataset.rm);renderChat();toast("Etiqueta removida");return}
  if(t.id==="tagadd"){const k=$("#tagsel").value;if(TAGS[k]&&!c.tags.includes(k)){c.tags.push(k);renderChat();toast("Etiqueta adicionada")}return}
@@ -366,12 +440,16 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  if(t.dataset.fix){const i=+t.dataset.fix,el=$("#ans"+i);if(el.isContentEditable){QS[i].a=el.innerText;QS.splice(i,1);renderLearn();toast("Correção salva. A Clara aprendeu seu jeito.")}else{el.contentEditable="true";el.focus();t.textContent="Salvar correção"}return}
 });
 $("#search").addEventListener("input",renderList);
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")$("#modal").hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").hidden=true});
 document.addEventListener("change",e=>{const el=e.target;
  if(el.dataset.adv!==undefined){adv[el.dataset.adv]=el.value;renderList();return}
  if(el.id==="ordem"){ordem=el.value;renderList();return}
+ if(el.id==="meta"){meta=+el.value||0;view==="dia"?renderDia():renderFunil();return}
+ if(el.id==="tplsel"){const c=C.find(x=>x.id===cur);$("#tplpv").textContent=TPLS[+el.value][1].replace("{{nome}}",c.name.split(" ")[0]);return}
  if(el.dataset.pf){const c=C.find(x=>x.id===cur);if(el.dataset.pf==="cidade"){const[ci,uf]=el.value.split("/");c.cidade=(ci||"").trim();c.uf=(uf||c.uf).trim()}else c[el.dataset.pf]=el.value;
   if(el.dataset.pf==="etapa"&&el.value==="Cliente"&&!c.tags.includes("cliente"))c.tags.push("cliente");renderChat();toast("Perfil atualizado e sincronizado com o Wix")}});
 $("#notes").addEventListener("input",e=>{C.find(x=>x.id===cur).notes=e.target.value});
 $("#text").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#send").click()}});
-renderFilters();renderAdv();renderChat();$("#c-apr").textContent=QS.length;
+renderFilters();renderAdv();renderChat();setView("dia");$("#c-apr").textContent=QS.length;
 </script>
