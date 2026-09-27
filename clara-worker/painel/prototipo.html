@@ -162,6 +162,26 @@ button{cursor:pointer}
   .bar{grid-template-columns:110px 1fr 32px}
 }
 .infobtn{display:none}
+.adv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.adv label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.adv select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface-2);font-size:13px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.advbar{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.linkbtn{border:0;background:transparent;color:var(--accent-ink);font-weight:600;font-size:12px;padding:2px 0}
+.co{font-size:12px;color:var(--muted)}
+.score{font-family:var(--mono);font-size:11px;font-weight:500;border-radius:6px;padding:1px 6px}
+.s-hot{background:var(--hot-soft);color:var(--hot)} .s-warm{background:var(--warn-soft);color:var(--warn)} .s-cold{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.stage{font-size:11px;font-weight:600;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.prof{display:flex;flex-direction:column;gap:8px}
+.prof label{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+.prof input,.prof select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface-2);font-size:13px;min-width:0;color:var(--ink)}
+.ai{font-size:11px;color:var(--accent-ink);background:var(--accent-soft);border-radius:6px;padding:4px 8px}
+.kanban{display:grid;grid-template-columns:repeat(6,minmax(200px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:180px}
+.col h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;justify-content:space-between}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:left;display:flex;flex-direction:column;gap:4px;width:100%}
+.kcard:hover{border-color:var(--accent)}
+.kcard b{font-size:13px}
+.views{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 
 <div class="app" id="app">
@@ -169,6 +189,7 @@ button{cursor:pointer}
     <div class="brand"><b>Clara</b><span>WhatsApp do Rafael Bosi</span><span class="num">+55 11 91086-6616</span></div>
     <nav class="nav" aria-label="Seções">
       <button data-view="conversas" aria-current="true">Conversas <span class="count" id="c-conv">0</span></button>
+      <button data-view="funil">Funil</button>
       <button data-view="aprendizado">Aprendizado <span class="count" id="c-apr">0</span></button>
       <button data-view="numeros">Números</button>
     </nav>
@@ -181,8 +202,10 @@ button{cursor:pointer}
   <section class="list" id="listView">
     <header>
       <h1>Conversas</h1>
-      <input class="search" id="search" type="search" placeholder="Buscar por nome ou número" aria-label="Buscar conversas">
-      <div class="filters" id="filters" role="group" aria-label="Filtros"></div>
+      <input class="search" id="search" type="search" placeholder="Buscar nome, empresa, segmento ou cidade" aria-label="Buscar conversas">
+      <div class="filters" id="filters" role="group" aria-label="Filtros rápidos"></div>
+      <div class="advbar"><span id="resultado"></span><button class="linkbtn" id="advbtn" aria-expanded="false">Filtros avançados</button></div>
+      <div class="adv" id="adv" hidden></div>
     </header>
     <div class="items" id="items"></div>
   </section>
@@ -212,7 +235,8 @@ button{cursor:pointer}
   </section>
 
   <aside class="side" id="side" aria-label="Detalhes do contato">
-    <div><h2>Contato</h2><dl class="kv" id="kv"></dl></div>
+    <div><h2>Perfil do cliente</h2><div class="prof" id="prof"></div></div>
+    <div><h2>Conversa</h2><dl class="kv" id="kv"></dl></div>
     <div>
       <h2>Etiquetas</h2>
       <div class="tagbox" id="tags"></div>
@@ -242,6 +266,22 @@ const C=[
  {id:5,name:"Camila Rocha",num:"+55 48 99120-3346",nicho:"Loja de roupa infantil",fase:"Começando",origem:"Link da bio",resp:1,ativa:true,unread:0,tags:["whatsapp","serie"],last:now-50*H,notes:"",
   m:[["cliente","Como consigo mais clientes pra minha loja?",-51],["clara","Onde estão os clientes que já compraram de você, estão os próximos.\n\nO que eu faria: fecha 1 parceria com um negócio que atende o mesmo público. Um indica o outro.\n\nQuem é o seu cliente que mais compra?",-50.9],["cliente","Mães de 30 a 40 anos, principalmente",-50]]},
 ];
+const EXTRA={
+ 1:{empresa:"Studio Ju Prado",segmento:"Beleza e estética",tipo:"Serviço local",fat:"Começando (até R$ 5 mil)",etapa:"Oferta enviada",uf:"RJ",cidade:"Niterói",interesse:"Série Clareza",score:82},
+ 2:{empresa:"Tavares Consultoria",segmento:"Finanças e contabilidade",tipo:"Serviço online / consultoria",fat:"Crescendo (R$ 5 a 30 mil)",etapa:"Diagnóstico marcado",uf:"SP",cidade:"São Paulo",interesse:"Mentoria",score:91},
+ 3:{empresa:"Doce Bia",segmento:"Alimentação",tipo:"Produto físico",fat:"Ideia (ainda não vende)",etapa:"Qualificando",uf:"ES",cidade:"Vila Velha",interesse:"Ainda não definido",score:48},
+ 4:{empresa:"Rumo Carreira",segmento:"Educação e mentoria",tipo:"Serviço online / consultoria",fat:"Crescendo (R$ 5 a 30 mil)",etapa:"Cliente",uf:"MG",cidade:"Belo Horizonte",interesse:"Mentoria",score:100},
+ 5:{empresa:"Pequenos Passos Kids",segmento:"Moda e varejo",tipo:"Comércio / ponto físico",fat:"Começando (até R$ 5 mil)",etapa:"Qualificando",uf:"SC",cidade:"Florianópolis",interesse:"Série Clareza",score:57},
+};
+C.forEach(c=>Object.assign(c,EXTRA[c.id]));
+const ETAPAS=["Novo","Qualificando","Oferta enviada","Diagnóstico marcado","Cliente","Perdido"];
+const OPTS={segmento:["Beleza e estética","Alimentação","Educação e mentoria","Finanças e contabilidade","Moda e varejo","Saúde e bem-estar","Serviços profissionais","Tecnologia"],
+ tipo:["Serviço local","Serviço online / consultoria","Produto físico","Produto digital","Comércio / ponto físico"],
+ fat:["Ideia (ainda não vende)","Começando (até R$ 5 mil)","Crescendo (R$ 5 a 30 mil)","Estruturado (acima de R$ 30 mil)"],
+ etapa:ETAPAS,origem:["Anúncio Pergunte ao Rafael","Link da bio","Indicação"],uf:["ES","MG","RJ","SC","SP"],
+ interesse:["Ainda não definido","Série Clareza","Mentoria"]};
+const LABEL={segmento:"Segmento",tipo:"Tipo de negócio",fat:"Faturamento",etapa:"Etapa",origem:"Origem",uf:"Estado"};
+const adv={segmento:"",tipo:"",fat:"",etapa:"",origem:"",uf:""};let ordem="recente";
 const QS=[
  {q:"Vale a pena fazer um curso de marketing antes de começar?",who:"Ana Souza",a:"O que eu faria: começa vendendo e aprende no caminho. Curso sem prática vira mais uma ideia parada.\n\nLista 10 pessoas que comprariam de você e oferece essa semana. Quer me contar o que você vende?",src:"Base: Validação de ideia"},
  {q:"Posso usar o Instagram pessoal pro meu negócio?",who:"Pedro Lima",a:"Pode, e é bom. Vida real aproxima.\n\nO segredo é ligar a vida ao seu trabalho: uma viagem vira uma lição sobre planejamento, um erro vira aprendizado pro cliente.",src:"Base: Marca pessoal"},
@@ -255,12 +295,16 @@ const ini=n=>n.split(" ").map(p=>p[0]).slice(0,2).join("");
 const chip=(k,rm)=>`<span class="chip ${TAGS[k].c}">${TAGS[k].l}${rm?` <button aria-label="Remover ${TAGS[k].l}" data-rm="${k}">×</button>`:""}</span>`;
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2400)}
 const FILTERS=[["todas","Todas"],["quente","Lead quente"],["rafael","Precisa do Rafael"],["cliente","Clientes"],["pausada","Clara pausada"],["naolida","Não lidas"]];
-function passes(c){const s=$("#search").value.trim().toLowerCase();if(s&&!(c.name.toLowerCase().includes(s)||c.num.includes(s)))return false;
+function passes(c){const s=$("#search").value.trim().toLowerCase();if(s&&!([c.name,c.empresa,c.segmento,c.cidade].join(" ").toLowerCase().includes(s)||c.num.includes(s)))return false;
+ for(const k in adv)if(adv[k]&&c[k]!==adv[k])return false;
  if(filter==="todas")return true;if(filter==="pausada")return !c.ativa;if(filter==="naolida")return c.unread>0;return c.tags.includes(filter)}
 function renderFilters(){$("#filters").innerHTML=FILTERS.map(([k,l])=>`<button data-f="${k}" aria-pressed="${filter===k}">${l}</button>`).join("")}
-function renderList(){const L=C.filter(passes).sort((a,b)=>b.last-a.last);
- $("#items").innerHTML=L.length?L.map(c=>`<button class="item" data-id="${c.id}" aria-current="${c.id===cur}"><div class="av">${ini(c.name)}</div><div style="min-width:0"><div class="name">${c.name}${c.ativa?"":' <span class="chip t-rafael">Pausada</span>'}</div><div class="prev">${last(c)}</div><div class="chips">${c.tags.filter(t=>t!=="whatsapp").map(t=>chip(t)).join("")}</div></div><div class="meta">${ago(c.last)}${c.unread?`<span class="unread">${c.unread}</span>`:""}</div></button>`).join(""):`<p style="padding:16px;color:var(--muted)">Nenhuma conversa com esse filtro.</p>`;
+function renderList(){const L=C.filter(passes).sort((a,b)=>ordem==="score"?b.score-a.score:b.last-a.last);
+ $("#resultado").textContent=L.length+(L.length===1?" conversa":" conversas");
+ $("#items").innerHTML=L.length?L.map(c=>`<button class="item" data-id="${c.id}" aria-current="${c.id===cur}"><div class="av">${ini(c.name)}</div><div style="min-width:0"><div class="name">${c.name}${c.ativa?"":' <span class="chip t-rafael">Pausada</span>'}</div><div class="co">${c.empresa} · ${c.segmento} · ${c.cidade}/${c.uf}</div><div class="prev">${last(c)}</div><div class="chips">${c.tags.filter(t=>t!=="whatsapp").map(t=>chip(t)).join("")}</div></div><div class="meta">${ago(c.last)}<span class="score ${sc(c.score)}" title="Temperatura do lead">${c.score}</span>${c.unread?`<span class="unread">${c.unread}</span>`:""}</div></button>`).join(""):`<p style="padding:16px;color:var(--muted)">Nenhuma conversa com esse filtro.</p>`;
  $("#c-conv").textContent=C.reduce((s,c)=>s+c.unread,0)}
+const sc=n=>n>=75?"s-hot":n>=50?"s-warm":"s-cold";
+function renderAdv(){$("#adv").innerHTML=Object.keys(adv).map(k=>`<label>${LABEL[k]}<select data-adv="${k}"><option value="">Todos</option>${OPTS[k].map(o=>`<option ${adv[k]===o?"selected":""}>${o}</option>`).join("")}</select></label>`).join("")+`<label>Ordenar por<select id="ordem"><option value="recente" ${ordem==="recente"?"selected":""}>Mais recentes</option><option value="score" ${ordem==="score"?"selected":""}>Mais quentes</option></select></label><label>&nbsp;<button class="btn" id="limpar">Limpar filtros</button></label>`}
 function last(c){const m=c.m[c.m.length-1];const who=m[0]==="cliente"?"":m[0]==="clara"?"Clara: ":"Você: ";return who+(m[3]||m[1]).replace(/\n/g," ")}
 function renderChat(){const c=C.find(x=>x.id===cur);if(!c)return;c.unread=0;
  $("#h-av").textContent=ini(c.name);$("#h-name").textContent=c.name;$("#h-num").textContent=c.num;
@@ -273,7 +317,12 @@ function renderChat(){const c=C.find(x=>x.id===cur);if(!c)return;c.unread=0;
  $("#msgs").scrollTop=1e6;
  $("#send").disabled=!open;$("#text").disabled=!open;$("#text").placeholder=open?"Responder como Rafael":"Janela fechada: use um modelo aprovado";
  document.querySelectorAll("#quick button").forEach(x=>x.disabled=!open);
- $("#kv").innerHTML=`<dt>Negócio</dt><dd>${c.nicho}</dd><dt>Fase</dt><dd>${c.fase}</dd><dt>Origem</dt><dd>${c.origem}</dd><dt>Respostas de estratégia</dt><dd>${c.resp} de 2</dd>`;
+ const fld=(k,l)=>`<label>${l}<select data-pf="${k}">${OPTS[k].map(o=>`<option ${c[k]===o?"selected":""}>${o}</option>`).join("")}</select></label>`;
+ $("#prof").innerHTML=`<div class="ai">✨ Preenchido pela Clara a partir da conversa. Você pode corrigir.</div>
+ <label>Empresa<input data-pf="empresa" value="${c.empresa}"></label>
+ ${fld("segmento","Segmento")}${fld("tipo","Tipo")}${fld("fat","Faturamento")}${fld("etapa","Etapa")}${fld("interesse","Interesse")}
+ <label>Cidade<input data-pf="cidade" value="${c.cidade}/${c.uf}"></label>`;
+ $("#kv").innerHTML=`<dt>O que vende</dt><dd>${c.nicho}</dd><dt>Origem</dt><dd>${c.origem}</dd><dt>Temperatura</dt><dd><span class="score ${sc(c.score)}">${c.score} de 100</span></dd><dt>Respostas de estratégia</dt><dd>${c.resp} de 2</dd>`;
  $("#tags").innerHTML=c.tags.map(t=>chip(t,true)).join("")||'<span class="hint">Sem etiquetas</span>';
  $("#tagsel").innerHTML=Object.keys(TAGS).filter(k=>!c.tags.includes(k)).map(k=>`<option value="${k}">${TAGS[k].l}</option>`).join("")||"<option>Todas aplicadas</option>";
  $("#notes").value=c.notes;
@@ -282,7 +331,8 @@ function renderChat(){const c=C.find(x=>x.id===cur);if(!c)return;c.unread=0;
 function add(role,text){const c=C.find(x=>x.id===cur);c.m.push([role,text,0]);c.last=Date.now();renderChat()}
 function setView(v){view=v;document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===v));
  const conv=v==="conversas";$("#listView").hidden=!conv;$("#chatView").hidden=!conv;$("#side").hidden=!conv;$("#pageView").hidden=conv;
- if(v==="aprendizado")renderLearn();if(v==="numeros")renderNums()}
+ if(v==="funil")renderFunil();if(v==="aprendizado")renderLearn();if(v==="numeros")renderNums()}
+function renderFunil(){$("#pageView").innerHTML=`<h1>Funil de vendas</h1><p class="lead">Cada cliente numa etapa. A Clara move o card sozinha conforme a conversa avança. Clique para abrir a conversa.</p><div class="kanban">${ETAPAS.map(e=>{const L=C.filter(c=>c.etapa===e).sort((a,b)=>b.score-a.score);return `<div class="col"><h3>${e}<span class="count">${L.length}</span></h3>${L.map(c=>`<button class="kcard" data-open="${c.id}"><b>${c.name}</b><span class="co">${c.empresa} · ${c.segmento}</span><span class="co">${c.fat}</span><span><span class="score ${sc(c.score)}">${c.score}</span> <span class="co">${c.interesse}</span></span></button>`).join("")||'<span class="hint">Vazio</span>'}</div>`}).join("")}</div>`}
 function renderLearn(){$("#pageView").innerHTML=`<h1>Aprendizado da Clara</h1><p class="lead">Perguntas novas da semana com a resposta que a Clara deu. Aprovar coloca a resposta na base. Corrigir ensina o seu jeito para todas as respostas parecidas.</p>`+
  (QS.length?QS.map((x,i)=>`<div class="card"><div class="q">“${x.q}”</div><div class="hint">${x.who}</div><div class="ans" id="ans${i}">${x.a}</div><div class="foot"><span class="src">${x.src}</span><button class="btn" data-fix="${i}">Corrigir</button><button class="btn primary" style="background:var(--accent);border-color:var(--accent);color:#1b1300" data-ok="${i}">Aprovar</button></div></div>`).join(""):`<div class="card">Tudo revisado nesta semana. ✨</div>`);
  $("#c-apr").textContent=QS.length}
@@ -294,6 +344,9 @@ function renderNums(){const f=[["Conversas novas",42],["Responderam 1 pergunta",
 
 document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
  if(t.dataset.view){setView(t.dataset.view);return}
+ if(t.id==="advbtn"){const a=$("#adv");a.hidden=!a.hidden;t.setAttribute("aria-expanded",!a.hidden);t.textContent=a.hidden?"Filtros avançados":"Fechar filtros";return}
+ if(t.id==="limpar"){for(const k in adv)adv[k]="";ordem="recente";renderAdv();renderList();return}
+ if(t.dataset.open){cur=+t.dataset.open;setView("conversas");$("#app").classList.add("open");renderChat();return}
  if(t.dataset.f){filter=t.dataset.f;renderFilters();renderList();return}
  if(t.dataset.id){cur=+t.dataset.id;$("#app").classList.add("open");renderChat();return}
  if(t.id==="back"){$("#app").classList.remove("open");return}
@@ -313,7 +366,12 @@ document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)r
  if(t.dataset.fix){const i=+t.dataset.fix,el=$("#ans"+i);if(el.isContentEditable){QS[i].a=el.innerText;QS.splice(i,1);renderLearn();toast("Correção salva. A Clara aprendeu seu jeito.")}else{el.contentEditable="true";el.focus();t.textContent="Salvar correção"}return}
 });
 $("#search").addEventListener("input",renderList);
+document.addEventListener("change",e=>{const el=e.target;
+ if(el.dataset.adv!==undefined){adv[el.dataset.adv]=el.value;renderList();return}
+ if(el.id==="ordem"){ordem=el.value;renderList();return}
+ if(el.dataset.pf){const c=C.find(x=>x.id===cur);if(el.dataset.pf==="cidade"){const[ci,uf]=el.value.split("/");c.cidade=(ci||"").trim();c.uf=(uf||c.uf).trim()}else c[el.dataset.pf]=el.value;
+  if(el.dataset.pf==="etapa"&&el.value==="Cliente"&&!c.tags.includes("cliente"))c.tags.push("cliente");renderChat();toast("Perfil atualizado e sincronizado com o Wix")}});
 $("#notes").addEventListener("input",e=>{C.find(x=>x.id===cur).notes=e.target.value});
 $("#text").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#send").click()}});
-renderFilters();renderChat();$("#c-apr").textContent=QS.length;
+renderFilters();renderAdv();renderChat();$("#c-apr").textContent=QS.length;
 </script>
