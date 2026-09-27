@@ -13,6 +13,6 @@ Idioma: Português (BR). `{{1}}` é o primeiro nome do cliente.
 | `mentoria_lembrete` | Utilidade | Oi, {{1}}! Passando pra lembrar dos seus encontros da Mentoria. Se ainda não marcou os próximos: rafaelbosi.com/agendamento-mentoria |
 
 Observações:
-- Adicionar em todos os modelos de Marketing o botão de resposta rápida "Parar de receber", exigido para opt-out.
+- Adicionar em todos os modelos de Marketing o botão de resposta rápida "Parar de receber" (recomendado para respeitar quem não quer mais mensagens e proteger a qualidade do número).
 - A aprovação costuma sair em minutos ou em até 24h.
 - Modelos de Marketing têm custo por mensagem cobrado pela Meta; os de Utilidade custam menos.
