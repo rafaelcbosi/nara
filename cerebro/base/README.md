@@ -80,3 +80,8 @@ Arquivos em `respostas/<tema>.jsonl`, uma resposta por linha. Exemplo completo e
 
 ## Como a Clara usa a base
 A pergunta do cliente é comparada por significado com a base (busca semântica). A Clara recebe as 3 respostas mais parecidas para o nível e o tipo de negócio da pessoa, e adapta ao caso real. Assim o custo por mensagem continua baixo, mesmo com 10.000 respostas.
+
+## Status atual
+- 21 de 21 temas com respostas de ouro: **105 respostas**.
+- Temas 1 a 6 (30 respostas): aprovadas pelo Rafael (`status: ouro`).
+- Temas 7 a 21 (75 respostas): geradas no estilo aprovado (`status: ouro-estilo-rafael`), revisão por amostragem.
