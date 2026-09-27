@@ -1,0 +1,319 @@
+<title>Painel da Clara</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EEF2F5; --surface:#FFFFFF; --surface-2:#F6F8FA; --line:#D9E0E7;
+  --ink:#15202B; --muted:#5A6878; --faint:#8A97A5;
+  --accent:#E3A21A; --accent-ink:#8A5A00; --accent-soft:#FDF1D6;
+  --clara:#E3EEF7; --clara-ink:#15202B; --rafael:#15202B; --rafael-ink:#FFFFFF; --cliente:#FFFFFF;
+  --hot:#C2410C; --hot-soft:#FDE7DA; --ok:#15803D; --ok-soft:#DCF3E4; --warn:#A16207; --warn-soft:#FEF3C7; --info:#1D4ED8; --info-soft:#E0E9FD;
+  --shadow:0 1px 2px rgba(21,32,43,.06),0 4px 16px rgba(21,32,43,.06);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --bg:#0E141A; --surface:#151D25; --surface-2:#1B252F; --line:#28333F;
+  --ink:#E5EBF1; --muted:#9AA8B6; --faint:#6E7C8A;
+  --accent:#F0B53E; --accent-ink:#F6CD78; --accent-soft:#3A2E14;
+  --clara:#1F3244; --clara-ink:#E5EBF1; --rafael:#E5EBF1; --rafael-ink:#0E141A; --cliente:#1B252F;
+  --hot:#FB923C; --hot-soft:#3B2317; --ok:#4ADE80; --ok-soft:#15301F; --warn:#FACC15; --warn-soft:#352C0E; --info:#93B4FF; --info-soft:#1B2A4A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E141A; --surface:#151D25; --surface-2:#1B252F; --line:#28333F;
+  --ink:#E5EBF1; --muted:#9AA8B6; --faint:#6E7C8A;
+  --accent:#F0B53E; --accent-ink:#F6CD78; --accent-soft:#3A2E14;
+  --clara:#1F3244; --clara-ink:#E5EBF1; --rafael:#E5EBF1; --rafael-ink:#0E141A; --cliente:#1B252F;
+  --hot:#FB923C; --hot-soft:#3B2317; --ok:#4ADE80; --ok-soft:#15301F; --warn:#FACC15; --warn-soft:#352C0E; --info:#93B4FF; --info-soft:#1B2A4A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
+*{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.app{height:100%;display:grid;grid-template-columns:220px minmax(260px,340px) 1fr 300px;grid-template-rows:100%}
+.rail{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:22px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand b{font-family:var(--display);font-size:22px;letter-spacing:-.01em}
+.brand span{color:var(--muted);font-size:12px}
+.brand .num{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{display:flex;justify-content:space-between;align-items:center;border:0;background:transparent;padding:9px 10px;border-radius:8px;text-align:left;color:var(--muted);font-weight:500}
+.nav button[aria-current="true"]{background:var(--accent-soft);color:var(--ink)}
+.nav button:hover{background:var(--surface-2)}
+.count{font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:1px 7px;color:var(--muted)}
+.rail .foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.demo{background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:8px 10px;font-size:12px}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+
+.list{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.list header{padding:16px 16px 10px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.list h1{font-family:var(--display);font-size:20px;margin:0}
+.search{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.filters button{white-space:nowrap;border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--muted)}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.items{overflow-y:auto;flex:1}
+.item{display:grid;grid-template-columns:40px 1fr auto;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;background:transparent;border-left:3px solid transparent;width:100%;text-align:left;border-top:0;border-right:0}
+.item:hover{background:var(--surface-2)}
+.item[aria-current="true"]{background:var(--surface-2);border-left-color:var(--accent)}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:600;background:var(--clara);color:var(--clara-ink);font-size:14px}
+.item .name{font-weight:600;display:flex;gap:6px;align-items:center}
+.item .prev{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.item .meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:11px;color:var(--faint);font-family:var(--mono)}
+.unread{background:var(--accent);color:#1b1300;border-radius:20px;min-width:18px;height:18px;display:grid;place-items:center;font-size:10px;font-weight:600;padding:0 5px}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.chip{font-size:11px;border-radius:20px;padding:1px 8px;font-weight:500;display:inline-flex;align-items:center;gap:4px}
+.t-quente{background:var(--hot-soft);color:var(--hot)}
+.t-cliente{background:var(--ok-soft);color:var(--ok)}
+.t-mentoria{background:var(--info-soft);color:var(--info)}
+.t-serie{background:var(--accent-soft);color:var(--accent-ink)}
+.t-whatsapp{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.t-rafael{background:var(--warn-soft);color:var(--warn)}
+
+.chat{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--bg)}
+.chat header{background:var(--surface);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:12px}
+.chat header .who{flex:1;min-width:0}
+.chat header .who b{font-size:15px}
+.chat header .who div{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.back{display:none;border:0;background:transparent;font-size:20px;padding:4px 8px}
+.toggle{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:20px;padding:6px 12px;background:var(--surface);font-weight:500;font-size:13px}
+.toggle .sw{width:30px;height:18px;border-radius:20px;background:var(--ok);position:relative;transition:background .2s}
+.toggle .sw::after{content:"";position:absolute;top:2px;left:14px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle[aria-pressed="false"] .sw{background:var(--faint)}
+.toggle[aria-pressed="false"] .sw::after{left:2px}
+.banner{margin:12px 18px 0;padding:9px 12px;border-radius:10px;font-size:13px;display:flex;gap:8px;align-items:flex-start}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.info{background:var(--info-soft);color:var(--info)}
+.msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
+.day{align-self:center;font-size:11px;color:var(--faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.m{max-width:min(560px,82%);padding:9px 12px;border-radius:14px;box-shadow:var(--shadow);white-space:pre-wrap;word-wrap:break-word}
+.m .by{display:block;font-size:11px;font-weight:600;margin-bottom:3px;letter-spacing:.02em;opacity:.75}
+.m .tm{display:block;font-size:10px;margin-top:4px;opacity:.6;font-family:var(--mono);text-align:right}
+.m.cliente{align-self:flex-start;background:var(--cliente);border-bottom-left-radius:4px}
+.m.clara{align-self:flex-end;background:var(--clara);color:var(--clara-ink);border-bottom-right-radius:4px}
+.m.rafael{align-self:flex-end;background:var(--rafael);color:var(--rafael-ink);border-bottom-right-radius:4px}
+.m .audio{font-size:12px;opacity:.8;display:block;margin-bottom:4px}
+.composer{background:var(--surface);border-top:1px solid var(--line);padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.quick button{border:1px dashed var(--line);background:var(--surface-2);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--muted)}
+.quick button:hover{border-color:var(--accent);color:var(--ink)}
+.row{display:flex;gap:8px;align-items:flex-end}
+.row textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface-2);min-height:42px;max-height:140px}
+.send{border:0;background:var(--accent);color:#1b1300;font-weight:600;border-radius:12px;padding:10px 16px}
+.send:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:11px;color:var(--faint)}
+
+.side{background:var(--surface);border-left:1px solid var(--line);overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:20px}
+.side h2{font-family:var(--display);font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right}
+.tagbox{display:flex;flex-wrap:wrap;gap:6px}
+.tagbox .chip button{border:0;background:transparent;padding:0;font-size:13px;line-height:1;color:inherit;opacity:.7}
+.addtag{display:flex;gap:6px;margin-top:8px}
+.addtag select{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--surface-2)}
+.addtag button,.btn{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:500}
+.notes{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--surface-2);resize:vertical}
+.actions{display:flex;flex-direction:column;gap:8px}
+.actions .btn{text-align:left;padding:9px 12px;font-size:13px}
+.actions .btn.primary{background:var(--accent);border-color:var(--accent);color:#1b1300}
+.confirm{background:var(--accent-soft);border-radius:10px;padding:10px;font-size:13px;display:flex;flex-direction:column;gap:8px}
+.confirm div{display:flex;gap:6px}
+
+.page{grid-column:2 / 5;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px}
+.page h1{font-family:var(--display);font-size:26px;margin:0}
+.page p.lead{color:var(--muted);margin:0;max-width:65ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.q{font-weight:600}
+.ans{background:var(--clara);color:var(--clara-ink);border-radius:10px;padding:10px 12px;white-space:pre-wrap}
+.card .foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card .src{font-size:12px;color:var(--muted);margin-right:auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat .v{font-family:var(--display);font-size:30px;font-variant-numeric:tabular-nums}
+.stat .l{color:var(--muted);font-size:12px}
+.funnel{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:160px 1fr 40px;gap:10px;align-items:center;font-size:13px}
+.bar .track{background:var(--surface-2);border-radius:6px;height:14px;overflow:hidden}
+.bar .fill{background:var(--accent);height:100%}
+.bar .n{font-family:var(--mono);text-align:right}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow)}
+
+@media (max-width:1180px){.app{grid-template-columns:200px minmax(240px,300px) 1fr}.side{display:none}.side.show{display:flex;position:fixed;right:0;top:0;bottom:0;width:min(320px,90vw);z-index:5;box-shadow:var(--shadow)}.infobtn{display:inline-block!important}}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .rail{flex-direction:row;align-items:center;padding:10px 16px;gap:12px;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  .brand span,.brand .num,.rail .foot{display:none}
+  .nav{flex-direction:row}
+  .list,.chat,.page{grid-column:1;grid-row:2}
+  .chat{display:none}
+  .app.open .chat{display:flex}.app.open .list{display:none}
+  .back{display:inline-block}
+  .page{padding:16px}
+  .bar{grid-template-columns:110px 1fr 32px}
+}
+.infobtn{display:none}
+</style>
+
+<div class="app" id="app">
+  <aside class="rail">
+    <div class="brand"><b>Clara</b><span>WhatsApp do Rafael Bosi</span><span class="num">+55 11 91086-6616</span></div>
+    <nav class="nav" aria-label="Seções">
+      <button data-view="conversas" aria-current="true">Conversas <span class="count" id="c-conv">0</span></button>
+      <button data-view="aprendizado">Aprendizado <span class="count" id="c-apr">0</span></button>
+      <button data-view="numeros">Números</button>
+    </nav>
+    <div class="foot">
+      <div><span class="status-dot"></span>Clara online</div>
+      <div class="demo">Protótipo com dados de exemplo. Nenhuma mensagem real é enviada.</div>
+    </div>
+  </aside>
+
+  <section class="list" id="listView">
+    <header>
+      <h1>Conversas</h1>
+      <input class="search" id="search" type="search" placeholder="Buscar por nome ou número" aria-label="Buscar conversas">
+      <div class="filters" id="filters" role="group" aria-label="Filtros"></div>
+    </header>
+    <div class="items" id="items"></div>
+  </section>
+
+  <section class="chat" id="chatView" aria-label="Conversa">
+    <header>
+      <button class="back" id="back" aria-label="Voltar para a lista">←</button>
+      <div class="av" id="h-av"></div>
+      <div class="who"><b id="h-name"></b><div id="h-num"></div></div>
+      <button class="toggle" id="pause" aria-pressed="true"><span class="sw"></span><span id="pause-l">Clara ativa</span></button>
+      <button class="btn infobtn" id="infobtn">Detalhes</button>
+    </header>
+    <div id="banners"></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="composer">
+      <div class="quick" id="quick">
+        <button data-q="diag">Enviar link do Diagnóstico</button>
+        <button data-q="serie">Enviar link da Série Clareza</button>
+        <button data-q="ok">Resposta rápida: "Já te respondo!"</button>
+      </div>
+      <div class="row">
+        <textarea id="text" rows="1" placeholder="Responder como Rafael"></textarea>
+        <button class="send" id="send">Enviar</button>
+      </div>
+      <div class="hint" id="hint">Ao responder, a Clara pausa por 12h nesta conversa.</div>
+    </div>
+  </section>
+
+  <aside class="side" id="side" aria-label="Detalhes do contato">
+    <div><h2>Contato</h2><dl class="kv" id="kv"></dl></div>
+    <div>
+      <h2>Etiquetas</h2>
+      <div class="tagbox" id="tags"></div>
+      <div class="addtag"><select id="tagsel" aria-label="Adicionar etiqueta"></select><button id="tagadd">Adicionar</button></div>
+      <div class="hint" style="margin-top:6px">Sincroniza com o CRM do Wix.</div>
+    </div>
+    <div><h2>Ações</h2><div class="actions" id="actions"></div></div>
+    <div><h2>Notas internas</h2><textarea class="notes" id="notes" placeholder="Só você vê estas notas."></textarea></div>
+  </aside>
+
+  <section class="page" id="pageView" hidden></section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const TAGS={quente:{l:"Lead quente",c:"t-quente"},cliente:{l:"Cliente ativo",c:"t-cliente"},mentoria:{l:"Interesse Mentoria",c:"t-mentoria"},serie:{l:"Série Clareza",c:"t-serie"},whatsapp:{l:"Clara WhatsApp",c:"t-whatsapp"},rafael:{l:"Precisa do Rafael",c:"t-rafael"}};
+const now=Date.now(),H=36e5;
+const C=[
+ {id:1,name:"Juliana Prado",num:"+55 21 98812-4471",nicho:"Estética (design de sobrancelha)",fase:"Começando, até R$ 5 mil/mês",origem:"Anúncio Pergunte ao Rafael",resp:2,ativa:true,unread:1,tags:["whatsapp","quente","serie"],last:now-.3*H,notes:"",
+  m:[["cliente","Quero fazer uma pergunta para o Rafael",-3],["clara","Oi, Juliana! Aqui é a Clara, assistente virtual do Rafael Bosi. Pode mandar sua pergunta, por texto ou áudio 😊",-2.98],["cliente","Todo mundo acha meu preço caro. Devo baixar?",-2.9],["clara","Quase nunca é o preço. É que o cliente não tá vendo o valor.\n\nNão baixa agora. Muda a ordem: primeiro o resultado, depois a prova, depois o preço.\n\nTesta essa semana e me conta.",-2.88],["cliente","Faz sentido! E como eu faço pacotes?",-1],["clara","Adorei suas perguntas! Pra ir mais fundo, o Rafael tem a Série Clareza Digital, por R$ 74, pra você aplicar no seu ritmo. Pelo que você me contou, eu começaria por ela. Quer o link?",-.98],["cliente","Quero sim!",-.3]]},
+ {id:2,name:"Marcos Tavares",num:"+55 11 97740-2019",nicho:"Consultoria financeira para PMEs",fase:"Crescendo, R$ 5 a 30 mil/mês",origem:"Link da bio",resp:2,ativa:false,unread:0,tags:["whatsapp","mentoria","rafael"],last:now-2*H,notes:"Quer estruturar equipe comercial. Bom perfil para Mentoria.",
+  m:[["cliente","Tudo depende de mim no negócio. Como delego?",-26],["clara","Você tem equipe ou prestador de serviço?\n\nComeça delegando o que se repete e não precisa de você. Faz um manual de procedimento e passa.",-25.9],["cliente","Tenho 2 pessoas mas não sei organizar. Queria falar com o Rafael.",-3],["clara","Pelo que você me contou, vale uma conversa com o Rafael. Ele tem um Diagnóstico Estratégico de 30 minutos: rafaelbosi.com/30-min",-2.95],["rafael","Oi, Marcos! Aqui é o Rafael. Vi seu caso, vamos conversar. Marca no link que eu já olho antes da call.",-2]]},
+ {id:3,name:"Beatriz Lemos",num:"+55 27 99301-5582",nicho:"Confeitaria artesanal",fase:"Ideia",origem:"Indicação",resp:1,ativa:true,unread:2,tags:["whatsapp"],last:now-5*H,notes:"",
+  m:[["cliente","Oi! A Paula me indicou",-5.2],["clara","Oi, Beatriz! Que bom que a Paula te indicou. Aqui é a Clara, assistente virtual do Rafael. Me conta em 1 frase o que você vende?",-5.18],["cliente","🎤 Áudio (0:42)",-5.1,"Então, eu faço bolo de pote e queria começar a vender, mas não sei se cobro pelo preço do mercado ou pelo meu custo, sabe?"],["cliente","Não sei quanto cobrar",-5]]},
+ {id:4,name:"Rodrigo Nunes",num:"+55 31 98455-7730",nicho:"Mentoria de carreira",fase:"Crescendo",origem:"Anúncio Pergunte ao Rafael",resp:0,ativa:true,unread:0,tags:["whatsapp","cliente","mentoria"],last:now-30*H,notes:"Pagou a Mentoria em 20/09. 1º encontro marcado.",
+  m:[["rafael","/cliente enviado",-31],["clara","Seja muito bem-vindo à Mentoria! 🎉 São 4 encontros de 1h30 com o Rafael, em até 45 dias. Agenda o primeiro aqui: rafaelbosi.com/agendamento-mentoria",-30.9],["cliente","Agendado! Obrigado 🙏",-30]]},
+ {id:5,name:"Camila Rocha",num:"+55 48 99120-3346",nicho:"Loja de roupa infantil",fase:"Começando",origem:"Link da bio",resp:1,ativa:true,unread:0,tags:["whatsapp","serie"],last:now-50*H,notes:"",
+  m:[["cliente","Como consigo mais clientes pra minha loja?",-51],["clara","Onde estão os clientes que já compraram de você, estão os próximos.\n\nO que eu faria: fecha 1 parceria com um negócio que atende o mesmo público. Um indica o outro.\n\nQuem é o seu cliente que mais compra?",-50.9],["cliente","Mães de 30 a 40 anos, principalmente",-50]]},
+];
+const QS=[
+ {q:"Vale a pena fazer um curso de marketing antes de começar?",who:"Ana Souza",a:"O que eu faria: começa vendendo e aprende no caminho. Curso sem prática vira mais uma ideia parada.\n\nLista 10 pessoas que comprariam de você e oferece essa semana. Quer me contar o que você vende?",src:"Base: Validação de ideia"},
+ {q:"Posso usar o Instagram pessoal pro meu negócio?",who:"Pedro Lima",a:"Pode, e é bom. Vida real aproxima.\n\nO segredo é ligar a vida ao seu trabalho: uma viagem vira uma lição sobre planejamento, um erro vira aprendizado pro cliente.",src:"Base: Marca pessoal"},
+ {q:"Minha sócia quer investir em anúncio mas a gente ainda não vendeu nada",who:"Luana Dias",a:"Anúncio acelera o que já funciona.\n\nSe vocês ainda não vendem sem anúncio, acerta a oferta primeiro com 5 a 10 vendas. Depois começa pequeno: R$ 10 a R$ 20 por dia.",src:"Base: Anúncios"},
+];
+let cur=1,filter="todas",view="conversas";
+const $=s=>document.querySelector(s);
+const ago=t=>{const h=(now-t)/H;return h<1?Math.max(1,Math.round(h*60))+" min":h<24?Math.round(h)+" h":Math.round(h/24)+" d"};
+const hhmm=off=>{const d=new Date(now+off*H);return d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})};
+const ini=n=>n.split(" ").map(p=>p[0]).slice(0,2).join("");
+const chip=(k,rm)=>`<span class="chip ${TAGS[k].c}">${TAGS[k].l}${rm?` <button aria-label="Remover ${TAGS[k].l}" data-rm="${k}">×</button>`:""}</span>`;
+function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2400)}
+const FILTERS=[["todas","Todas"],["quente","Lead quente"],["rafael","Precisa do Rafael"],["cliente","Clientes"],["pausada","Clara pausada"],["naolida","Não lidas"]];
+function passes(c){const s=$("#search").value.trim().toLowerCase();if(s&&!(c.name.toLowerCase().includes(s)||c.num.includes(s)))return false;
+ if(filter==="todas")return true;if(filter==="pausada")return !c.ativa;if(filter==="naolida")return c.unread>0;return c.tags.includes(filter)}
+function renderFilters(){$("#filters").innerHTML=FILTERS.map(([k,l])=>`<button data-f="${k}" aria-pressed="${filter===k}">${l}</button>`).join("")}
+function renderList(){const L=C.filter(passes).sort((a,b)=>b.last-a.last);
+ $("#items").innerHTML=L.length?L.map(c=>`<button class="item" data-id="${c.id}" aria-current="${c.id===cur}"><div class="av">${ini(c.name)}</div><div style="min-width:0"><div class="name">${c.name}${c.ativa?"":' <span class="chip t-rafael">Pausada</span>'}</div><div class="prev">${last(c)}</div><div class="chips">${c.tags.filter(t=>t!=="whatsapp").map(t=>chip(t)).join("")}</div></div><div class="meta">${ago(c.last)}${c.unread?`<span class="unread">${c.unread}</span>`:""}</div></button>`).join(""):`<p style="padding:16px;color:var(--muted)">Nenhuma conversa com esse filtro.</p>`;
+ $("#c-conv").textContent=C.reduce((s,c)=>s+c.unread,0)}
+function last(c){const m=c.m[c.m.length-1];const who=m[0]==="cliente"?"":m[0]==="clara"?"Clara: ":"Você: ";return who+(m[3]||m[1]).replace(/\n/g," ")}
+function renderChat(){const c=C.find(x=>x.id===cur);if(!c)return;c.unread=0;
+ $("#h-av").textContent=ini(c.name);$("#h-name").textContent=c.name;$("#h-num").textContent=c.num;
+ $("#pause").setAttribute("aria-pressed",c.ativa);$("#pause-l").textContent=c.ativa?"Clara ativa":"Clara pausada";
+ const lastCli=Math.max(...c.m.filter(m=>m[0]==="cliente").map(m=>now+m[2]*H));const open=(now-lastCli)<24*H;
+ let b="";if(!open)b+=`<div class="banner warn">⏱ Janela de 24h fechada. O cliente não fala há mais de 24h, então a Meta só permite mensagem de modelo aprovado.</div>`;
+ if(c.resp>=2)b+=`<div class="banner info">A Clara já respondeu 2 perguntas de estratégia. Agora ela faz a ponte para os produtos.</div>`;
+ $("#banners").innerHTML=b;
+ $("#msgs").innerHTML=`<div class="day">Conversa</div>`+c.m.map(m=>`<div class="m ${m[0]}"><span class="by">${m[0]==="cliente"?c.name.split(" ")[0]:m[0]==="clara"?"Clara":"Rafael"}</span>${m[3]?`<span class="audio">${m[1]} · transcrição:</span>${m[3]}`:m[1]}<span class="tm">${hhmm(m[2])}</span></div>`).join("");
+ $("#msgs").scrollTop=1e6;
+ $("#send").disabled=!open;$("#text").disabled=!open;$("#text").placeholder=open?"Responder como Rafael":"Janela fechada: use um modelo aprovado";
+ document.querySelectorAll("#quick button").forEach(x=>x.disabled=!open);
+ $("#kv").innerHTML=`<dt>Negócio</dt><dd>${c.nicho}</dd><dt>Fase</dt><dd>${c.fase}</dd><dt>Origem</dt><dd>${c.origem}</dd><dt>Respostas de estratégia</dt><dd>${c.resp} de 2</dd>`;
+ $("#tags").innerHTML=c.tags.map(t=>chip(t,true)).join("")||'<span class="hint">Sem etiquetas</span>';
+ $("#tagsel").innerHTML=Object.keys(TAGS).filter(k=>!c.tags.includes(k)).map(k=>`<option value="${k}">${TAGS[k].l}</option>`).join("")||"<option>Todas aplicadas</option>";
+ $("#notes").value=c.notes;
+ $("#actions").innerHTML=c.tags.includes("cliente")?`<button class="btn" data-a="resumo">Enviar lembrete dos encontros</button>`:`<button class="btn" data-a="diag">Convidar para o Diagnóstico Estratégico</button><div id="paybox"><button class="btn primary" data-a="pago">Confirmar pagamento da Mentoria</button></div>`;
+ renderList()}
+function add(role,text){const c=C.find(x=>x.id===cur);c.m.push([role,text,0]);c.last=Date.now();renderChat()}
+function setView(v){view=v;document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===v));
+ const conv=v==="conversas";$("#listView").hidden=!conv;$("#chatView").hidden=!conv;$("#side").hidden=!conv;$("#pageView").hidden=conv;
+ if(v==="aprendizado")renderLearn();if(v==="numeros")renderNums()}
+function renderLearn(){$("#pageView").innerHTML=`<h1>Aprendizado da Clara</h1><p class="lead">Perguntas novas da semana com a resposta que a Clara deu. Aprovar coloca a resposta na base. Corrigir ensina o seu jeito para todas as respostas parecidas.</p>`+
+ (QS.length?QS.map((x,i)=>`<div class="card"><div class="q">“${x.q}”</div><div class="hint">${x.who}</div><div class="ans" id="ans${i}">${x.a}</div><div class="foot"><span class="src">${x.src}</span><button class="btn" data-fix="${i}">Corrigir</button><button class="btn primary" style="background:var(--accent);border-color:var(--accent);color:#1b1300" data-ok="${i}">Aprovar</button></div></div>`).join(""):`<div class="card">Tudo revisado nesta semana. ✨</div>`);
+ $("#c-apr").textContent=QS.length}
+function renderNums(){const f=[["Conversas novas",42],["Responderam 1 pergunta",31],["Chegaram à oferta",18],["Links do Diagnóstico",7],["Compraram",4]];
+ $("#pageView").innerHTML=`<h1>Números da semana</h1><p class="lead">De 22 a 28 de setembro. Dados de exemplo.</p>
+ <div class="stats"><div class="stat"><div class="v">42</div><div class="l">conversas novas</div></div><div class="stat"><div class="v">9</div><div class="l">leads quentes</div></div><div class="stat"><div class="v">3</div><div class="l">Séries vendidas (R$ 222)</div></div><div class="stat"><div class="v">1</div><div class="l">Mentoria fechada (R$ 2.300)</div></div></div>
+ <div class="card"><b>Da conversa à venda</b><div class="funnel">${f.map(([l,n])=>`<div class="bar"><span>${l}</span><div class="track"><div class="fill" style="width:${n/42*100}%"></div></div><span class="n">${n}</span></div>`).join("")}</div></div>
+ <div class="card"><b>De onde vêm</b><div class="funnel">${[["Anúncio Pergunte ao Rafael",23],["Link da bio",14],["Indicação",5]].map(([l,n])=>`<div class="bar"><span>${l}</span><div class="track"><div class="fill" style="width:${n/42*100}%"></div></div><span class="n">${n}</span></div>`).join("")}</div></div>`}
+
+document.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;
+ if(t.dataset.view){setView(t.dataset.view);return}
+ if(t.dataset.f){filter=t.dataset.f;renderFilters();renderList();return}
+ if(t.dataset.id){cur=+t.dataset.id;$("#app").classList.add("open");renderChat();return}
+ if(t.id==="back"){$("#app").classList.remove("open");return}
+ if(t.id==="infobtn"){$("#side").classList.toggle("show");return}
+ const c=C.find(x=>x.id===cur);
+ if(t.id==="pause"){c.ativa=!c.ativa;renderChat();toast(c.ativa?"Clara retomada nesta conversa":"Clara pausada nesta conversa");return}
+ if(t.id==="send"){const v=$("#text").value.trim();if(!v)return;add("rafael",v);$("#text").value="";if(c.ativa){c.ativa=false;renderChat()}toast("Mensagem enviada. Clara pausada por 12h.");return}
+ if(t.dataset.q){const T={diag:"Pelo que você me contou, vale uma conversa comigo. Marca o Diagnóstico Estratégico de 30 min aqui: rafaelbosi.com/30-min",serie:"Aqui está a Série Clareza Digital, 4 guias por R$ 74, com garantia de 7 dias: rafaelbosi.com/clareza",ok:"Já te respondo!"};$("#text").value=T[t.dataset.q];$("#text").focus();return}
+ if(t.dataset.rm){c.tags=c.tags.filter(x=>x!==t.dataset.rm);renderChat();toast("Etiqueta removida");return}
+ if(t.id==="tagadd"){const k=$("#tagsel").value;if(TAGS[k]&&!c.tags.includes(k)){c.tags.push(k);renderChat();toast("Etiqueta adicionada")}return}
+ if(t.dataset.a==="diag"){add("clara","Pelo que você me contou, vale uma conversa com o Rafael. Ele tem um Diagnóstico Estratégico de 30 minutos: rafaelbosi.com/30-min");if(!c.tags.includes("quente"))c.tags.push("quente");renderChat();toast("Convite enviado");return}
+ if(t.dataset.a==="pago"){$("#paybox").innerHTML=`<div class="confirm">Confirmar que ${c.name.split(" ")[0]} pagou a Mentoria? A Clara envia as boas-vindas com o link dos 4 encontros.<div><button class="btn primary" data-a="pago-sim">Sim, confirmar</button><button class="btn" data-a="pago-nao">Cancelar</button></div></div>`;return}
+ if(t.dataset.a==="pago-nao"){renderChat();return}
+ if(t.dataset.a==="pago-sim"){c.tags=c.tags.filter(x=>x!=="quente"&&x!=="rafael");if(!c.tags.includes("cliente"))c.tags.push("cliente");add("clara","Seja muito bem-vindo(a) à Mentoria! 🎉 São 4 encontros de 1h30 com o Rafael, em até 45 dias. Agenda o primeiro aqui: rafaelbosi.com/agendamento-mentoria");toast("Cliente ativo. Boas-vindas enviadas.");return}
+ if(t.dataset.a==="resumo"){add("clara","Oi! Passando pra lembrar dos seus encontros da Mentoria. Se ainda não marcou os próximos: rafaelbosi.com/agendamento-mentoria");toast("Lembrete enviado");return}
+ if(t.dataset.ok){QS.splice(+t.dataset.ok,1);renderLearn();toast("Aprovada e adicionada à base");return}
+ if(t.dataset.fix){const i=+t.dataset.fix,el=$("#ans"+i);if(el.isContentEditable){QS[i].a=el.innerText;QS.splice(i,1);renderLearn();toast("Correção salva. A Clara aprendeu seu jeito.")}else{el.contentEditable="true";el.focus();t.textContent="Salvar correção"}return}
+});
+$("#search").addEventListener("input",renderList);
+$("#notes").addEventListener("input",e=>{C.find(x=>x.id===cur).notes=e.target.value});
+$("#text").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#send").click()}});
+renderFilters();renderChat();$("#c-apr").textContent=QS.length;
+</script>
