@@ -1,13 +1,8 @@
 # Configuração só para desenvolvimento local do painel.
 # Em produção o painel roda dentro do Worker "clara-whatsapp" (ver INTEGRACAO.md).
 name = "clara-painel-dev"
-main = "src/dev.js"
+main = "src/index.js"
 compatibility_date = "2025-09-01"
-
-[[rules]]
-type = "Text"
-globs = ["**/*.html"]
-fallthrough = true
 
 [[d1_databases]]
 binding = "DB"
@@ -17,4 +12,3 @@ database_id = "local-dev"
 [vars]
 ADMIN_PHONE = "14384059109"
 ADMIN_EMAIL = "rafael@rafaelbosi.com"
-PAINEL_DEV = "1"

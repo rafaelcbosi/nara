@@ -1,47 +1,56 @@
 // Acesso ao banco D1 do Painel da Clara.
+// Usa as tabelas que a Clara já tem (messages, contacts) e cria só tabelas novas "painel_*".
+//
+// Estrutura existente (worker da Clara):
+//   messages (id TEXT PK, phone, role 'user'|'assistant', content, ts ms)
+//   contacts (phone PK, name, tags CSV, paused_until ms, wix_id, created ms)
+// Mensagens do Rafael ficam como role 'assistant' com o prefixo abaixo (igual ao comando /r).
 
-// ── ADAPTADOR ────────────────────────────────────────────────────────────────
-// Único lugar a ajustar para bater com as tabelas que já existem na Clara.
-// Valores abaixo seguem seed/dev-schema.sql (ambiente local).
-export const ADAPTADOR = {
-  mensagens: {
-    tabela: 'messages',
-    telefone: 'phone',
-    papel: 'role',
-    texto: 'content',
-    data: 'created_at', // epoch em ms
-    papeis: { cliente: 'user', clara: 'assistant', rafael: 'admin' },
-  },
-  contatos: {
-    tabela: 'contacts',
-    telefone: 'phone',
-    nome: 'name',
-    pausadoAte: 'paused_until', // epoch em ms; null = Clara ativa
-  },
-}
-// ─────────────────────────────────────────────────────────────────────────────
-
-const M = ADAPTADOR.mensagens
-const K = ADAPTADOR.contatos
-const PAPEL_PARA_AUTOR = Object.fromEntries(Object.entries(M.papeis).map(([autor, papel]) => [papel, autor]))
-
+export const PREFIXO_RAFAEL = '[Rafael respondeu pessoalmente] '
 export const agora = () => Date.now()
+
+const TABELAS_PAINEL = [
+  `CREATE TABLE IF NOT EXISTS painel_perfis (
+    phone TEXT PRIMARY KEY, empresa TEXT, segmento TEXT, tipo TEXT, faturamento TEXT,
+    etapa TEXT DEFAULT 'Novo', interesse TEXT DEFAULT 'Ainda não definido', cidade TEXT, uf TEXT,
+    o_que_vende TEXT, origem TEXT, resumo TEXT, dores TEXT, score INTEGER DEFAULT 0, notas TEXT DEFAULT '',
+    lido_ate INTEGER DEFAULT 0, diagnostico_em INTEGER, perfil_ia_em INTEGER, atualizado_em INTEGER)`,
+  `CREATE TABLE IF NOT EXISTS painel_eventos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT, tipo TEXT NOT NULL, descricao TEXT, criado_em INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS painel_aprendizado (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, phone TEXT, pergunta TEXT NOT NULL, resposta TEXT NOT NULL,
+    status TEXT DEFAULT 'pendente', resposta_final TEXT, criado_em INTEGER NOT NULL, revisado_em INTEGER)`,
+  `CREATE TABLE IF NOT EXISTS painel_config (chave TEXT PRIMARY KEY, valor TEXT)`,
+  `INSERT OR IGNORE INTO painel_config (chave, valor) VALUES ('meta_mensal', '8333')`,
+]
+
+let tabelasProntas = false
+export async function garantirTabelasPainel(db) {
+  if (tabelasProntas) return
+  await db.batch(TABELAS_PAINEL.map(sql => db.prepare(sql)))
+  tabelasProntas = true
+}
+
+function autorDe(role, content) {
+  if (role === 'user') return { autor: 'cliente', texto: content }
+  if (content.startsWith(PREFIXO_RAFAEL)) return { autor: 'rafael', texto: content.slice(PREFIXO_RAFAEL.length) }
+  return { autor: 'clara', texto: content }
+}
 
 export async function listarConversas(db) {
   const { results } = await db.prepare(`
-    SELECT c.${K.telefone} AS phone, c.${K.nome} AS nome, c.${K.pausadoAte} AS pausado_ate,
-      p.*,
-      (SELECT MAX(${M.data}) FROM ${M.tabela} m WHERE m.${M.telefone} = c.${K.telefone}) AS ultima_em,
-      (SELECT MAX(${M.data}) FROM ${M.tabela} m WHERE m.${M.telefone} = c.${K.telefone} AND m.${M.papel} = ?1) AS ultima_cliente_em,
-      (SELECT ${M.texto} FROM ${M.tabela} m WHERE m.${M.telefone} = c.${K.telefone} ORDER BY ${M.data} DESC LIMIT 1) AS ultima_texto,
-      (SELECT ${M.papel} FROM ${M.tabela} m WHERE m.${M.telefone} = c.${K.telefone} ORDER BY ${M.data} DESC LIMIT 1) AS ultima_papel,
-      (SELECT COUNT(*) FROM ${M.tabela} m WHERE m.${M.telefone} = c.${K.telefone} AND m.${M.papel} = ?1 AND m.${M.data} > COALESCE(p.lido_ate, 0)) AS nao_lidas,
-      (SELECT COUNT(*) FROM ${M.tabela} m WHERE m.${M.telefone} = c.${K.telefone} AND m.${M.papel} = ?2) AS respostas_clara,
-      (SELECT GROUP_CONCAT(etiqueta) FROM painel_etiquetas e WHERE e.phone = c.${K.telefone}) AS etiquetas
-    FROM ${K.tabela} c
-    LEFT JOIN painel_perfis p ON p.phone = c.${K.telefone}
+    SELECT c.phone, c.name AS nome, c.paused_until AS pausado_ate, c.tags, p.*,
+      (SELECT MAX(ts) FROM messages m WHERE m.phone = c.phone AND m.content != '') AS ultima_em,
+      (SELECT MAX(ts) FROM messages m WHERE m.phone = c.phone AND m.role = 'user') AS ultima_cliente_em,
+      (SELECT content FROM messages m WHERE m.phone = c.phone AND m.content != '' ORDER BY ts DESC LIMIT 1) AS ultima_texto,
+      (SELECT role FROM messages m WHERE m.phone = c.phone AND m.content != '' ORDER BY ts DESC LIMIT 1) AS ultima_papel,
+      (SELECT COUNT(*) FROM messages m WHERE m.phone = c.phone AND m.role = 'user' AND m.ts > COALESCE(p.lido_ate, 0)) AS nao_lidas,
+      (SELECT COUNT(*) FROM messages m WHERE m.phone = c.phone AND m.role = 'assistant') AS respostas_clara
+    FROM contacts c
+    LEFT JOIN painel_perfis p ON p.phone = c.phone
+    WHERE EXISTS (SELECT 1 FROM messages m WHERE m.phone = c.phone)
     ORDER BY ultima_em DESC
-  `).bind(M.papeis.cliente, M.papeis.clara).all()
+  `).all()
   return results.map(normalizarConversa)
 }
 
@@ -50,48 +59,39 @@ export async function obterConversa(db, phone) {
   const conversa = lista.find(c => c.phone === phone)
   if (!conversa) return null
   const { results } = await db.prepare(
-    `SELECT ${M.papel} AS papel, ${M.texto} AS texto, ${M.data} AS em FROM ${M.tabela} WHERE ${M.telefone} = ? ORDER BY ${M.data} ASC LIMIT 500`
+    "SELECT role, content, ts FROM messages WHERE phone = ? AND content != '' ORDER BY ts ASC, rowid ASC LIMIT 500"
   ).bind(phone).all()
-  conversa.mensagens = results.map(r => ({ autor: PAPEL_PARA_AUTOR[r.papel] || 'clara', texto: r.texto, em: r.em }))
+  conversa.mensagens = results.map(r => ({ ...autorDe(r.role, r.content), em: r.ts }))
   return conversa
 }
 
+const safeJson = (s, fallback) => { try { return JSON.parse(s) } catch { return fallback } }
+
 function normalizarConversa(r) {
-  const pausado = r.pausado_ate && r.pausado_ate > agora()
+  const pausado = Number(r.pausado_ate) > agora()
+  const ultima = autorDe(r.ultima_papel, r.ultima_texto || '')
   return {
     phone: r.phone,
     nome: r.nome || r.phone,
     ativa: !pausado,
-    pausadoAte: pausado ? r.pausado_ate : null,
+    pausadoAte: pausado ? Number(r.pausado_ate) : null,
     ultimaEm: r.ultima_em,
     ultimaClienteEm: r.ultima_cliente_em,
     janelaAberta: !!r.ultima_cliente_em && agora() - r.ultima_cliente_em < 24 * 3600e3,
-    ultimaTexto: r.ultima_texto || '',
-    ultimaAutor: PAPEL_PARA_AUTOR[r.ultima_papel] || 'clara',
+    ultimaTexto: ultima.texto,
+    ultimaAutor: ultima.autor,
     naoLidas: r.nao_lidas || 0,
     respostasClara: r.respostas_clara || 0,
-    etiquetas: r.etiquetas ? r.etiquetas.split(',') : [],
+    etiquetas: (r.tags || '').split(',').filter(Boolean),
     perfil: {
-      empresa: r.empresa || '',
-      segmento: r.segmento || '',
-      tipo: r.tipo || '',
-      faturamento: r.faturamento || '',
-      etapa: r.etapa || 'Novo',
-      interesse: r.interesse || 'Ainda não definido',
-      cidade: r.cidade || '',
-      uf: r.uf || '',
-      oQueVende: r.o_que_vende || '',
-      origem: r.origem || '',
-      resumo: r.resumo || '',
-      dores: r.dores ? safeJson(r.dores, []) : [],
-      score: r.score || 0,
-      notas: r.notas || '',
+      empresa: r.empresa || '', segmento: r.segmento || '', tipo: r.tipo || '', faturamento: r.faturamento || '',
+      etapa: r.etapa || 'Novo', interesse: r.interesse || 'Ainda não definido', cidade: r.cidade || '', uf: r.uf || '',
+      oQueVende: r.o_que_vende || '', origem: r.origem || '', resumo: r.resumo || '',
+      dores: r.dores ? safeJson(r.dores, []) : [], score: r.score || 0, notas: r.notas || '',
       diagnosticoEm: r.diagnostico_em || null,
     },
   }
 }
-
-const safeJson = (s, fallback) => { try { return JSON.parse(s) } catch { return fallback } }
 
 export async function garantirPerfil(db, phone) {
   await db.prepare('INSERT OR IGNORE INTO painel_perfis (phone, atualizado_em) VALUES (?, ?)').bind(phone, agora()).run()
@@ -106,7 +106,7 @@ const CAMPOS_PERFIL = {
 export async function atualizarPerfil(db, phone, campos) {
   await garantirPerfil(db, phone)
   const sets = [], valores = []
-  for (const [chave, valor] of Object.entries(campos)) {
+  for (const [chave, valor] of Object.entries(campos || {})) {
     const coluna = CAMPOS_PERFIL[chave]
     if (!coluna) continue
     sets.push(`${coluna} = ?`)
@@ -124,20 +124,30 @@ export async function marcarLida(db, phone) {
 }
 
 export async function salvarMensagem(db, phone, autor, texto) {
-  await db.prepare(`INSERT INTO ${M.tabela} (${M.telefone}, ${M.papel}, ${M.texto}, ${M.data}) VALUES (?, ?, ?, ?)`)
-    .bind(phone, M.papeis[autor], texto, agora()).run()
+  const conteudo = autor === 'rafael' ? PREFIXO_RAFAEL + texto : texto
+  await db.prepare('INSERT INTO messages (id, phone, role, content, ts) VALUES (?, ?, ?, ?, ?)')
+    .bind(`p:${agora()}:${Math.random().toString(36).slice(2, 8)}`, phone, autor === 'cliente' ? 'user' : 'assistant', conteudo, agora()).run()
 }
 
 export async function definirPausa(db, phone, ate) {
-  await db.prepare(`UPDATE ${K.tabela} SET ${K.pausadoAte} = ? WHERE ${K.telefone} = ?`).bind(ate, phone).run()
+  await db.prepare('UPDATE contacts SET paused_until = ? WHERE phone = ?').bind(ate || 0, phone).run()
+}
+
+async function lerEtiquetas(db, phone) {
+  const r = await db.prepare('SELECT tags FROM contacts WHERE phone = ?').bind(phone).first()
+  return new Set((r?.tags || '').split(',').filter(Boolean))
 }
 
 export async function adicionarEtiqueta(db, phone, etiqueta) {
-  await db.prepare('INSERT OR IGNORE INTO painel_etiquetas (phone, etiqueta, criado_em) VALUES (?, ?, ?)').bind(phone, etiqueta, agora()).run()
+  const tags = await lerEtiquetas(db, phone)
+  tags.add(etiqueta)
+  await db.prepare('UPDATE contacts SET tags = ? WHERE phone = ?').bind([...tags].join(','), phone).run()
 }
 
 export async function removerEtiqueta(db, phone, etiqueta) {
-  await db.prepare('DELETE FROM painel_etiquetas WHERE phone = ? AND etiqueta = ?').bind(phone, etiqueta).run()
+  const tags = await lerEtiquetas(db, phone)
+  tags.delete(etiqueta)
+  await db.prepare('UPDATE contacts SET tags = ? WHERE phone = ?').bind([...tags].join(','), phone).run()
 }
 
 export async function registrarEvento(db, phone, tipo, descricao) {
@@ -150,7 +160,7 @@ export async function eventosRecentes(db, horas = 24) {
 }
 
 export async function contarMensagensClara(db, horas = 24) {
-  const r = await db.prepare(`SELECT COUNT(*) AS n FROM ${M.tabela} WHERE ${M.papel} = ? AND ${M.data} > ?`).bind(M.papeis.clara, agora() - horas * 3600e3).first()
+  const r = await db.prepare("SELECT COUNT(*) AS n FROM messages WHERE role = 'assistant' AND ts > ?").bind(agora() - horas * 3600e3).first()
   return r?.n || 0
 }
 

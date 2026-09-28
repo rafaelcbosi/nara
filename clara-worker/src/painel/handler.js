@@ -1,5 +1,5 @@
 // Rotas do Painel da Clara: /painel (tela) e /painel/api/* (dados).
-import UI from './ui.html'
+import UI from './ui.js'
 import * as db from './db.js'
 import { calcularScore, resumoMeta, tarefasDoDia, valorPorEtapa, ETAPAS } from './negocio.js'
 import { enviarTexto, enviarModelo, MODELOS } from './whatsapp.js'
@@ -33,7 +33,10 @@ async function autenticado(request, env) {
 
 async function login(request, env) {
   const { senha } = await request.json().catch(() => ({}))
-  if (!env.PAINEL_SENHA || typeof senha !== 'string' || !iguais(senha, env.PAINEL_SENHA)) return erro('Senha incorreta.', 401)
+  if (!env.PAINEL_SENHA || typeof senha !== 'string' || !iguais(senha, env.PAINEL_SENHA)) {
+    await new Promise(r => setTimeout(r, 1500)) // atrasa tentativas de adivinhar a senha
+    return erro('Senha incorreta.', 401)
+  }
   const expira = String(Date.now() + SESSAO_MS)
   const valor = `${expira}.${await assinar(env.PAINEL_SENHA, expira)}`
   return json({ ok: true }, 200, { 'Set-Cookie': `painel=${valor}; Path=/painel; HttpOnly; Secure; SameSite=Strict; Max-Age=${SESSAO_MS / 1000}` })
@@ -111,7 +114,7 @@ export async function handlePainel(request, env, ctx) {
         const texto = String(corpo.texto || '').trim()
         if (!texto) return erro('Escreva a mensagem antes de enviar.')
         if (!conversa.janelaAberta) return erro('A janela de 24h está fechada. Use um modelo aprovado.', 409)
-        await enviarTexto(env, phone, texto)
+        await enviarTexto(env, phone, `*Rafael:* ${texto}`)
         await db.salvarMensagem(env.DB, phone, 'rafael', texto)
         await db.definirPausa(env.DB, phone, Date.now() + PAUSA_RESPOSTA_MS)
         return json({ ok: true, pausadaAte: Date.now() + PAUSA_RESPOSTA_MS })
@@ -135,7 +138,7 @@ export async function handlePainel(request, env, ctx) {
 
       if (acao === 'perfil' && metodo === 'PUT') {
         await db.atualizarPerfil(env.DB, phone, corpo)
-        if (corpo.etapa === 'Cliente') await db.adicionarEtiqueta(env.DB, phone, 'cliente')
+        if (corpo.etapa === 'Cliente') await db.adicionarEtiqueta(env.DB, phone, 'cliente-ativo')
         if (corpo.etapa) await db.registrarEvento(env.DB, phone, 'etapa', `${conversa.nome} foi para "${corpo.etapa}".`)
         return json({ ok: true })
       }
@@ -164,15 +167,16 @@ export async function handlePainel(request, env, ctx) {
         if (!conversa.janelaAberta) return erro('A janela de 24h está fechada. Use o modelo "retomada_diagnostico".', 409)
         await enviarTexto(env, phone, texto)
         await db.salvarMensagem(env.DB, phone, 'clara', texto)
-        await db.adicionarEtiqueta(env.DB, phone, 'quente')
+        await db.adicionarEtiqueta(env.DB, phone, 'lead-quente')
         if (['Novo', 'Qualificando'].includes(conversa.perfil.etapa)) await db.atualizarPerfil(env.DB, phone, { etapa: 'Oferta enviada' })
         return json({ ok: true })
       }
 
       if (acao === 'pagamento' && metodo === 'POST') {
         await db.atualizarPerfil(env.DB, phone, { etapa: 'Cliente', interesse: 'Mentoria' })
-        await db.adicionarEtiqueta(env.DB, phone, 'cliente')
-        await db.removerEtiqueta(env.DB, phone, 'quente')
+        await db.adicionarEtiqueta(env.DB, phone, 'cliente-ativo')
+        await db.removerEtiqueta(env.DB, phone, 'lead-quente')
+        if (typeof env.__sincronizarEtiquetaWix === 'function') ctx?.waitUntil?.(env.__sincronizarEtiquetaWix(phone, 'cliente-ativo', true))
         if (conversa.janelaAberta) {
           await enviarTexto(env, phone, BOAS_VINDAS_MENTORIA)
           await db.salvarMensagem(env.DB, phone, 'clara', BOAS_VINDAS_MENTORIA)

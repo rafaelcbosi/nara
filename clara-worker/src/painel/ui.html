@@ -293,8 +293,8 @@ button{cursor:pointer}
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 
 <script>
-const TAGS={quente:{l:"Lead quente",c:"t-quente"},cliente:{l:"Cliente ativo",c:"t-cliente"},mentoria:{l:"Interesse Mentoria",c:"t-mentoria"},serie:{l:"Série Clareza",c:"t-serie"},whatsapp:{l:"Clara WhatsApp",c:"t-whatsapp"},rafael:{l:"Precisa do Rafael",c:"t-rafael"}};
-const FILTROS=[["todas","Todas"],["quente","Lead quente"],["rafael","Precisa do Rafael"],["cliente","Clientes"],["pausada","Clara pausada"],["naolida","Não lidas"]];
+const TAGS={"lead-quente":{l:"Lead quente",c:"t-quente"},"cliente-ativo":{l:"Cliente ativo",c:"t-cliente"},mentoria:{l:"Interesse Mentoria",c:"t-mentoria"},"serie-clareza":{l:"Série Clareza",c:"t-serie"},"precisa-rafael":{l:"Precisa do Rafael",c:"t-rafael"}};
+const FILTROS=[["todas","Todas"],["lead-quente","Lead quente"],["precisa-rafael","Precisa do Rafael"],["cliente-ativo","Clientes"],["pausada","Clara pausada"],["naolida","Não lidas"]];
 const ADV={segmento:"Segmento",tipo:"Tipo de negócio",faturamento:"Faturamento",etapa:"Etapa",origem:"Origem",uf:"Estado"};
 const S={view:"dia",conversas:[],atual:null,conversa:null,filtro:"todas",adv:{},ordem:"recente",opcoes:null,sugestoes:{}};
 const $=s=>document.querySelector(s);
@@ -332,7 +332,7 @@ function renderLista(){const L=S.conversas.filter(passa).sort((a,b)=>S.ordem==="
   $("#c-conv").textContent=S.conversas.reduce((a,c)=>a+c.naoLidas,0);
   $("#items").innerHTML=L.length?L.map(c=>{const p=c.perfil;const co=[p.empresa,p.segmento,p.cidade&&(p.cidade+(p.uf?"/"+p.uf:""))].filter(Boolean).join(" · ");
     const quem=c.ultimaAutor==="cliente"?"":c.ultimaAutor==="clara"?"Clara: ":"Você: ";
-    return `<button class="item" data-id="${esc(c.phone)}" aria-current="${c.phone===S.atual}"><div class="av">${esc(ini(c.nome))}</div><div style="min-width:0"><div class="name">${esc(c.nome)}${c.ativa?"":' <span class="chip t-rafael">Pausada</span>'}</div>${co?`<div class="co">${esc(co)}</div>`:""}<div class="prev">${esc(quem+c.ultimaTexto.replace(/\n/g," "))}</div><div class="chips">${c.etiquetas.filter(t=>t!=="whatsapp").map(t=>chip(t)).join("")}</div></div><div class="meta">${ago(c.ultimaEm)}<span class="score ${sc(p.score)}" title="Temperatura do lead">${p.score}</span>${c.naoLidas?`<span class="unread">${c.naoLidas}</span>`:""}</div></button>`}).join(""):`<p class="empty">Nenhuma conversa com esse filtro.</p>`}
+    return `<button class="item" data-id="${esc(c.phone)}" aria-current="${c.phone===S.atual}"><div class="av">${esc(ini(c.nome))}</div><div style="min-width:0"><div class="name">${esc(c.nome)}${c.ativa?"":' <span class="chip t-rafael">Pausada</span>'}</div>${co?`<div class="co">${esc(co)}</div>`:""}<div class="prev">${esc(quem+c.ultimaTexto.replace(/\n/g," "))}</div><div class="chips">${c.etiquetas.filter(t=>TAGS[t]).map(t=>chip(t)).join("")}</div></div><div class="meta">${ago(c.ultimaEm)}<span class="score ${sc(p.score)}" title="Temperatura do lead">${p.score}</span>${c.naoLidas?`<span class="unread">${c.naoLidas}</span>`:""}</div></button>`}).join(""):`<p class="empty">Nenhuma conversa com esse filtro.</p>`}
 async function carregarConversas(){S.conversas=(await api("conversas")).conversas;renderAdv();renderLista()}
 
 async function abrir(phone){S.atual=phone;$("#app").classList.add("open");$("#msgs").classList.add("loading");
@@ -363,7 +363,7 @@ function renderConversa(){const c=S.conversa;if(!c)return;const p=c.perfil;
   $("#tags").innerHTML=c.etiquetas.map(t=>chip(t,true)).join("")||'<span class="hint">Sem etiquetas</span>';
   $("#tagsel").innerHTML=Object.keys(TAGS).filter(k=>!c.etiquetas.includes(k)).map(k=>`<option value="${k}">${TAGS[k].l}</option>`).join("")||"<option value=''>Todas aplicadas</option>";
   $("#notes").value=p.notas||"";
-  const cli=c.etiquetas.includes("cliente")||p.etapa==="Cliente";
+  const cli=c.etiquetas.includes("cliente-ativo")||p.etapa==="Cliente";
   $("#actions").innerHTML=(p.etapa==="Diagnóstico marcado"?`<button class="btn primary" data-brief="${esc(c.phone)}">📋 Ver briefing do Diagnóstico</button>`:"")+
    (cli?`<div class="auto">✓ Cliente ativo.</div>`:`<button class="btn" data-a="diag">Convidar para o Diagnóstico Estratégico</button><div class="hint">Pagamentos pela plataforma são confirmados sozinhos. Use o botão abaixo só para Pix ou transferência.</div><div id="paybox"><button class="btn" data-a="pago">Confirmar pagamento manualmente</button></div>`)}
 

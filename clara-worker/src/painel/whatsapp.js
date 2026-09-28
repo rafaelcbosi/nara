@@ -1,5 +1,5 @@
 // Envio pelo WhatsApp Cloud API (mesmas variáveis que a Clara já usa).
-const versao = env => env.GRAPH_VERSION || 'v21.0'
+const versao = env => env.GRAPH_VERSION || 'v23.0'
 
 async function enviar(env, corpo) {
   if (env.PAINEL_DEV === '1') return { ok: true, simulado: true }

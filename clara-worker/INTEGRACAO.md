@@ -1,53 +1,18 @@
-# Como ligar o Painel na Clara (Worker clara-whatsapp)
+# Como a Clara e o Painel são montados
 
-O painel foi construído e testado localmente (`npm run db:local` e `npm run dev`).
-Para rodar em produção, ele entra no mesmo Worker da Clara. Passos:
+- Código-fonte: `src/index.js` (Clara, a partir do backup `worker-atual.js`, com correções), `src/painel/*` (painel), `src/cerebro.js` (cérebro + 105 respostas).
+- Arquivo único para produção: `dist/clara-worker.js`, gerado por `npm run build`. É esse arquivo que vai para o editor do Cloudflare.
+- As tabelas do painel (`painel_*`) são criadas sozinhas pelo Worker. Nada muda nas tabelas `messages` e `contacts`.
+- Secret novo: `PAINEL_SENHA`.
+- Teste local: `npm install`, `npm run db:local`, `npm run dev` e abrir http://127.0.0.1:8787/painel (o arquivo `.dev.vars` com `PAINEL_DEV=1` simula os envios).
 
-## 1. Arquivos
-Copiar para o Worker de produção:
-- `src/painel/handler.js`, `db.js`, `negocio.js`, `whatsapp.js`, `ai.js`, `ui.html`
-- `src/cerebro.js` (gerado por `npm run build:cerebro`)
+## Mudanças em relação ao código que estava no ar
+1. **Correção crítica:** o laço de `statuses` estava fora do bloco onde `value` existe. Toda mensagem gerava `ReferenceError: value is not defined` e a Clara não respondia ninguém.
+2. Cérebro: além da base fixa, cada resposta recebe as 3 respostas do Rafael mais parecidas com a pergunta (105 no total).
+3. Contexto informa quantas mensagens a Clara já enviou, para respeitar o limite de 2 perguntas.
+4. Comandos novos: `/cliente NUMERO` e `/perguntas [dias]`.
+5. Escalonamento e "falar com o Rafael" marcam a etiqueta `precisa-rafael`.
+6. Perguntas dos clientes vão para a aba Aprendizado; a cada 3 mensagens a IA atualiza o perfil do cliente.
+7. Painel em `/painel`.
 
-No `wrangler.toml` de produção, garantir a regra para importar HTML como texto:
-```toml
-[[rules]]
-type = "Text"
-globs = ["**/*.html"]
-fallthrough = true
-```
-
-## 2. Rota
-No `fetch` do Worker principal, antes do webhook:
-```js
-import { handlePainel } from './painel/handler.js'
-// ...
-if (url.pathname.startsWith('/painel')) return handlePainel(request, env, ctx)
-```
-
-## 3. Banco (D1 "clara")
-Rodar `migrations/0001_painel.sql` uma vez (só cria tabelas novas `painel_*`; não mexe nas existentes).
-
-## 4. Adaptador
-Em `src/painel/db.js`, ajustar o bloco `ADAPTADOR` com os nomes reais das tabelas e colunas de mensagens e contatos
-(e onde a pausa de 12h é guardada). É o único ponto que depende do código atual.
-
-## 5. Ganchos no fluxo da Clara
-Depois que a Clara responder uma mensagem de cliente:
-```js
-import { registrarPerguntaParaRevisao, atualizarPerfil } from './painel/db.js'
-import { extrairPerfil } from './painel/ai.js'
-ctx.waitUntil(registrarPerguntaParaRevisao(env.DB, phone, textoCliente, respostaClara))
-// A cada 3 mensagens do cliente, atualizar o perfil com IA:
-ctx.waitUntil(extrairPerfil(env, conversa).then(d => atualizarPerfil(env.DB, phone, d)))
-```
-Etiquetas: expor a função de etiqueta do Wix que já existe como `env.__sincronizarEtiquetaWix(phone, etiqueta, adicionar)`.
-
-## 6. Segredos
-- `PAINEL_SENHA` (Secret): senha de acesso ao painel. Recomendado também proteger `/painel*` com Cloudflare Access (login por e-mail).
-- Já existentes e reutilizados: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `OPENROUTER_API_KEY`, `DB`.
-
-## 7. Modelos da Meta
-Cadastrar e aprovar os modelos de `templates-meta.md` antes de usar "Reabrir conversa".
-
-## Endereço
-https://clara-whatsapp.rafael-d06.workers.dev/painel
+Para publicar: seguir `INSTRUCOES-CHROME.md`.

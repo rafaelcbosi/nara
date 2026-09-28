@@ -1,4 +1,5 @@
 -- Tabelas do Painel da Clara. Só cria tabelas novas; não altera as existentes.
+-- Não é obrigatório rodar à mão: o Worker cria estas tabelas sozinho (ensureSchema).
 CREATE TABLE IF NOT EXISTS painel_perfis (
   phone TEXT PRIMARY KEY,
   empresa TEXT,
@@ -19,12 +20,6 @@ CREATE TABLE IF NOT EXISTS painel_perfis (
   diagnostico_em INTEGER,   -- epoch ms da call de Diagnóstico, se marcada
   perfil_ia_em INTEGER,     -- quando a IA atualizou o perfil pela última vez
   atualizado_em INTEGER
-);
-CREATE TABLE IF NOT EXISTS painel_etiquetas (
-  phone TEXT NOT NULL,
-  etiqueta TEXT NOT NULL,
-  criado_em INTEGER,
-  PRIMARY KEY (phone, etiqueta)
 );
 CREATE TABLE IF NOT EXISTS painel_eventos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

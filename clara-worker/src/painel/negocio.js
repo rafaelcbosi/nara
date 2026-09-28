@@ -49,7 +49,7 @@ export function tarefasDoDia(conversas, pendentesAprendizado) {
   for (const c of conversas.filter(c => c.naoLidas && c.perfil.score >= 75 && c.ultimaAutor === 'cliente')) {
     T.push({ prioridade: 1, titulo: `${primeiroNome(c)} está quente e esperando`, detalhe: `${c.perfil.empresa || c.phone}. Última mensagem: "${c.ultimaTexto.slice(0, 90)}"`, acao: 'abrir', phone: c.phone })
   }
-  for (const c of conversas.filter(c => !c.ativa && c.etiquetas.includes('rafael') && c.ultimaAutor === 'cliente')) {
+  for (const c of conversas.filter(c => !c.ativa && c.etiquetas.includes('precisa-rafael') && c.ultimaAutor === 'cliente')) {
     T.push({ prioridade: 1, titulo: `${primeiroNome(c)} está esperando você`, detalhe: 'A Clara está pausada nesta conversa.', acao: 'abrir', phone: c.phone })
   }
   for (const c of conversas.filter(c => !c.janelaAberta && c.ultimaClienteEm && !['Cliente', 'Perdido'].includes(c.perfil.etapa))) {

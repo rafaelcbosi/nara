@@ -1,3 +1,7 @@
 node_modules/
 .wrangler/
 .dev.vars
+dist/*.map
+dist/*.html
+dist/README.md
+dist/index.js
