@@ -16,7 +16,7 @@ Atualizado em 27/09/2026.
 ## Em aberto
 | # | Tarefa | Quem |
 |---|---|---|
-| 1 | Colar o código do Worker para ligar cérebro, base, limite de 2 perguntas e /perguntas na Clara | Rafael cola, Claude ajusta |
+| 1 | Publicar `clara-worker/dist/clara-worker.js` (corrige o erro que impedia a Clara de responder, liga cérebro, comandos e painel) seguindo `clara-worker/INSTRUCOES-CHROME.md` | Chrome publica, Rafael confirma |
 | 2 | Links de agendamento: feito (rafaelbosi.com/30-min para o Diagnóstico Estratégico e rafaelbosi.com/agendamento-mentoria só para quem pagou) | Feito |
 | 3 | Link de pagamento da Mentoria | Rafael informa |
 | 4 | Conteúdo para a Clara: 4 guias da Série, formato da Mentoria, depoimentos, história do Rafael | Rafael manda (pode ser áudio) |
