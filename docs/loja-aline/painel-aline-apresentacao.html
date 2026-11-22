@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel da Aline</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: página longa em 4 blocos (fluxo → painel da Aline → painel da equipe → fases); o painel é um app com abas dentro de uma moldura */
+:root{
+  --bg:#F6F5F8; --surface:#FFFFFF; --surface-2:#EFEDF3; --line:#DEDAE6;
+  --fg:#1D1A24; --muted:#6B6578;
+  --accent:#7A2E62; --accent-soft:#F2E4EE;
+  --good:#1E7F55; --good-soft:#E2F2EA;
+  --warn:#9A600E; --warn-soft:#F8EDD9;
+  --crit:#B83A2A; --crit-soft:#F8E2DE;
+  --in:#2F6FB3; --out:#C0603F;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141219; --surface:#1C1922; --surface-2:#25212D; --line:#34303E;
+  --fg:#EEEAF3; --muted:#A29BB0;
+  --accent:#D98BC0; --accent-soft:#3A2232;
+  --good:#4CC38A; --good-soft:#15301F;
+  --warn:#E0A548; --warn-soft:#33270F;
+  --crit:#F07A68; --crit-soft:#3A1C17;
+  --in:#6FA8E6; --out:#E58E6C; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141219; --surface:#1C1922; --surface-2:#25212D; --line:#34303E;
+  --fg:#EEEAF3; --muted:#A29BB0;
+  --accent:#D98BC0; --accent-soft:#3A2232;
+  --good:#4CC38A; --good-soft:#15301F;
+  --warn:#E0A548; --warn-soft:#33270F;
+  --crit:#F07A68; --crit-soft:#3A1C17;
+  --in:#6FA8E6; --out:#E58E6C; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--f-body); font-size:15px; line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); padding-block:0 64px}
+.wrap{max-width:1120px; margin:0 auto}
+h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3rem); font-weight:700; letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,2rem); font-weight:700; letter-spacing:-.01em}
+h3{font-size:1.05rem; font-weight:700}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.label{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.muted{color:var(--muted)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+/* topo */
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); border-bottom:1px solid var(--line); margin-inline:calc(-1 * max(16px, env(safe-area-inset-left,0px)))}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--bg)}
+.top nav{max-width:1120px; margin:0 auto; display:flex; gap:4px; overflow-x:auto; padding:10px max(16px, env(safe-area-inset-left,0px))}
+.top a{white-space:nowrap; text-decoration:none; color:var(--muted); font-weight:600; font-size:.88rem; padding:6px 12px; border-radius:999px}
+.top a:hover{color:var(--fg); background:var(--surface-2)}
+.top a.brand{color:var(--fg); font-family:var(--f-display); font-size:1rem; margin-right:auto}
+
+header.intro{padding-block:48px 24px; display:grid; gap:16px}
+header.intro p.lead{font-size:1.1rem; max-width:62ch; color:var(--muted)}
+.tag{display:inline-flex; align-items:center; gap:6px; font-size:.78rem; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); width:max-content}
+.goal{display:flex; flex-wrap:wrap; gap:12px; margin-top:8px}
+.goal div{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:12px 16px; min-width:0}
+.goal strong{font-family:var(--f-display); font-size:1.4rem; display:block}
+
+section{padding-block:40px; border-top:1px solid var(--line); display:grid; gap:24px}
+section > .head{display:grid; gap:8px; max-width:70ch}
+
+/* fluxo */
+.flow{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:start}
+.step{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px; display:grid; gap:12px; position:relative; min-width:0}
+.step + .step::before{content:"→"; position:absolute; left:-13px; top:22px; color:var(--accent); font-weight:700; font-size:1rem; background:var(--bg); width:12px; text-align:center}
+.step h3{display:flex; gap:8px; align-items:baseline}
+.step h3 b{font-family:var(--f-mono); font-size:.75rem; color:var(--accent); font-weight:500}
+.step ul{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.step li{display:grid; gap:1px; font-size:.88rem; padding-bottom:8px; border-bottom:1px dashed var(--line)}
+.step li:last-child{border-bottom:0; padding-bottom:0}
+.step li span{color:var(--muted); font-size:.8rem}
+.step.claude{background:var(--accent-soft); border-color:transparent}
+.step.claude li{border-bottom-color:color-mix(in srgb, var(--accent) 25%, transparent)}
+.rotina{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px}
+.rotina div{border-left:3px solid var(--accent); padding:4px 0 4px 12px; display:grid; gap:2px; min-width:0}
+.rotina strong{font-size:.95rem}
+.rotina span{font-size:.85rem; color:var(--muted)}
+.security{display:flex; gap:12px; align-items:flex-start; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px; font-size:.9rem}
+.security b{color:var(--good)}
+
+/* app */
+.app{background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 1px 0 var(--line), 0 18px 40px -24px rgba(40,20,50,.35)}
+.app-bar{display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--line)}
+.app-bar .who{display:grid; gap:0}
+.app-bar .who strong{font-family:var(--f-display); font-size:1.15rem}
+.health{display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:var(--good-soft); color:var(--good); font-weight:700; font-size:.85rem}
+.health i{width:8px; height:8px; border-radius:50%; background:currentColor; display:block}
+.tabs{display:flex; gap:2px; overflow-x:auto; padding:0 12px; border-bottom:1px solid var(--line); background:var(--surface-2)}
+.tabs button{font:inherit; font-size:.86rem; font-weight:600; color:var(--muted); background:none; border:0; padding:12px 12px 10px; border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent)}
+.tabs .count{display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:999px; background:var(--crit); color:var(--surface); font-size:.7rem; line-height:18px; text-align:center}
+.panel{padding:18px; display:grid; gap:16px}
+[hidden]{display:none!important}
+
+.kpis{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+.kpi{border:1px solid var(--line); border-radius:var(--r); padding:14px; display:grid; gap:6px; min-width:0}
+.kpi .v{font-family:var(--f-display); font-size:1.65rem; font-weight:700; line-height:1.1}
+.kpi .s{font-size:.82rem; color:var(--muted)}
+.kpi.hero{background:var(--accent-soft); border-color:transparent}
+.kpi.hero .v{color:var(--accent)}
+.bar{height:6px; border-radius:999px; background:var(--surface-2); overflow:hidden}
+.bar i{display:block; height:100%; border-radius:inherit; background:var(--accent)}
+.bar.good i{background:var(--good)} .bar.warn i{background:var(--warn)}
+.pos{color:var(--good)} .neg{color:var(--crit)}
+
+.grid2{display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); gap:16px}
+.grid2.even{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{border:1px solid var(--line); border-radius:var(--r); padding:16px; display:grid; gap:12px; align-content:start; min-width:0}
+.card-h{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap}
+
+.chart-wrap{overflow-x:auto}
+.chart-wrap svg{display:block; width:100%; min-width:520px; height:auto}
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:.8rem; color:var(--muted)}
+.legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px}
+
+.alerts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.alert{display:grid; grid-template-columns:4px 1fr; gap:12px; padding:10px 12px 10px 0; border-radius:10px; background:var(--surface-2); font-size:.88rem}
+.alert::before{content:""; border-radius:4px; background:var(--muted)}
+.alert.crit::before{background:var(--crit)} .alert.warn::before{background:var(--warn)} .alert.info::before{background:var(--in)} .alert.ok::before{background:var(--good)}
+.alert b{display:block; font-size:.9rem}
+.alert span{color:var(--muted)}
+.alert button{margin-top:4px}
+
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:.75rem; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap}
+.chip.ok{background:var(--good-soft); color:var(--good)}
+.chip.warn{background:var(--warn-soft); color:var(--warn)}
+.chip.crit{background:var(--crit-soft); color:var(--crit)}
+.chip.wait{background:var(--surface-2); color:var(--muted)}
+
+.rows{display:grid; gap:10px}
+.row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center; font-size:.9rem}
+.row .bar{grid-column:1 / -1}
+
+table{width:100%; border-collapse:collapse; font-size:.86rem}
+th{text-align:left; font-family:var(--f-mono); font-weight:500; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+td.r, th.r{text-align:right}
+.table-wrap{overflow-x:auto}
+.table-wrap table{min-width:640px}
+
+.btn{font:inherit; font-size:.82rem; font-weight:700; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--fg); cursor:pointer}
+.btn:hover{border-color:var(--accent); color:var(--accent)}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.btn.primary:hover{opacity:.9; color:var(--surface)}
+
+.why{border-top:1px dashed var(--line); padding-top:10px; font-size:.85rem; color:var(--muted); display:grid; gap:4px}
+.why[hidden]{display:none}
+.suggest{display:grid; gap:8px; padding:12px; border-radius:10px; background:var(--surface-2)}
+.suggest b{font-size:.92rem}
+
+/* equipe (celular) + email */
+.duo{display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:28px; align-items:start}
+.phone{border:10px solid var(--fg); border-radius:34px; background:var(--bg); padding:18px 14px; display:grid; gap:12px; max-width:340px; width:100%; position:relative}
+.phone .notch{width:90px; height:6px; border-radius:999px; background:var(--line); margin:0 auto 4px}
+.phone .card{background:var(--surface)}
+.big{font-family:var(--f-display); font-size:2rem; font-weight:700; line-height:1}
+.challenge{background:var(--accent); color:var(--surface); border-radius:var(--r); padding:14px; display:grid; gap:6px}
+.challenge .label{color:inherit; opacity:.8}
+.challenge strong{font-family:var(--f-display); font-size:1.1rem; line-height:1.2}
+.punch{display:grid; gap:8px}
+.punch input{font:inherit; font-size:1.2rem; letter-spacing:.5em; text-align:center; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--fg); width:100%}
+.punch .ok{background:var(--good-soft); color:var(--good); border-radius:10px; padding:12px; font-weight:700; text-align:center}
+.email{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); overflow:hidden}
+.email-h{padding:12px 16px; border-bottom:1px solid var(--line); display:grid; gap:2px; font-size:.85rem}
+.email-b{padding:16px; display:grid; gap:12px; font-size:.9rem}
+.note{font-size:.85rem; color:var(--muted); display:grid; gap:6px}
+.note li{margin-left:-6px}
+
+/* fases */
+.phases{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px}
+.phase{border:1px solid var(--line); border-radius:var(--r); padding:16px; display:grid; gap:10px; align-content:start; background:var(--surface); min-width:0}
+.phase.now{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.phase ul{margin:0; padding-left:18px; display:grid; gap:4px; font-size:.88rem}
+.phase .label b{color:var(--accent)}
+
+.need{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; counter-reset:n}
+.need div{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:.9rem; display:flex; gap:10px}
+.need div::before{counter-increment:n; content:counter(n); font-family:var(--f-mono); color:var(--accent); font-weight:500}
+
+@media (max-width:900px){
+  .flow,.rotina,.phases{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .step:nth-child(3)::before{display:none}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid2,.grid2.even,.duo{grid-template-columns:minmax(0,1fr)}
+  .phone{margin:0 auto}
+}
+@media (max-width:560px){
+  .flow,.rotina,.phases,.need{grid-template-columns:minmax(0,1fr)}
+  .step + .step::before{content:"↓"; left:50%; top:-14px; transform:translateX(-50%); width:20px}
+  .step:nth-child(3)::before{display:block}
+  .kpis{grid-template-columns:minmax(0,1fr)}
+  .panel{padding:14px}
+}
+@media (prefers-reduced-motion:no-preference){ .bar i{transition:width .6s ease} }
+</style>
+</head>
+<body>
+
+<div class="top"><nav aria-label="Seções">
+  <a class="brand" href="#inicio">Painel da Aline</a>
+  <a href="#fluxo">Fluxo</a>
+  <a href="#painel">Painel da Aline</a>
+  <a href="#equipe">Equipe</a>
+  <a href="#fases">Fases</a>
+</nav></div>
+
+<div class="wrap">
+
+<header class="intro" id="inicio">
+  <span class="tag">Proposta visual · números de exemplo</span>
+  <h1>Uma tela pra saber como está a loja</h1>
+  <p class="lead">Este é o desenho do que conversamos com a Aline: de onde vem cada informação, o que o Claude faz sozinho e como fica o painel quando ela chega na loja de manhã. Todos os valores abaixo são ilustrativos.</p>
+  <div class="goal">
+    <div><span class="label">Hoje</span><strong>~2 h por dia</strong><span class="muted">lançando e conferindo na mão</span></div>
+    <div><span class="label">Meta</span><strong>~15 min por semana</strong><span class="muted">baixar extrato, soltar XML, aprovar</span></div>
+  </div>
+</header>
+
+<!-- ============ FLUXO ============ -->
+<section id="fluxo">
+  <div class="head">
+    <span class="label">1 · O fluxo</span>
+    <h2>Ninguém digita a mesma coisa duas vezes</h2>
+    <p class="muted">A rotina da loja continua igual. A Thay segue lançando o caixa e a Aline segue pagando pelo DDA. O que muda é que o Claude junta tudo numa base só e entrega pronto.</p>
+  </div>
+
+  <div class="flow">
+    <div class="step">
+      <h3><b>01</b> De onde vem</h3>
+      <ul>
+        <li>Sistema fiscal<span>vendas, vendedora, estoque</span></li>
+        <li>Maquininha (Rede)<span>vendas, taxas, parcelas</span></li>
+        <li>Banco<span>Pix, débito e crédito que caíram</span></li>
+        <li>Notas fiscais (XML)<span>fornecedor, valor, boletos</span></li>
+        <li>Planilha Caixa<span>vendas por vendedora e forma</span></li>
+        <li>Planilha Ponto<span>entradas e saídas</span></li>
+        <li>Numus<span>clientes e cashback</span></li>
+        <li>Cutelaria Jonas<span>clientes e afiações</span></li>
+      </ul>
+    </div>
+    <div class="step">
+      <h3><b>02</b> Como chega</h3>
+      <ul>
+        <li>Pasta no Drive<span>a Aline solta extrato (PDF, foto ou arquivo) e XML das notas</span></li>
+        <li>Leitura das planilhas<span>Financeiro, Caixa e Ponto, só leitura das originais</span></li>
+        <li>Export do sistema<span>relatório diário de vendas e estoque</span></li>
+        <li>Numus<span>lista de clientes exportada, ou leitura com login da Aline</span></li>
+        <li>Ponto pelo painel<span>a funcionária digita o PIN na loja</span></li>
+      </ul>
+    </div>
+    <div class="step claude">
+      <h3><b>03</b> O que o Claude faz</h3>
+      <ul>
+        <li>Lança as notas<span>contas a pagar com cada parcela + compras do mês</span></li>
+        <li>Concilia o cartão<span>venda × maquininha × banco, linha por linha</span></li>
+        <li>Monta a agenda de recebíveis<span>quanto cai em cada dia</span></li>
+        <li>Calcula o ponto<span>extras − atrasos = saldo de cada uma</span></li>
+        <li>Lê estoque e clientes<span>sugere pedido, ação de cashback, reafiação</span></li>
+        <li>Gera alertas<span>só o que precisa de decisão</span></li>
+      </ul>
+    </div>
+    <div class="step">
+      <h3><b>04</b> Onde aparece</h3>
+      <ul>
+        <li>Painel da Aline<span>privado, tudo em uma tela</span></li>
+        <li>Painel da equipe<span>meta, desafio, recado e ponto, sem número financeiro</span></li>
+        <li>E-mail semanal individual<span>cada uma recebe só o próprio extrato de horas</span></li>
+        <li>Aviso no celular da Aline<span>só para o que é crítico</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="rotina">
+    <div><strong>Todo dia, 7h</strong><span>Claude lê caixa, ponto e vendas e atualiza os painéis antes de a loja abrir</span></div>
+    <div><strong>Quando chega nota</strong><span>XML na pasta → contas a pagar e compras do mês preenchidas</span></div>
+    <div><strong>Toda segunda</strong><span>extrato da Rede e do banco → conciliação + e-mail de horas pra equipe</span></div>
+    <div><strong>A cada 3 meses</strong><span>fechamento do banco de horas: a Aline só confere e aprova</span></div>
+  </div>
+
+  <div class="security">
+    <span class="chip ok">Segurança</span>
+    <p><b>O Claude não entra no banco.</b> A Aline baixa o extrato e solta na pasta. As planilhas originais são só lidas, e as meninas nunca veem valores financeiros.</p>
+  </div>
+</section>
+
+<!-- ============ PAINEL DA ALINE ============ -->
+<section id="painel">
+  <div class="head">
+    <span class="label">2 · Painel da Aline</span>
+    <h2>Chegou na loja, abriu, decidiu</h2>
+    <p class="muted">A primeira aba responde se a empresa está saudável. As outras abas guardam o detalhe. Clique nas abas pra navegar.</p>
+  </div>
+
+  <div class="app">
+    <div class="app-bar">
+      <div class="who"><span class="label">Segunda, 23 de novembro · atualizado às 7h02</span><strong>Bom dia, Aline</strong></div>
+      <span class="health"><i></i>Saúde da loja: boa</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Áreas do painel">
+      <button role="tab" id="t-hoje" aria-controls="p-hoje" aria-selected="true">Hoje</button>
+      <button role="tab" id="t-conc" aria-controls="p-conc" aria-selected="false">Recebíveis e conciliação<span class="count">3</span></button>
+      <button role="tab" id="t-contas" aria-controls="p-contas" aria-selected="false">Contas e compras</button>
+      <button role="tab" id="t-equipe" aria-controls="p-equipe" aria-selected="false">Equipe e ponto</button>
+      <button role="tab" id="t-cash" aria-controls="p-cash" aria-selected="false">Clientes e cashback</button>
+      <button role="tab" id="t-est" aria-controls="p-est" aria-selected="false">Estoque</button>
+      <button role="tab" id="t-cut" aria-controls="p-cut" aria-selected="false">Cutelaria</button>
+    </div>
+
+    <!-- HOJE -->
+    <div class="panel" role="tabpanel" id="p-hoje" aria-labelledby="t-hoje">
+      <div class="kpis">
+        <div class="kpi"><span class="label">Vendido ontem</span><span class="v num">R$ 3.480</span><div class="bar warn"><i style="width:87%"></i></div><span class="s">87% da meta do dia (R$ 4.000)</span></div>
+        <div class="kpi"><span class="label">Vendido no mês</span><span class="v num">R$ 71.250</span><div class="bar"><i style="width:75%"></i></div><span class="s">75% de R$ 95.000 · faltam R$ 3.390 por dia útil</span></div>
+        <div class="kpi hero"><span class="label">Saldo projetado 30 dias</span><span class="v num">+R$ 8.085</span><span class="s">o que entra menos o que sai até 23/12</span></div>
+        <div class="kpi"><span class="label">Entra nos próximos 30 dias</span><span class="v num pos">R$ 50.340</span><span class="s">7 dias: R$ 11.060 · cartão, Pix e débito</span></div>
+        <div class="kpi"><span class="label">Sai nos próximos 30 dias</span><span class="v num neg">R$ 42.255</span><span class="s">7 dias: R$ 4.220 · boletos e fixos</span></div>
+        <div class="kpi"><span class="label">Ainda dá pra comprar</span><span class="v num">R$ 5.200</span><div class="bar warn"><i style="width:83%"></i></div><span class="s">comprado R$ 24.800 de R$ 30.000</span></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><h3>Dinheiro entrando e saindo, dia a dia</h3><span class="label">próximos 30 dias</span></div>
+          <div class="legend"><span><i style="background:var(--in)"></i>entra (recebíveis)</span><span><i style="background:var(--out)"></i>sai (boletos e fixos)</span><span><i style="background:var(--accent)"></i>saldo acumulado</span></div>
+          <div class="chart-wrap"><svg id="cash-chart" viewBox="0 0 720 260" role="img" aria-label="Gráfico de entradas, saídas e saldo projetado dos próximos 30 dias"></svg></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Precisa da sua atenção</h3><span class="label">6 itens</span></div>
+          <ul class="alerts">
+            <li class="alert crit"><div><b>Parcela de cartão não caiu</b><span>Venda de 14/10, R$ 450 em 3x. A parcela 2 era pra cair em 20/11.</span><br><button class="btn" data-goto="t-conc">Ver conciliação</button></div></li>
+            <li class="alert warn"><div><b>Taxa acima do contratado</b><span>6 vendas no crédito à vista cobradas a 3,49% (contrato: 2,99%). Diferença de R$ 38,20.</span></div></li>
+            <li class="alert info"><div><b>Produto A acaba em ~9 dias</b><span>O fornecedor leva 7 dias. Pedir até quarta.</span><br><button class="btn" data-goto="t-est">Ver por quê</button></div></li>
+            <li class="alert info"><div><b>R$ 840 de cashback vencendo</b><span>12 clientes até sexta. Mensagem pronta pra disparar.</span></div></li>
+            <li class="alert info"><div><b>9 clientes da cutelaria passaram de 40 dias</b><span>Hora do lembrete de reafiação.</span></div></li>
+            <li class="alert ok"><div><b>Boleto de amanhã está agendado</b><span>Fornecedor Alfa · NF 18.442 · R$ 2.140 · DDA ok.</span></div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid2 even">
+        <div class="card">
+          <div class="card-h"><h3>Como a loja recebeu ontem</h3><span class="label num">R$ 3.480</span></div>
+          <div class="rows" id="pay-rows"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Meta do mês por vendedora</h3><span class="label">da planilha Caixa</span></div>
+          <div class="rows" id="seller-rows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCILIAÇÃO -->
+    <div class="panel" role="tabpanel" id="p-conc" aria-labelledby="t-conc" hidden>
+      <div class="kpis">
+        <div class="kpi"><span class="label">Transações conferidas na semana</span><span class="v num">412</span><span class="s">venda × maquininha × banco</span></div>
+        <div class="kpi"><span class="label">Batendo certinho</span><span class="v num pos">409</span><span class="s">99,3%</span></div>
+        <div class="kpi"><span class="label">Taxa de cartão no mês</span><span class="v num">R$ 1.870</span><span class="s">média de 2,9% · argumento pra renegociar com a Rede</span></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Cada venda seguida até cair na conta</h3><span class="label">pendências primeiro</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Venda</th><th>Forma</th><th class="r">Valor</th><th>Parcela</th><th>Previsto</th><th class="r">Caiu</th><th>Situação</th></tr></thead>
+          <tbody class="num">
+            <tr><td>14/10</td><td>Crédito 3x</td><td class="r">R$ 450,00</td><td>2 de 3</td><td>20/11</td><td class="r">—</td><td><span class="chip crit">Não caiu</span></td></tr>
+            <tr><td>21/11</td><td>Crédito 1x</td><td class="r">R$ 640,00</td><td>1 de 1</td><td>21/12</td><td class="r">taxa 3,49%</td><td><span class="chip warn">Taxa errada</span></td></tr>
+            <tr><td>19/11</td><td>Crédito 1x</td><td class="r">R$ 210,00</td><td>—</td><td>—</td><td class="r">—</td><td><span class="chip warn">No sistema, não na maquininha</span></td></tr>
+            <tr><td>21/11</td><td>Débito</td><td class="r">R$ 120,00</td><td>—</td><td>22/11</td><td class="r">R$ 118,98</td><td><span class="chip ok">Ok</span></td></tr>
+            <tr><td>20/11</td><td>Pix</td><td class="r">R$ 95,00</td><td>—</td><td>20/11</td><td class="r">R$ 95,00</td><td><span class="chip ok">Ok</span></td></tr>
+            <tr><td>18/11</td><td>Crédito 2x</td><td class="r">R$ 289,90</td><td>1 de 2</td><td>18/12</td><td class="r">—</td><td><span class="chip wait">A receber</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Agenda de recebíveis do cartão</h3><span class="label">o que a Rede vai depositar</span></div>
+        <div class="rows num" id="recv-rows"></div>
+      </div>
+    </div>
+
+    <!-- CONTAS -->
+    <div class="panel" role="tabpanel" id="p-contas" aria-labelledby="t-contas" hidden>
+      <div class="grid2 even">
+        <div class="card">
+          <div class="card-h"><h3>Limite de compra do mês</h3><span class="label">das notas lançadas</span></div>
+          <div><span class="big num">R$ 5.200</span> <span class="muted">ainda disponíveis</span></div>
+          <div class="bar warn"><i style="width:83%"></i></div>
+          <p class="muted">R$ 24.800 comprados de R$ 30.000 em 14 notas. Esta é a planilha separada que deixa de existir.</p>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>O que sai no mês</h3><span class="label num">R$ 42.255</span></div>
+          <div class="rows">
+            <div class="row"><span>Fixos <span class="muted">· aluguel, folha, contador, sistema</span></span><b class="num">R$ 18.400</b><div class="bar"><i style="width:44%"></i></div></div>
+            <div class="row"><span>Variáveis <span class="muted">· fornecedores</span></span><b class="num">R$ 23.855</b><div class="bar"><i style="width:56%"></i></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Próximos boletos</h3><span class="label">vieram do XML da nota · pagos pelo DDA</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Vence</th><th>Fornecedor</th><th>Nota</th><th>Parcela</th><th class="r">Valor</th><th>DDA</th></tr></thead>
+          <tbody class="num">
+            <tr><td>24/11</td><td>Fornecedor Alfa</td><td>18.442</td><td>1 de 3</td><td class="r">R$ 2.140,00</td><td><span class="chip ok">Agendado</span></td></tr>
+            <tr><td>26/11</td><td>Distribuidora Beta</td><td>5.021</td><td>2 de 4</td><td class="r">R$ 1.380,00</td><td><span class="chip ok">Agendado</span></td></tr>
+            <tr><td>01/12</td><td>Fornecedor Alfa</td><td>17.930</td><td>3 de 3</td><td class="r">R$ 1.960,00</td><td><span class="chip wait">Agendar</span></td></tr>
+            <tr><td>01/12</td><td>Indústria Gama</td><td>88.114</td><td>1 de 2</td><td class="r">R$ 3.475,00</td><td><span class="chip wait">Agendar</span></td></tr>
+            <tr><td>05/12</td><td>Aluguel</td><td>—</td><td>fixo</td><td class="r">R$ 4.200,00</td><td><span class="chip wait">Agendar</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- EQUIPE -->
+    <div class="panel" role="tabpanel" id="p-equipe" aria-labelledby="t-equipe" hidden>
+      <div class="grid2 even">
+        <div class="card">
+          <div class="card-h"><h3>Desafio de hoje</h3><button class="btn primary" type="button">Lançar novo desafio</button></div>
+          <div class="suggest"><b>Primeira a fechar uma venda de R$ 300 ganha R$ 20</b><span class="muted">Vale até 18h · aparece no painel da equipe</span></div>
+          <div class="rows">
+            <div class="row"><span>Cashback registrado hoje <span class="muted">· meta da Tainara: 25</span></span><b class="num">17</b><div class="bar warn"><i style="width:68%"></i></div></div>
+          </div>
+          <div class="card-h"><span class="label">Recado do dia</span></div>
+          <p>"Semana de Black Friday: ofereçam o cashback em dobro em toda venda acima de R$ 150."</p>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Banco de horas</h3><span class="label">fecha em 31/12 · 38 dias</span></div>
+          <div class="table-wrap"><table style="min-width:0">
+            <thead><tr><th>Quem</th><th class="r">A mais</th><th class="r">Atrasos</th><th class="r">Saldo</th></tr></thead>
+            <tbody class="num">
+              <tr><td>Tainara</td><td class="r">+5h10</td><td class="r">−1h50</td><td class="r pos"><b>+3h20</b></td></tr>
+              <tr><td>Taina</td><td class="r">+1h30</td><td class="r">−2h15</td><td class="r neg"><b>−0h45</b></td></tr>
+            </tbody>
+          </table></div>
+          <p class="muted" style="font-size:.85rem">Inclui almoço trabalhado. No fechamento, saldo positivo vira pagamento ou folga (elas escolhem) e saldo negativo é descontado. Sem cor e sem conta na mão.</p>
+          <div class="alerts"><div class="alert warn"><div><b>Taina chegou 12 min atrasada sábado</b><span>3º atraso no mês. Já está no saldo.</span></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Diário de ocorrências</h3><span class="label">a Aline manda áudio, o Claude organiza</span></div>
+        <div class="rows">
+          <div class="row"><span><span class="chip ok">Elogio</span> 21/11 · Tainara resolveu a troca de uma cliente irritada e ainda vendeu R$ 180.</span></div>
+          <div class="row"><span><span class="chip warn">Atenção</span> 18/11 · Cashback não oferecido em 4 vendas seguidas no fim da tarde.</span></div>
+        </div>
+        <p class="muted" style="font-size:.85rem">Registrar fatos, não opiniões. Serve pra feedback e pra reconhecer quem se destaca.</p>
+      </div>
+    </div>
+
+    <!-- CASHBACK -->
+    <div class="panel" role="tabpanel" id="p-cash" aria-labelledby="t-cash" hidden>
+      <div class="kpis">
+        <div class="kpi"><span class="label">Vendas com cashback registrado</span><span class="v num">38%</span><div class="bar warn"><i style="width:63%"></i></div><span class="s">meta: 60% · cruza Caixa × Numus</span></div>
+        <div class="kpi"><span class="label">Cashback vencendo em 7 dias</span><span class="v num">R$ 840</span><span class="s">12 clientes</span></div>
+        <div class="kpi"><span class="label">Sumidas há mais de 60 dias</span><span class="v num">47</span><span class="s">clientes com cashback parado</span></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Ações sugeridas pelo Claude</h3><span class="label">você aprova, ele prepara</span></div>
+        <div class="suggest"><b>Avisar quem tem cashback vencendo</b><span class="muted">"Oi, Carla! Você tem R$ 70 de cashback na loja que vencem sexta. Passa aqui pra usar?" · 12 clientes</span><div><button class="btn primary" type="button">Preparar mensagens</button></div></div>
+        <div class="suggest"><b>Cashback em dobro na terça</b><span class="muted">Terça é o dia mais fraco das últimas 8 semanas (−28% da média).</span></div>
+        <div class="suggest"><b>Indique uma amiga</b><span class="muted">R$ 20 de cashback pra quem indicar e pra amiga na primeira compra. Pode virar campanha no Instagram.</span></div>
+        <div class="suggest"><b>Brinde pras 10 que mais compram</b><span class="muted">Juntas, deixaram R$ 9.400 nos últimos 90 dias.</span></div>
+      </div>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div class="panel" role="tabpanel" id="p-est" aria-labelledby="t-est" hidden>
+      <div class="card">
+        <div class="card-h"><h3>Hora de pedir</h3><span class="label">giro do sistema fiscal</span></div>
+        <div class="rows" id="stock-rows"></div>
+      </div>
+    </div>
+
+    <!-- CUTELARIA -->
+    <div class="panel" role="tabpanel" id="p-cut" aria-labelledby="t-cut" hidden>
+      <div class="kpis">
+        <div class="kpi"><span class="label">Faturamento do mês</span><span class="v num">R$ 2.340</span><span class="s">antes ficava misturado no caixa</span></div>
+        <div class="kpi"><span class="label">Afiações</span><span class="v num">78</span><span class="s">31 clientes · 64% voltaram</span></div>
+        <div class="kpi"><span class="label">Prontos pra reafiar</span><span class="v num">9</span><span class="s">mais de 40 dias da última</span></div>
+      </div>
+      <div class="grid2 even">
+        <div class="card">
+          <div class="card-h"><h3>Lembrete de reafiação</h3><button class="btn primary" type="button">Enviar para os 9</button></div>
+          <p class="muted">"Oi, Carla! Faz 42 dias que você afiou seus alicates com o Jonas. Bora deixar no ponto de novo?"</p>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Potencial do plano mensal</h3><span class="label">simulação</span></div>
+          <p>14 clientes afiam todo mês. Num plano de <b class="num">R$ 60/mês</b>, viram <b class="num">R$ 840</b> garantidos todo mês, antes de abrir a porta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EQUIPE ============ -->
+<section id="equipe">
+  <div class="head">
+    <span class="label">3 · Painel da equipe</span>
+    <h2>Meta e desafio pra todas, horas só pra cada uma</h2>
+    <p class="muted">Uma tela na loja (ou um link) mostra meta, desafio e recado. Ali nunca aparece valor financeiro nem o ponto de outra pessoa. O extrato de horas chega por e-mail, individual.</p>
+  </div>
+  <div class="duo">
+    <div class="phone" aria-label="Exemplo do painel da equipe">
+      <div class="notch"></div>
+      <div class="card">
+        <span class="label">Meta da loja hoje</span>
+        <span class="big num">R$ 2.910</span>
+        <div class="bar good"><i style="width:73%"></i></div>
+        <span class="muted" style="font-size:.85rem">de R$ 4.000 · faltam R$ 1.090. Bora!</span>
+      </div>
+      <div class="challenge">
+        <span class="label">Desafio do dia</span>
+        <strong>Primeira a fechar uma venda de R$ 300 ganha R$ 20</strong>
+        <span style="font-size:.85rem; opacity:.9">Até 18h · ninguém levou ainda</span>
+      </div>
+      <div class="card">
+        <span class="label">Recado da Aline</span>
+        <p style="font-size:.9rem">Black Friday: cashback em dobro acima de R$ 150. Ofereçam em toda venda!</p>
+      </div>
+      <div class="card punch" id="punch">
+        <span class="label">Bater ponto</span>
+        <label for="pin" class="muted" style="font-size:.85rem">Digite seu PIN de 4 dígitos (teste: qualquer número)</label>
+        <input id="pin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+        <button class="btn primary" type="button" id="punch-btn">Registrar entrada</button>
+        <div class="ok" id="punch-ok" hidden></div>
+      </div>
+    </div>
+
+    <div style="display:grid; gap:16px; min-width:0">
+      <div class="email">
+        <div class="email-h"><span class="label">E-mail automático · toda segunda</span><strong>Seu extrato de horas · 17 a 22/11</strong><span class="muted">Para: Tainara</span></div>
+        <div class="email-b">
+          <p>Oi, Tainara! Aqui está o resumo da sua semana:</p>
+          <div class="table-wrap"><table style="min-width:0">
+            <thead><tr><th>Dia</th><th>Entrada</th><th>Saída</th><th class="r">Saldo</th></tr></thead>
+            <tbody class="num">
+              <tr><td>Seg</td><td>08:58</td><td>18:05</td><td class="r pos">+0h07</td></tr>
+              <tr><td>Ter</td><td>09:00</td><td>18:00</td><td class="r">0h00</td></tr>
+              <tr><td>Qua</td><td>09:14</td><td>18:00</td><td class="r neg">−0h14</td></tr>
+              <tr><td>Qui</td><td>09:00</td><td>19:10</td><td class="r pos">+1h10</td></tr>
+              <tr><td>Sex</td><td>08:55</td><td>18:00</td><td class="r pos">+0h05</td></tr>
+              <tr><td>Sáb</td><td>08:57</td><td>13:00</td><td class="r pos">+0h03</td></tr>
+            </tbody>
+          </table></div>
+          <p><b>Semana: +1h11 · Saldo acumulado: +3h20</b><br><span class="muted">Fechamento em 31/12. Dúvidas, fala com a Aline.</span></p>
+        </div>
+      </div>
+      <ul class="note">
+        <li>Ao bater o ponto, a tela mostra só o nome e o horário e some em 4 segundos.</li>
+        <li>Cada uma recebe o próprio extrato por e-mail, sem login e sem ver o da outra.</li>
+        <li>Banco de horas por acordo individual escrito compensa em até 6 meses. Fechar a cada 3 é mais seguro. Vale confirmar com a contadora.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FASES ============ -->
+<section id="fases">
+  <div class="head">
+    <span class="label">4 · Ordem de construção</span>
+    <h2>Primeiro ganhar tempo e achar dinheiro, depois crescer</h2>
+  </div>
+  <div class="phases">
+    <div class="phase now"><span class="label"><b>Fase 1 · começa agora</b></span><h3>Devolver as 2 horas</h3><ul><li>Nota fiscal → todas as planilhas</li><li>Conciliação venda × Rede × banco</li><li>Agenda de recebíveis</li></ul></div>
+    <div class="phase"><span class="label">Fase 2</span><h3>Painel da Aline</h3><ul><li>Saúde da loja em uma tela</li><li>Saldo projetado e limite de compra</li><li>Alertas</li></ul></div>
+    <div class="phase"><span class="label">Fase 3</span><h3>Equipe</h3><ul><li>Meta, desafio e recado</li><li>Ponto pelo painel</li><li>E-mail semanal individual</li></ul></div>
+    <div class="phase"><span class="label">Fase 4</span><h3>Inteligência</h3><ul><li>Estoque e sugestão de pedido</li><li>Cashback e campanhas</li><li>Cutelaria e diário de ocorrências</li></ul></div>
+  </div>
+
+  <div class="head"><h3>Pra começar a Fase 1, a Aline manda</h3></div>
+  <div class="need">
+    <div>Links das planilhas Financeiro, Caixa e Ponto compartilhados</div>
+    <div>1 semana de relatório da Rede, com crédito parcelado</div>
+    <div>O extrato do banco do mesmo período (PDF ou foto)</div>
+    <div>2 ou 3 XMLs de notas fiscais de compra</div>
+    <div>Nome do sistema fiscal</div>
+    <div>Regra do limite de compra do mês</div>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  const brl = v => "R$ " + Math.round(v).toLocaleString("pt-BR");
+
+  /* abas */
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function select(id){
+    tabs.forEach(t => {
+      const on = t.id === id;
+      t.setAttribute("aria-selected", on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+  }
+  tabs.forEach((t,i) => {
+    t.addEventListener("click", () => select(t.id));
+    t.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft"){
+        const n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        select(n.id); n.focus();
+      }
+    });
+  });
+  document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => {
+    select(b.dataset.goto); document.getElementById(b.dataset.goto).focus();
+  }));
+
+  /* linhas com barra */
+  function rows(el, items, max, cls){
+    el.innerHTML = items.map(([name, val, note, c]) =>
+      `<div class="row"><span>${name}${note ? ` <span class="muted">· ${note}</span>` : ""}</span><b class="num">${typeof val === "number" ? brl(val) : val}</b><div class="bar ${c || cls || ""}"><i style="width:${Math.min(100, (typeof val === "number" ? val : 0) / max * 100)}%"></i></div></div>`
+    ).join("");
+  }
+  rows(document.getElementById("pay-rows"), [
+    ["Crédito", 1420], ["Pix", 830], ["Débito", 760], ["Dinheiro", 310], ["Cutelaria (alicates)", 160]
+  ], 1420);
+
+  const sellers = [["Aline", 26100, 33000], ["Tainara", 24300, 32000], ["Taina", 20850, 30000]];
+  document.getElementById("seller-rows").innerHTML = sellers.map(([n, v, m]) => {
+    const p = Math.round(v / m * 100);
+    return `<div class="row"><span>${n} <span class="muted">· ${p}% de ${brl(m)}</span></span><b class="num">${brl(v)}</b><div class="bar ${p >= 75 ? "good" : "warn"}"><i style="width:${p}%"></i></div></div>`;
+  }).join("");
+
+  rows(document.getElementById("recv-rows"), [
+    ["25/11", 3120, "42 parcelas"], ["28/11", 2480, "35 parcelas"], ["02/12", 4060, "51 parcelas"],
+    ["05/12", 2750, "38 parcelas"], ["09/12", 3390, "44 parcelas"]
+  ], 4060);
+
+  /* estoque com "por quê" */
+  const stock = [
+    ["Produto A", "Acaba em ~9 dias", "warn", ["Vendeu 20 na última semana e 150 nos últimos 30 dias.", "Estoque hoje: 45 unidades.", "O fornecedor leva 7 dias pra entregar.", "Sugestão: pedir 160 até quarta (cobre 30 dias)."]],
+    ["Produto B", "Acaba em ~15 dias", "warn", ["Vendeu 12 na semana e 48 em 30 dias.", "Estoque hoje: 24 unidades.", "Sugestão: pedir 50 na próxima compra do fornecedor."]],
+    ["Produto C", "Parado há 74 dias", "crit", ["Nenhuma venda desde 10/09.", "38 unidades paradas, R$ 1.140 em estoque.", "Sugestão: promoção ou kit com Produto A."]]
+  ];
+  document.getElementById("stock-rows").innerHTML = stock.map(([n, s, c, why], i) =>
+    `<div class="suggest"><div class="card-h"><b>${n}</b><span class="chip ${c}">${s}</span></div>
+     <div><button class="btn" type="button" aria-expanded="false" aria-controls="why-${i}" data-why="why-${i}">Por que essa conclusão?</button></div>
+     <div class="why" id="why-${i}" hidden>${why.map(w => `<span>${w}</span>`).join("")}</div></div>`
+  ).join("");
+  document.querySelectorAll("[data-why]").forEach(b => b.addEventListener("click", () => {
+    const w = document.getElementById(b.dataset.why); w.hidden = !w.hidden; b.setAttribute("aria-expanded", !w.hidden);
+  }));
+
+  /* gráfico 30 dias */
+  const svg = document.getElementById("cash-chart");
+  const days = 30, start = new Date(2026, 10, 24);
+  const inc = [], out = [];
+  for (let d = 0; d < days; d++){
+    const dt = new Date(start); dt.setDate(start.getDate() + d);
+    const wd = dt.getDay();
+    let v = wd === 0 ? 0 : 1400 + ((d * 37) % 9) * 110 + (wd === 1 ? 900 : 0);
+    inc.push(v);
+    let o = 0;
+    const dm = dt.getDate();
+    if (dm === 1) o = 5435; if (dm === 5) o = 4200 + 1600; if (dm === 6) o = 8400; if (dm === 10) o = 9800;
+    if (dm === 24) o = 2140; if (dm === 26) o = 1380; if (dm === 15) o = 3900; if (dm === 20) o = 2600;
+    if (d % 6 === 3 && !o) o = 700;
+    out.push(o);
+  }
+  let bal = 8000; const saldo = inc.map((v, i) => (bal += v - out[i]));
+  const W = 720, H = 260, L = 56, R = 12, T = 14, B = 34;
+  const pw = W - L - R, ph = H - T - B;
+  const maxBar = 10000, maxBal = Math.ceil(Math.max(...saldo) / 5000) * 5000;
+  const zeroY = T + ph * 0.5;
+  const yBar = v => zeroY - (v / maxBar) * (ph * 0.5);
+  const yBal = v => T + ph - (v / maxBal) * ph;
+  const bw = pw / days;
+  const css = getComputedStyle(document.documentElement);
+  let s = "";
+  [-10000, -5000, 0, 5000, 10000].forEach(v => {
+    const y = yBar(v);
+    s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1" ${v === 0 ? "" : 'stroke-dasharray="3 4"'}/>`;
+    s += `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="10" font-family="IBM Plex Mono, monospace" fill="var(--muted)">${v === 0 ? "0" : (v > 0 ? "+" : "−") + Math.abs(v / 1000) + "k"}</text>`;
+  });
+  inc.forEach((v, i) => {
+    const x = L + i * bw + bw * 0.18, w = bw * 0.64;
+    if (v) s += `<rect x="${x}" y="${yBar(v)}" width="${w}" height="${zeroY - yBar(v)}" rx="2" fill="var(--in)" opacity=".85"/>`;
+    if (out[i]) s += `<rect x="${x}" y="${zeroY}" width="${w}" height="${yBar(-out[i]) - zeroY}" rx="2" fill="var(--out)" opacity=".85"/>`;
+  });
+  const pts = saldo.map((v, i) => `${(L + i * bw + bw / 2).toFixed(1)},${yBal(v).toFixed(1)}`);
+  s += `<polyline points="${pts.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const lx = L + (days - 1) * bw + bw / 2, ly = yBal(saldo[days - 1]);
+  s += `<circle cx="${lx}" cy="${ly}" r="4.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<text x="${lx - 8}" y="${ly - 10}" text-anchor="end" font-size="11" font-weight="700" font-family="Manrope, sans-serif" fill="var(--accent)">caixa em 23/12: ${brl(saldo[days - 1])}</text>`;
+  [0, 7, 14, 21, 29].forEach(i => {
+    const dt = new Date(start); dt.setDate(start.getDate() + i);
+    s += `<text x="${L + i * bw + bw / 2}" y="${H - 12}" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="var(--muted)">${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}</text>`;
+  });
+  svg.innerHTML = s;
+
+  /* ponto (demo) */
+  const pin = document.getElementById("pin"), ok = document.getElementById("punch-ok"), btn = document.getElementById("punch-btn");
+  btn.addEventListener("click", () => {
+    if (!/^\d{4}$/.test(pin.value)){ ok.hidden = false; ok.style.background = "var(--warn-soft)"; ok.style.color = "var(--warn)"; ok.textContent = "Digite os 4 números do seu PIN."; return; }
+    const now = new Date(); const h = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+    ok.style.background = ""; ok.style.color = "";
+    ok.textContent = `Bom dia, Taina! Entrada às ${h} registrada.`; ok.hidden = false; pin.value = "";
+    setTimeout(() => { ok.hidden = true; }, 4000);
+  });
+})();
+</script>
+</body>
+</html>
