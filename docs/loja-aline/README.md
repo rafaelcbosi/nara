@@ -41,6 +41,13 @@ Instruções do assistente: Google Doc "INSTRUÇÕES DO ASSISTENTE DA ALINE" na 
 - Meses novos: pastas de caixa 1PW_s4-qbKGi7VXMfuTzJrSuA0UHn-JnA e 1Qbv7mAjq7zVHlK4XfmyEC7LngjPA4Ddq (arquivo "<MÊS> 26" mais recente).
 
 ## Automação (tarefas agendadas, rodam nesta sessão do Claude)
-- Seg–sáb 06:47 (Brasília): regrava a base com caixa, ponto e financeiro.
-- Segunda 09:38: varredura das pastas de entrada; o que vem das pastas vai para abas próprias (CONTAS_XML, BAIXAS, RECEITAS_EXTRATO, CONCILIACAO, PROCESSADOS), que a rotina diária não apaga.
+- Seg–sáb 06:47 (Brasília): olha as pastas da Aline (só arquivos novos) e atualiza a base se caixa, ponto ou financeiro mudaram.
+- Segunda 09:38: conferência semanal — o que escapou e o que faltou enviar.
+- O que vem das pastas vai para abas próprias (CONTAS_XML, BAIXAS, RECEITAS_EXTRATO, CONCILIACAO, PROCESSADOS), que a rotina diária não apaga.
+
+## Regra de operação: economia de tokens (sempre)
+1. Verificar antes de agir: metadados primeiro (modifiedTime, lista de arquivos); abrir arquivo só se for novo ou mudou.
+2. Nada mudou → responder "Sem novidades." e parar.
+3. Processar só o delta; regravar só as abas afetadas.
+4. Respostas curtas (até 5 linhas na rotina diária, 8 na semanal), sem reexplicar contexto.
 - Pedidos da Aline chegam como comentário no painel; ela tem poder de decisão.
