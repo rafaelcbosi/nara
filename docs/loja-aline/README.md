@@ -33,3 +33,14 @@
 
 A aba ROTINA da base guarda essas regras; a seção "Central da Aline" do painel mostra se cada pasta está em dia.
 Instruções do assistente: Google Doc "INSTRUÇÕES DO ASSISTENTE DA ALINE" na pasta Dashboard 2026.
+
+## IDs no Drive
+- Base: 13-_lZHKaE7HQ_lArBHCxuV1bjt03EFuCMSNfoAvGLAQ · Dashboard 2026: 1oR4MRLu2PsglB9cp4jqj2uE23jaOQ_81 · ENTRADAS: 1OyzegMKwha2JEuEWZhjSruqSG0csUcHR
+- Financeiro 2026: 1OWrVmwGII0FLdc53q1bCnxnpSi8K10jV · Ponto LJ2: 18FFxxkqn36tPYSxgC-_AgpkyQoPxwA-OEi-G35r_SIA
+- Caixas 2026: 01=1cAznVmbvYcDfOXwy4LChWE0_qm155XNJ 02=1imJpK_D8SY6SjXIpkL67Cv_4EPjo58x2 03=1jvPXX9MIjgGBuTriNIBVb8svLGuBGQgu 04=1Vi3MDw-JTpedeTT90vQ0A43Zbmh5agye 05=1LvoODhdTwQ_T3pAZ-W0UEKdWR0kcR8et 06=1LdR0qQtbmrZmIs97OgXhdkhGnXb8FaWt 07=1VG_guG6GYHyCH-Or8rr-KZ0wjjA2jsDK 08=1rdgjJTGR5mhweYDlwKGD-44oIk5jCCJt 09=15vj8vOUwyGG0dfPfnFaaksTwRDldFaC3 10=1T4KJ5t6PLj6I_FBQlACB2k8qEz3x3uKR 11=1IKdETaY31uz2cjNzc7ac7et2dSTptLbL
+- Meses novos: pastas de caixa 1PW_s4-qbKGi7VXMfuTzJrSuA0UHn-JnA e 1Qbv7mAjq7zVHlK4XfmyEC7LngjPA4Ddq (arquivo "<MÊS> 26" mais recente).
+
+## Automação (tarefas agendadas, rodam nesta sessão do Claude)
+- Seg–sáb 06:47 (Brasília): regrava a base com caixa, ponto e financeiro.
+- Segunda 09:38: varredura das pastas de entrada; o que vem das pastas vai para abas próprias (CONTAS_XML, BAIXAS, RECEITAS_EXTRATO, CONCILIACAO, PROCESSADOS), que a rotina diária não apaga.
+- Pedidos da Aline chegam como comentário no painel; ela tem poder de decisão.
