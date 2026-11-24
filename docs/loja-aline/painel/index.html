@@ -33,6 +33,7 @@
 .cj th{text-align:left;font-weight:var(--cds-font-weight-medium);color:var(--color-fg-muted);padding:6px 8px;border-bottom:1px solid var(--color-border-line);white-space:nowrap}
 .cj td{padding:6px 8px;border-bottom:1px solid var(--color-border-line);white-space:nowrap}
 .cj .r{text-align:right}
+.cj #t-rotina td{white-space:normal;min-width:110px;vertical-align:top}
 .cj-pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;border:1px solid currentColor}
 .cj-people{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--cds-gap-md)}
 .cj-row{display:flex;justify-content:space-between;gap:8px;font-size:var(--cds-font-size-caption)}
@@ -46,9 +47,24 @@
     <h1>Painel de Gestão · Cutelaria Jonas</h1>
     <p class="cj-lede" data-read lang="pt-BR" data-draw="lede">—</p>
     <nav class="cj-nav" aria-label="Seções">
-      <a href="#saude">Saúde do mês</a><a href="#vendas">Vendas</a><a href="#afiacao">Afiação</a><a href="#compras">Poder de compra</a><a href="#contas">Contas</a><a href="#resultado">Resultado</a><a href="#equipe">Equipe</a>
+      <a href="#central">Central da Aline</a><a href="#saude">Saúde do mês</a><a href="#vendas">Vendas</a><a href="#afiacao">Afiação</a><a href="#compras">Poder de compra</a><a href="#contas">Contas</a><a href="#resultado">Resultado</a><a href="#equipe">Equipe</a>
     </nav>
   </header>
+
+  <section class="cj-sec" id="central">
+    <header><h2>Central da Aline</h2><p class="cj-sub">O que precisa entrar nas pastas do Drive (Dashboard 2026 › ENTRADAS DA ALINE) e se está em dia. Toda segunda, uns 15 minutos.</p></header>
+    <div class="cj-kpis">
+      <div class="cj-card" id="k-emdia"><span class="cj-lbl">Pastas em dia</span><span class="cj-big" data-draw="e_ok" data-source="entradas_status_resumo" data-field="em_dia" data-row="0">—</span><span class="cj-note">de <b data-draw="e_tot" data-source="entradas_status_resumo" data-field="total" data-row="0">—</b> pastas que a Aline alimenta</span></div>
+      <div class="cj-card" id="k-atraso"><span class="cj-lbl">Pastas atrasadas</span><span class="cj-big" data-draw="e_late" data-source="entradas_status_resumo" data-field="atrasadas" data-row="0">—</span><span class="cj-note">sem arquivo novo dentro do prazo</span></div>
+      <div class="cj-card" id="k-arquivos"><span class="cj-lbl">Arquivos recebidos nos últimos 7 dias</span><span class="cj-big" data-draw="e_7d" data-source="entradas_status_resumo" data-field="ultimos_7_dias" data-row="0">—</span></div>
+    </div>
+    <div class="cj-card cj-tw" id="t-rotina">
+      <table data-source="entradas_status" data-row-key="pasta">
+        <thead><tr><th data-field="pasta">Pasta</th><th data-field="o_que_colocar">O que colocar</th><th data-field="frequencia">Quando</th><th data-field="ultimo_arquivo">Último arquivo</th><th class="r" data-field="arquivos_mes">No mês</th><th data-field="situacao">Situação</th></tr></thead>
+        <tbody data-draw="t_rotina"></tbody>
+      </table>
+    </div>
+  </section>
 
   <section class="cj-sec" id="saude">
     <header><h2>Saúde do mês</h2><p class="cj-sub" data-draw="mesref">—</p></header>
@@ -199,7 +215,46 @@
 
 <script>
 const SHEET = '13-_lZHKaE7HQ_lArBHCxuV1bjt03EFuCMSNfoAvGLAQ';
-['vendas','afiacao','metas','config','contas','dre','ponto','equipe'].forEach((id) => dash.loader(id, {
+dash.loader('entradas', {
+  description: 'Lista os arquivos que estão nas pastas de ENTRADAS DA ALINE: pasta, nome e quando entrou.',
+  fn: ({answer}) => {
+    const a = typeof answer === 'string' ? JSON.parse(answer) : (answer || {});
+    if (a.error) throw new Error(a.error.message || String(a.error));
+    const files = a.files || [];
+    return {columns: ['pasta_id', 'arquivo', 'recebido'], rows: files.map((f) => ({pasta_id: f.parentId || null, arquivo: f.title || '', recebido: (f.createdTime || f.modifiedTime || '').slice(0, 10) || null})), truncated: Boolean(a.nextPageToken)};
+  }
+});
+
+dash.calc('entradas_status', {
+  title: 'Situação de cada pasta de entrada',
+  description: 'Compara o último arquivo de cada pasta com o prazo da aba ROTINA. Hoje = data do computador de quem abre.',
+  inputs: ['rotina', 'entradas'],
+  fn: (rotina, entradas) => {
+    const hoje = new Date().toISOString().slice(0, 10);
+    const mes = hoje.slice(0, 7);
+    const dias = (iso) => Math.round((new Date(hoje + 'T00:00:00Z') - new Date(iso + 'T00:00:00Z')) / 86400000);
+    return rotina.filter((r) => r.pasta).map((r) => {
+      const fs = entradas.filter((f) => f.pasta_id === r.pasta_id && f.recebido);
+      const ultimo = fs.map((f) => f.recebido).sort().pop() || null;
+      const auto = r.ordem > 6;
+      let situacao;
+      if (auto) situacao = 'automático';
+      else if (!ultimo) situacao = 'aguardando 1º envio';
+      else situacao = dias(ultimo) > r.prazo_dias ? 'atrasada' : 'em dia';
+      return {pasta: r.pasta, o_que_colocar: r.o_que_colocar, frequencia: r.frequencia, ultimo_arquivo: auto ? null : ultimo, arquivos_mes: auto ? null : fs.filter((f) => f.recebido.startsWith(mes)).length, ultimos_7: fs.filter((f) => dias(f.recebido) <= 7).length, situacao, automatica: auto};
+    });
+  }
+});
+
+dash.calc('entradas_status_resumo', {
+  title: 'Resumo das pastas de entrada', inputs: ['entradas_status'],
+  fn: (st) => {
+    const a = st.filter((r) => !r.automatica);
+    return [{total: a.length, em_dia: a.filter((r) => r.situacao === 'em dia').length, atrasadas: a.filter((r) => r.situacao === 'atrasada').length, ultimos_7_dias: d3.sum(a, (r) => r.ultimos_7)}];
+  }
+});
+
+['vendas','afiacao','metas','config','contas','dre','ponto','equipe','rotina'].forEach((id) => dash.loader(id, {
   description: 'Lê a aba da planilha: a primeira linha dá os nomes das colunas; datas dd/mm/aaaa viram aaaa-mm-dd e números viram números.',
   fn: ({answer}) => {
     const a = typeof answer === 'string' ? JSON.parse(answer) : answer;
@@ -387,7 +442,7 @@ dash.calc('ponto_recente', {
 
 /* ---- formatos ---- */
 window.cjFmt = {
-  brl: (v) => v == null || isNaN(v) ? '—' : 'R$ ' + Math.round(v).toLocaleString('pt-BR'),
+  brl: (v) => v == null || isNaN(v) ? '—' : (v < -0.5 ? '−R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR'),
   brlK: (v) => v == null ? '—' : 'R$ ' + (Math.abs(v) >= 1000 ? (v / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' mil' : Math.round(v)),
   pct: (v) => v == null ? '—' : (v * 100).toLocaleString('pt-BR', {maximumFractionDigits: 0}) + '%',
   hm: (m) => { if (m == null || isNaN(m)) return '—'; const s = m < 0 ? '−' : m > 0 ? '+' : ''; const a = Math.abs(Math.round(m)); return `${s}${Math.floor(a / 60)}h${String(a % 60).padStart(2, '0')}`; },
@@ -456,7 +511,13 @@ function rowsTable(name, id, cols) {
   });
 }
 const pill = (t, c) => { const s = document.createElement('span'); s.className = 'cj-pill ' + c; s.textContent = t; return s; };
-rowsTable('t_vend', 'vendedoras_mes', [['vendedora', '', (v) => v], ['valor', 'r', F.brl], ['participacao', 'r', F.pct], ['media_dia', 'r', F.brl]]);
+txt('e_ok', 'entradas_status_resumo', (r) => String(r.em_dia));
+txt('e_tot', 'entradas_status_resumo', (r) => String(r.total));
+txt('e_late', 'entradas_status_resumo', (r) => String(r.atrasadas));
+txt('e_7d', 'entradas_status_resumo', (r) => String(r.ultimos_7_dias));
+rowsTable('t_rotina', 'entradas_status', [['pasta', '', (v) => v], ['o_que_colocar', '', (v) => v], ['frequencia', '', (v) => v], ['ultimo_arquivo', '', (v) => v ? F.dia(v) : '—'], ['arquivos_mes', 'r', (v) => v == null ? '—' : String(v)],
+  ['situacao', '', (v) => pill(v, v === 'em dia' ? 'cj-ok' : v === 'atrasada' ? 'cj-bad' : v === 'automático' ? '' : 'cj-warn')]]);
+rowsTable('t_vend','vendedoras_mes', [['vendedora', '', (v) => v], ['valor', 'r', F.brl], ['participacao', 'r', F.pct], ['media_dia', 'r', F.brl]]);
 rowsTable('t_afi', 'afiacao_forma', [['forma', '', (v) => v], ['valor', 'r', F.brl], ['servicos', 'r', (v) => String(v)], ['participacao', 'r', F.pct]]);
 rowsTable('t_compra', 'poder_compra', [['mes', '', F.mesLongo], ['meta', 'r', F.brl], ['teto', 'r', F.brl], ['fornecedores', 'r', F.brl], ['pagos', 'r', F.brl], ['disponivel', 'r', (v) => pill(F.brl(v), v >= 0 ? 'cj-ok' : 'cj-bad')], ['disponivel_formula_antiga', 'r', F.brl]]);
 rowsTable('t_contas', 'contas_lista', [['vencimento', '', F.dia], ['descricao', '', (v) => v], ['nota', '', (v) => v || ''], ['tipo', '', (v) => v], ['valor', 'r', F.brl], ['status', '', (v) => pill(v, v === 'a pagar' ? '' : 'cj-warn')]]);
