@@ -1,7 +1,7 @@
 import sys, json, openpyxl, datetime as dt, collections, warnings
 from openpyxl.styles import Font, PatternFill, Alignment
 warnings.filterwarnings("ignore")
-S=sys.argv[1]; HOJE=dt.date(2026,11,24)
+S=sys.argv[1]; HOJE=dt.date.today()
 cx=json.load(open(f"{S}/caixa/caixa.json"))
 fin=openpyxl.load_workbook(f"{S}/fin/financeiro.xlsx", data_only=True)
 pt=openpyxl.load_workbook(f"{S}/ponto/ponto.xlsx", data_only=True).worksheets[0]

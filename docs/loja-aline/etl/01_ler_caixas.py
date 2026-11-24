@@ -2,8 +2,10 @@ import sys, openpyxl, collections, json, os, warnings
 warnings.filterwarnings("ignore")
 d=sys.argv[1]; names={4:"Aline",36:"Tainara",48:"Thayna"}
 vendas=[]; alic=[]; ret=[]; metas=[]
-for m in range(1,12):
-    wb=openpyxl.load_workbook(os.path.join(d,f"{m:02d}.xlsx"), data_only=True)
+for m in range(1,13):
+    fp=os.path.join(d,f"{m:02d}.xlsx")
+    if not os.path.exists(fp): continue
+    wb=openpyxl.load_workbook(fp, data_only=True)
     tv=0; ta=0; other=collections.Counter()
     for day in range(1,32):
         if str(day) not in wb.sheetnames: continue
