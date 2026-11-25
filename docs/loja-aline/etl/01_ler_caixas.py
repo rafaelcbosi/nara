@@ -1,4 +1,4 @@
-import sys, openpyxl, collections, json, os, warnings
+import sys, openpyxl, collections, json, os, warnings, datetime as dt
 warnings.filterwarnings("ignore")
 d=sys.argv[1]; names={4:"Aline",36:"Tainara",48:"Thayna"}
 vendas=[]; alic=[]; ret=[]; metas=[]
@@ -23,6 +23,12 @@ for m in range(1,13):
                 alic.append([f"2026-{m:02d}-{day:02d}",fo or "sem forma",round(g,2)]); ta+=g
             for val,kind in ((dd,"sangria"),(e,"retirada")):
                 if isinstance(val,(int,float)) and val: ret.append([f"2026-{m:02d}-{day:02d}",kind,round(val,2),str(f or "")])
-        if isinstance(meta,(int,float)) and (meta or dayv): metas.append([f"2026-{m:02d}-{day:02d}",meta])
+        pass
+    rs=wb["RESUMO"]  # meta diária da Aline: coluna B (dia na coluna A)
+    for r in range(6,37):
+        a,b=rs.cell(r,1).value,rs.cell(r,2).value
+        if isinstance(a,(int,float)) and isinstance(b,(int,float)):
+            try: dt.date(2026,m,int(a)); metas.append([f"2026-{m:02d}-{int(a):02d}",b])
+            except ValueError: pass
     print(m, "vendas",round(tv),"alicate",round(ta), "vendedoras", sorted(set(v[1] for v in vendas if v[0][5:7]==f"{m:02d}")))
 json.dump(dict(vendas=vendas,alicate=alic,retiradas=ret,metas=metas),open(os.path.join(d,"caixa.json"),"w"))

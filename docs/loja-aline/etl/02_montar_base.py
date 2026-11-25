@@ -56,6 +56,12 @@ sheet("CONFIG",["chave","valor","descrição"],[
  ["atualizado_em",HOJE.isoformat(),"Data da última carga"]],[22,14,60])
 sheet("METAS",["mes","meta_loja","vendas_2025"],metas,[10,14,14])
 
+# META_DIA: meta oficial do mês (aba METAS) distribuída pelo peso que a Aline dá a cada dia no RESUMO do caixa
+peso=collections.defaultdict(float)
+for a,m in cx["metas"]: peso[a[:7]]+=m
+mo={r[0]:r[1] for r in metas}
+sheet("META_DIA",["data","meta_dia","peso_caixa"],[[d(a), round(mo.get(a[:7],0)*m/peso[a[:7]],2) if peso[a[:7]] else 0, m] for a,m in cx["metas"]],[12,12,12])
+
 sheet("EQUIPE",["nome","cargo","codigo_caixa","ativa","jornada"],[
  ["Aline","Proprietária",4,"sim","—"],["Tainara","Líder / caixa (Thay)",36,"sim","44h"],
  ["Thayna","Vendedora",48,"sim","44h"],["Jhennifer","Ex-funcionária",46,"não","44h"],["Wanessa","Ex-funcionária",47,"não","44h"]],[12,22,14,8,10])

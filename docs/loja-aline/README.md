@@ -51,3 +51,12 @@ Instruções do assistente: Google Doc "INSTRUÇÕES DO ASSISTENTE DA ALINE" na 
 3. Processar só o delta; regravar só as abas afetadas.
 4. Respostas curtas (até 5 linhas na rotina diária, 8 na semanal), sem reexplicar contexto.
 - Pedidos da Aline chegam como comentário no painel; ela tem poder de decisão.
+
+## Painéis
+| Painel | Link | Quem vê | Conteúdo |
+|---|---|---|---|
+| Gestão (master) | https://claude.ai/artifact/JgV496ktWEE3XdfAMqpyjU | Rafael e Aline | Abas Geral (filtro de período), Saúde do mês, Compras (poder de compra + pedidos), Caixa diário (com afiação), Equipe (folha de ponto, cargos, ocorrências) |
+| Mural da Equipe | https://claude.ai/artifact/Xbf5VrB1v8q7Y2yc6JZXJc | Funcionárias | Botão de ponto (formulário LJ2), metas do dia/semana/mês, vendas por vendedora, bônus, avisos, produtos da semana, promoções. Sem dado financeiro além de vendas × meta |
+
+Registros feitos nos painéis (pedidos, cargos, ocorrências, itens do mural) ficam no próprio painel; só editores gravam.
+Regra de ouro: as planilhas da Cutelaria (financeiro, caixa, ponto) são só lidas; tudo é escrito na BASE e nos painéis.

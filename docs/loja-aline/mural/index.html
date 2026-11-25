@@ -1,0 +1,197 @@
+<meta name="dash-one-writer">
+<style>
+.mu{display:grid;gap:var(--cds-gap-lg);font-family:var(--font-anthropic-sans);color:var(--color-fg)}
+.mu h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0;line-height:1.15}
+.mu h2{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:0}
+.mu h3{font-size:var(--cds-font-size-body);font-weight:var(--cds-font-weight-medium);margin:0}
+.mu p{margin:0}
+.mu-lede{color:var(--color-fg-muted);max-width:70ch}
+.mu-lede b{color:var(--color-fg);font-weight:var(--cds-font-weight-medium)}
+.mu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--cds-gap-md)}
+.mu-card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:grid;gap:8px;align-content:start;min-width:0}
+.mu-lbl{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.mu-big{font-family:var(--font-anthropic-serif);font-weight:400;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.mu-note{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.mu-note b{color:var(--color-fg);font-weight:var(--cds-font-weight-medium)}
+.mu-bar{height:8px;border-radius:999px;background:var(--cds-chart-grid);overflow:hidden}
+.mu-bar > i{display:block;height:100%;border-radius:inherit}
+.mu-ok{color:var(--color-ok)} .mu-warn{color:var(--color-warn)}
+.mu-ponto{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.mu-btn{display:inline-block;font:inherit;font-weight:var(--cds-font-weight-medium);background:var(--color-fg);color:var(--color-bg);border:0;border-radius:8px;padding:12px 22px;text-decoration:none;cursor:pointer}
+.mu-btn.ghost{background:none;color:var(--color-fg);border:1px solid var(--color-border-line);padding:3px 8px;font-size:var(--cds-font-size-caption);font-weight:400}
+.mu-list{display:grid;gap:var(--cds-gap-sm)}
+.mu-item{border-left:3px solid var(--color-border-line);padding:6px 0 6px 12px;display:grid;gap:4px}
+.mu-item.incentivo{border-left-color:var(--color-ok)}
+.mu-item.aviso{border-left-color:var(--color-warn)}
+.mu-item.promocao,.mu-item.produto{border-left-color:var(--color-fg)}
+.mu-item .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mu-pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;border:1px solid currentColor}
+.mu-row{display:flex;justify-content:space-between;gap:8px;font-size:var(--cds-font-size-caption)}
+.mu-row b{font-variant-numeric:tabular-nums;font-weight:var(--cds-font-weight-medium)}
+.mu details summary{cursor:pointer;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
+.mu-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end;margin-top:10px}
+.mu-form label{display:grid;gap:4px;font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.mu-form .full{grid-column:1/-1}
+.mu input,.mu textarea{font:inherit;font-size:var(--cds-font-size-caption);color:var(--color-fg);background:var(--color-bg);border:1px solid var(--color-border-line);border-radius:6px;padding:6px 8px}
+.mu textarea{min-height:60px;width:100%;box-sizing:border-box;resize:vertical}
+.mu-msg{font-size:var(--cds-font-size-caption)}
+</style>
+
+<div class="mu">
+  <header id="topo" style="display:grid;gap:6px">
+    <h1>Mural da Equipe · Cutelaria Jonas</h1>
+    <p class="mu-lede" data-read lang="pt-BR" data-draw="lede">—</p>
+  </header>
+
+  <div class="mu-card mu-ponto" id="ponto">
+    <div style="display:grid;gap:4px"><h2>Ponto</h2><p class="mu-note">Chegada, almoço, lanche e saída. Cada uma vê o próprio extrato de horas com a Aline.</p></div>
+    <a class="mu-btn" href="https://docs.google.com/forms/d/1s5-EpVhKuzdTuEyehsA2Mk0_AaY2QwehJD7YLzEke0g/viewform" target="_blank" rel="noopener">Bater ponto</a>
+  </div>
+
+  <section id="metas" style="display:grid;gap:var(--cds-gap-md)">
+    <h2>Como estamos na meta</h2>
+    <div class="mu-grid" data-draw="metas" data-source="metas_loja"></div>
+    <div class="mu-card" id="hoje">
+      <span class="mu-lbl">Meta de hoje</span>
+      <span class="mu-big" data-draw="hoje_meta" data-source="meta_hoje" data-field="meta" data-row="0">—</span>
+      <span class="mu-note" data-draw="hoje_txt">—</span>
+    </div>
+    <div class="mu-card" id="vendedoras">
+      <h3>Quem vendeu no mês</h3>
+      <div data-draw="vend" data-source="vendedoras_mes"></div>
+    </div>
+  </section>
+
+  <div class="mu-grid">
+    <section class="mu-card" id="incentivos"><h2>Bônus e desafios</h2><div class="mu-list" data-draw="l_incentivo" data-source="mural_ativo"></div></section>
+    <section class="mu-card" id="avisos"><h2>Avisos e lembretes</h2><div class="mu-list" data-draw="l_aviso" data-source="mural_ativo"></div></section>
+    <section class="mu-card" id="produtos"><h2>Produtos da semana</h2><div class="mu-list" data-draw="l_produto" data-source="mural_ativo"></div></section>
+    <section class="mu-card" id="promocoes"><h2>Promoções ativas</h2><div class="mu-list" data-draw="l_promocao" data-source="mural_ativo"></div></section>
+  </div>
+
+  <details id="editar">
+    <summary>Área da Aline · publicar no mural</summary>
+    <form class="mu-form" id="form-mural">
+      <label>Onde aparece
+        <select class="dash-select" id="m-secao">
+          <option value="incentivo">Bônus e desafios</option>
+          <option value="aviso">Avisos e lembretes</option>
+          <option value="produto">Produtos da semana</option>
+          <option value="promocao">Promoções ativas</option>
+        </select>
+      </label>
+      <label>Título<input id="m-titulo" required maxlength="80" placeholder="Ex.: 10 mensagens de retomada por dia"></label>
+      <label>Prêmio / destaque<input id="m-premio" maxlength="80" placeholder="Ex.: R$ 20 ou voucher manicure"></label>
+      <label>Vale até<input id="m-ate" type="date" min="2026-01-01" max="2028-12-31"></label>
+      <label class="full">Detalhes<textarea id="m-texto" maxlength="800" placeholder="Regra, argumento de venda, como participar…"></textarea></label>
+      <button class="mu-btn" type="submit">Publicar</button>
+    </form>
+    <p class="mu-msg" id="m-msg" hidden></p>
+    <p class="mu-note">Só quem pode editar o mural publica ou remove. As funcionárias só veem.</p>
+  </details>
+</div>
+
+<script>
+['vendas', 'meta_dia', 'metas'].forEach((id) => dash.loader(id, {
+  description: 'Lê a aba da planilha: primeira linha = colunas; datas dd/mm/aaaa viram aaaa-mm-dd; números viram números.',
+  fn: ({answer}) => {
+    const a = typeof answer === 'string' ? JSON.parse(answer) : answer;
+    if (a && a.error) throw new Error(a.error.message || String(a.error));
+    const v = (a && a.values) || []; if (!v.length) return {columns: [], rows: []};
+    const cols = v[0].map(String);
+    const conv = (c, x) => { if (x === undefined || x === null || x === '') return null; const s = String(x); const d = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/); if (d) return `${d[3]}-${d[2]}-${d[1]}`; if (c !== 'mes' && /^-?\d+(\.\d+)?$/.test(s)) return Number(s); return s; };
+    return {columns: cols, rows: v.slice(1).filter((r) => r.some((x) => x !== '' && x != null)).map((r) => Object.fromEntries(cols.map((c, i) => [c, conv(c, r[i])])))};
+  }
+}));
+
+dash.calc('metas_loja', {
+  title: 'Loja: último dia, 7 dias e mês contra a meta', description: 'Último dia = último fechamento de caixa registrado.', inputs: ['vendas', 'meta_dia'],
+  fn: (vendas, metaDia) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
+    const d = new Date(last + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 6); const sem = d.toISOString().slice(0, 10);
+    return [['Último dia', last], ['Últimos 7 dias', sem], ['Mês', last.slice(0, 7) + '-01']].map(([janela, de], i) => {
+      const v = d3.sum(vendas.filter((r) => r.data >= de && r.data <= last), (r) => r.valor);
+      const mfull = i === 2 ? d3.sum(metaDia.filter((r) => r.data.startsWith(last.slice(0, 7))), (r) => r.meta_dia || 0) : d3.sum(metaDia.filter((r) => r.data >= de && r.data <= last), (r) => r.meta_dia || 0);
+      return {janela, ate: last, vendido: v, meta: mfull, pct: mfull ? v / mfull : null, falta: Math.max(0, mfull - v)};
+    });
+  }
+});
+dash.calc('meta_hoje', {
+  title: 'Meta do dia de hoje', description: 'Primeiro dia com meta a partir de hoje (data do aparelho de quem abre).', inputs: ['meta_dia'],
+  fn: (metaDia) => { const hoje = new Date().toISOString().slice(0, 10); const r = metaDia.filter((x) => x.data >= hoje && x.meta_dia > 0).sort((a, b) => a.data < b.data ? -1 : 1)[0]; return r ? [{data: r.data, meta: r.meta_dia}] : []; }
+});
+dash.calc('vendedoras_mes', {
+  title: 'Vendas por vendedora no mês', inputs: ['vendas'],
+  fn: (vendas) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return []; const mes = last.slice(0, 7);
+    const m = vendas.filter((r) => r.data.startsWith(mes) && r.vendedora !== 'Aline'); const tot = d3.sum(m, (r) => r.valor);
+    return d3.rollups(m, (v) => d3.sum(v, (r) => r.valor), (r) => r.vendedora).map(([vendedora, valor]) => ({vendedora, valor, participacao: tot ? valor / tot : 0})).sort((a, b) => b.valor - a.valor);
+  }
+});
+dash.calc('mural_ativo', {
+  title: 'Itens do mural em vigor', description: 'Itens sem data de fim ou com fim a partir de hoje.', inputs: ['mural'],
+  fn: (mural) => { const hoje = new Date().toISOString().slice(0, 10); return mural.filter((m) => !m.ate || m.ate >= hoje).map((m) => ({id: m.id, secao: m.secao, titulo: m.titulo, texto: m.texto || '', premio: m.premio || '', ate: m.ate || '', criado_em: m.criado_em || ''})).sort((a, b) => a.criado_em < b.criado_em ? 1 : -1); }
+});
+window.muFmt = {
+  brl: (v) => v == null || isNaN(v) ? '—' : 'R$ ' + Math.round(v).toLocaleString('pt-BR'),
+  pct: (v) => v == null ? '—' : (v * 100).toLocaleString('pt-BR', {maximumFractionDigits: 0}) + '%',
+  dia: (iso) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '—'
+};
+</script>
+
+<script>
+const F = window.muFmt;
+const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data && d.data[0] ? d.data[0] : null; };
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+
+dash.draw('lede', (p) => {
+  const d = dash.data('metas_loja'); if (d.status !== 'ok' || !d.data.length) { p.textContent = '—'; return; }
+  const [dia, , mes] = d.data;
+  const parts = [['No último fechamento (', ''], [F.dia(dia.ate), ''], [') a loja vendeu ', ''], [F.brl(dia.vendido), 'b'], [`, ${F.pct(dia.pct)} da meta do dia. No mês estamos em `, ''], [F.pct(mes.pct), 'b'], [mes.falta > 0 ? ` e faltam ${F.brl(mes.falta)}. Bora!` : '. Meta do mês batida!', '']];
+  p.replaceChildren(...parts.map(([t, tag]) => el(tag || 'span', '', t)));
+});
+
+dash.draw('metas', (box) => {
+  const d = dash.data('metas_loja'); box.replaceChildren(); if (d.status !== 'ok') { box.textContent = d.status === 'error' ? 'As metas não carregaram.' : '—'; return; }
+  d.data.forEach((r, i) => {
+    const c = el('div', 'mu-card'); c.id = 'meta-' + i;
+    const big = el('span', 'mu-big', F.pct(r.pct)); big.dataset.source = 'metas_loja'; big.dataset.field = 'pct'; big.dataset.row = String(i);
+    const bar = el('div', 'mu-bar'); const fill = el('i'); fill.style.width = Math.min(100, (r.pct || 0) * 100) + '%'; fill.style.background = r.pct >= 1 ? 'var(--color-ok)' : r.pct >= 0.85 ? 'var(--color-warn)' : dash.colors[0]; bar.append(fill);
+    const note = el('span', 'mu-note'); const v = el('b', '', F.brl(r.vendido)); v.dataset.source = 'metas_loja'; v.dataset.field = 'vendido'; v.dataset.row = String(i);
+    const m = el('b', '', F.brl(r.meta)); m.dataset.source = 'metas_loja'; m.dataset.field = 'meta'; m.dataset.row = String(i);
+    note.append(v, document.createTextNode(' de '), m, document.createTextNode(r.falta > 0 ? ` · faltam ${F.brl(r.falta)}` : ' · batida!'));
+    c.append(el('span', 'mu-lbl', r.janela), big, bar, note); box.append(c);
+  });
+});
+dash.draw('hoje_meta', (s) => { const r = one('meta_hoje'); s.textContent = r ? F.brl(r.meta) : '—'; });
+dash.draw('hoje_txt', (s) => { const r = one('meta_hoje'); s.textContent = r ? `Meta da loja para ${F.dia(r.data)}. Cada venda conta, e ofereça o cashback em todas.` : 'Sem meta cadastrada para hoje.'; });
+dash.draw('vend', (box) => {
+  const d = dash.data('vendedoras_mes'); box.replaceChildren(); if (d.status !== 'ok') { box.textContent = '—'; return; }
+  d.data.forEach((r, i) => { const row = el('div', 'mu-row'); const b = el('b', '', `${F.brl(r.valor)} · ${F.pct(r.participacao)}`); b.dataset.source = 'vendedoras_mes'; b.dataset.field = 'valor'; b.dataset.row = String(i); row.append(el('span', '', r.vendedora), b); box.append(row); });
+});
+
+async function db() { return claude.use('db'); }
+function aviso(ok, t) { document.querySelectorAll('#m-msg').forEach((p) => { p.hidden = false; p.className = 'mu-msg ' + (ok ? 'mu-ok' : 'mu-warn'); p.textContent = t; }); }
+const VAZIO = {incentivo: 'Nenhum desafio ativo agora.', aviso: 'Sem avisos.', produto: 'Nenhum produto em destaque esta semana.', promocao: 'Nenhuma promoção ativa.'};
+['incentivo', 'aviso', 'produto', 'promocao'].forEach((sec) => dash.draw('l_' + sec, (box) => {
+  const d = dash.data('mural_ativo'); box.replaceChildren(); if (d.status !== 'ok') { box.textContent = '—'; return; }
+  const itens = d.data.filter((m) => m.secao === sec); if (!itens.length) { box.append(el('p', 'mu-note', VAZIO[sec])); return; }
+  itens.forEach((m) => {
+    const it = el('div', 'mu-item ' + sec); it.append(el('h3', '', m.titulo));
+    if (m.texto) it.append(el('p', 'mu-note', m.texto));
+    const meta = el('div', 'meta');
+    if (m.premio) meta.append(el('span', 'mu-pill mu-ok', m.premio));
+    if (m.ate) meta.append(el('span', 'mu-note', `até ${F.dia(m.ate)}`));
+    const rm = el('button', 'mu-btn ghost', 'Remover'); rm.type = 'button';
+    rm.addEventListener('click', async () => { try { await (await db()).doc(`data/mural/itens/${m.id}`).delete(); } catch { aviso(false, 'Só quem edita o mural pode remover.'); } });
+    meta.append(rm); it.append(meta); box.append(it);
+  });
+}));
+
+document.querySelectorAll('#form-mural').forEach((f) => f.addEventListener('submit', async (e) => {
+  e.preventDefault(); const g = (id) => document.getElementById(id).value.trim();
+  const row = {secao: g('m-secao'), titulo: g('m-titulo'), premio: g('m-premio'), ate: g('m-ate'), texto: g('m-texto'), criado_em: new Date().toISOString()};
+  try { await (await db()).collection('data/mural/itens').add(row); f.reset(); aviso(true, 'Publicado no mural.'); }
+  catch { aviso(false, 'Não foi publicado. Só quem edita o mural pode publicar.'); }
+}));
+</script>

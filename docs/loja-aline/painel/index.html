@@ -1,18 +1,21 @@
 <meta name="dash-one-writer">
 <style>
-.cj{display:grid;gap:var(--cds-gap-xl);font-family:var(--font-anthropic-sans);color:var(--color-fg)}
+.cj{display:grid;gap:var(--cds-gap-lg);font-family:var(--font-anthropic-sans);color:var(--color-fg)}
 .cj h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0;line-height:1.15}
 .cj h2{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:0}
+.cj h3{font-size:var(--cds-font-size-body);font-weight:var(--cds-font-weight-medium);margin:0}
 .cj p{margin:0}
-.cj-lede{color:var(--color-fg-muted);max-width:70ch}
+.cj-lede{color:var(--color-fg-muted);max-width:75ch}
 .cj-lede b{color:var(--color-fg);font-weight:var(--cds-font-weight-medium)}
-.cj-nav{display:flex;flex-wrap:wrap;gap:var(--cds-gap-xs)}
-.cj-nav a{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);text-decoration:none;padding:4px 10px;border:1px solid var(--color-border-line);border-radius:999px}
-.cj-nav a:hover{color:var(--color-fg)}
-.cj-sec{display:grid;gap:var(--cds-gap-md);scroll-margin-top:12px}
+.cj-tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--color-border-line);position:sticky;top:0;background:var(--color-bg);z-index:3;padding-top:4px}
+.cj-tab{font:inherit;font-size:var(--cds-font-size-body);background:none;border:0;border-bottom:2px solid transparent;color:var(--color-fg-muted);padding:10px 14px 9px;cursor:pointer;white-space:nowrap}
+.cj-tab:hover{color:var(--color-fg)}
+.cj-tab[aria-selected="true"]{color:var(--color-fg);border-bottom-color:var(--color-fg);font-weight:var(--cds-font-weight-medium)}
+.cj-page{display:grid;gap:var(--cds-gap-lg)}
+.cj-sec{display:grid;gap:var(--cds-gap-md)}
 .cj-sec > header{display:grid;gap:4px}
 .cj-sub{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
-.cj-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:var(--cds-gap-md)}
+.cj-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--cds-gap-md)}
 .cj-card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:grid;gap:6px;align-content:start;min-width:0}
 .cj-lbl{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
 .cj-big{font-family:var(--font-anthropic-serif);font-weight:400;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -32,137 +35,164 @@
 .cj table{width:100%;border-collapse:collapse;font-size:var(--cds-font-size-caption);font-variant-numeric:tabular-nums}
 .cj th{text-align:left;font-weight:var(--cds-font-weight-medium);color:var(--color-fg-muted);padding:6px 8px;border-bottom:1px solid var(--color-border-line);white-space:nowrap}
 .cj td{padding:6px 8px;border-bottom:1px solid var(--color-border-line);white-space:nowrap}
+.cj tfoot td{font-weight:var(--cds-font-weight-medium);border-top:2px solid var(--color-border-line)}
+.cj td.wrap{white-space:normal;min-width:160px}
 .cj .r{text-align:right}
-.cj #t-rotina td{white-space:normal;min-width:110px;vertical-align:top}
 .cj-pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;border:1px solid currentColor}
-.cj-people{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--cds-gap-md)}
 .cj-row{display:flex;justify-content:space-between;gap:8px;font-size:var(--cds-font-size-caption)}
 .cj-row b{font-variant-numeric:tabular-nums;font-weight:var(--cds-font-weight-medium)}
+.cj-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cj-chip{font:inherit;font-size:var(--cds-font-size-caption);border:1px solid var(--color-border-line);background:var(--color-panel);color:var(--color-fg);border-radius:999px;padding:5px 12px;cursor:pointer}
+.cj-chip[aria-pressed="true"]{background:var(--color-fg);color:var(--color-bg);border-color:var(--color-fg)}
+.cj-filter label{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);display:flex;gap:6px;align-items:center}
+.cj input,.cj textarea{font:inherit;font-size:var(--cds-font-size-caption);color:var(--color-fg);background:var(--color-bg);border:1px solid var(--color-border-line);border-radius:6px;padding:6px 8px}
+.cj textarea{min-height:64px;resize:vertical;width:100%;box-sizing:border-box}
+.cj-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end}
+.cj-form label{display:grid;gap:4px;font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.cj-form .full{grid-column:1/-1}
+.cj-btn{font:inherit;font-size:var(--cds-font-size-caption);background:var(--color-fg);color:var(--color-bg);border:0;border-radius:6px;padding:8px 14px;cursor:pointer;justify-self:start}
+.cj-btn.ghost{background:none;color:var(--color-fg);border:1px solid var(--color-border-line);padding:3px 8px}
+.cj-msg{font-size:var(--cds-font-size-caption)}
 .cj details summary{cursor:pointer;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
 .cj details ul{margin:8px 0 0;padding-left:18px;font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);display:grid;gap:4px}
+.cj-people{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--cds-gap-md)}
 </style>
 
 <div class="cj">
   <header class="cj-sec" id="topo">
     <h1>Painel de Gestão · Cutelaria Jonas</h1>
     <p class="cj-lede" data-read lang="pt-BR" data-draw="lede">—</p>
-    <nav class="cj-nav" aria-label="Seções">
-      <a href="#central">Central da Aline</a><a href="#saude">Saúde do mês</a><a href="#vendas">Vendas</a><a href="#afiacao">Afiação</a><a href="#compras">Poder de compra</a><a href="#contas">Contas</a><a href="#resultado">Resultado</a><a href="#equipe">Equipe</a>
-    </nav>
   </header>
 
-  <section class="cj-sec" id="central">
-    <header><h2>Central da Aline</h2><p class="cj-sub">O que precisa entrar nas pastas do Drive (Dashboard 2026 › ENTRADAS DA ALINE) e se está em dia. Toda segunda, uns 15 minutos.</p></header>
-    <div class="cj-kpis">
-      <div class="cj-card" id="k-emdia"><span class="cj-lbl">Pastas em dia</span><span class="cj-big" data-draw="e_ok" data-source="entradas_status_resumo" data-field="em_dia" data-row="0">—</span><span class="cj-note">de <b data-draw="e_tot" data-source="entradas_status_resumo" data-field="total" data-row="0">—</b> pastas que a Aline alimenta</span></div>
-      <div class="cj-card" id="k-atraso"><span class="cj-lbl">Pastas atrasadas</span><span class="cj-big" data-draw="e_late" data-source="entradas_status_resumo" data-field="atrasadas" data-row="0">—</span><span class="cj-note">sem arquivo novo dentro do prazo</span></div>
-      <div class="cj-card" id="k-arquivos"><span class="cj-lbl">Arquivos recebidos nos últimos 7 dias</span><span class="cj-big" data-draw="e_7d" data-source="entradas_status_resumo" data-field="ultimos_7_dias" data-row="0">—</span></div>
+  <nav class="cj-tabs" role="tablist" aria-label="Abas do painel">
+    <button class="cj-tab" role="tab" id="tab-geral" data-tab="geral" aria-selected="true">Geral</button>
+    <button class="cj-tab" role="tab" id="tab-saude" data-tab="saude" aria-selected="false">Saúde do mês</button>
+    <button class="cj-tab" role="tab" id="tab-compras" data-tab="compras" aria-selected="false">Compras</button>
+    <button class="cj-tab" role="tab" id="tab-caixa" data-tab="caixa" aria-selected="false">Caixa diário</button>
+    <button class="cj-tab" role="tab" id="tab-equipe" data-tab="equipe" aria-selected="false">Equipe</button>
+  </nav>
+
+  <!-- ================= GERAL ================= -->
+  <section class="cj-page" id="geral" role="tabpanel" aria-labelledby="tab-geral">
+    <div class="cj-card">
+      <div class="cj-filter" role="group" aria-label="Período">
+        <button class="cj-chip" data-periodo="dia" aria-pressed="false">Último dia</button>
+        <button class="cj-chip" data-periodo="semana" aria-pressed="false">7 dias</button>
+        <button class="cj-chip" data-periodo="mes" aria-pressed="true">Mês</button>
+        <button class="cj-chip" data-periodo="ano" aria-pressed="false">Ano</button>
+        <label>de <input type="date" id="f-de" min="2026-01-01" max="2027-12-31"></label>
+        <label>até <input type="date" id="f-ate" min="2026-01-01" max="2027-12-31"></label>
+      </div>
+      <p class="cj-note" data-draw="periodoTxt">—</p>
     </div>
+
+    <div class="cj-kpis">
+      <div class="cj-card" id="g-vendas"><span class="cj-lbl">Vendas da loja no período</span><span class="cj-big" data-draw="g_v" data-source="periodo_resumo" data-field="vendido" data-row="0">—</span><div class="cj-bar" data-draw="g_bar"></div><span class="cj-note">meta do período <b data-draw="g_m" data-source="periodo_resumo" data-field="meta" data-row="0">—</b> · <b data-draw="g_p" data-source="periodo_resumo" data-field="pct_meta" data-row="0">—</b></span></div>
+      <div class="cj-card" id="g-afi"><span class="cj-lbl">Afiação no período</span><span class="cj-big" data-draw="g_a" data-source="periodo_resumo" data-field="afiacao" data-row="0">—</span><span class="cj-note"><b data-draw="g_an" data-source="periodo_resumo" data-field="servicos" data-row="0">—</b> serviços</span></div>
+      <div class="cj-card" id="g-media"><span class="cj-lbl">Média por dia aberto</span><span class="cj-big" data-draw="g_md" data-source="periodo_resumo" data-field="media_dia" data-row="0">—</span><span class="cj-note"><b data-draw="g_d" data-source="periodo_resumo" data-field="dias" data-row="0">—</b> dias com venda</span></div>
+      <div class="cj-card" id="g-compras"><span class="cj-lbl">Boletos de fornecedor no período</span><span class="cj-big" data-draw="g_c" data-source="periodo_resumo" data-field="fornecedores" data-row="0">—</span><span class="cj-note">pelo vencimento</span></div>
+    </div>
+
+    <div class="cj-kpis">
+      <div class="cj-card" id="g-venc"><span class="cj-lbl">Boletos vencidos sem baixa</span><span class="cj-big cj-bad" data-draw="g_vv" data-source="contas_resumo" data-field="vencidas_valor" data-row="0">—</span><span class="cj-note"><b data-draw="g_vn" data-source="contas_resumo" data-field="vencidas_qtd" data-row="0">—</b> contas</span></div>
+      <div class="cj-card" id="g-7d"><span class="cj-lbl">Vencem nos próximos 7 dias</span><span class="cj-big" data-draw="g_7" data-source="contas_resumo" data-field="prox7" data-row="0">—</span></div>
+      <div class="cj-card" id="g-pc"><span class="cj-lbl">Ainda cabe comprar este mês</span><span class="cj-big" data-draw="g_pc" data-source="poder_compra" data-field="disponivel" data-row="0">—</span><span class="cj-note">já descontados os pedidos em aberto</span></div>
+      <div class="cj-card" id="g-pastas"><span class="cj-lbl">Pastas da Aline atrasadas</span><span class="cj-big" data-draw="g_pa" data-source="entradas_status_resumo" data-field="atrasadas" data-row="0">—</span><span class="cj-note"><b data-draw="g_pe" data-source="entradas_status_resumo" data-field="em_dia" data-row="0">—</b> em dia</span></div>
+    </div>
+
+    <div class="cj-card cj-tw" id="t-ritmo">
+      <h2>Vendas × meta</h2>
+      <table data-source="ritmo" data-row-key="janela">
+        <thead><tr><th data-field="janela">Janela</th><th class="r" data-field="vendido">Vendido</th><th class="r" data-field="meta">Meta</th><th class="r" data-field="pct">% da meta</th><th class="r" data-field="afiacao">Afiação</th></tr></thead>
+        <tbody data-draw="t_ritmo"></tbody>
+      </table>
+    </div>
+
+    <div class="cj-card" id="ch-periodo">
+      <h2>Vendas por dia no período</h2>
+      <div class="cj-legend"><span><i data-draw="sw0"></i>Loja</span><span><i data-draw="sw1"></i>Afiação</span><span><i style="background:var(--color-fg)"></i>Meta do dia</span></div>
+      <div class="cj-chart" data-draw="ch_periodo" data-source="periodo_dias"></div>
+    </div>
+
     <div class="cj-card cj-tw" id="t-rotina">
+      <h2>Central da Aline · pastas do Drive</h2>
       <table data-source="entradas_status" data-row-key="pasta">
-        <thead><tr><th data-field="pasta">Pasta</th><th data-field="o_que_colocar">O que colocar</th><th data-field="frequencia">Quando</th><th data-field="ultimo_arquivo">Último arquivo</th><th class="r" data-field="arquivos_mes">No mês</th><th data-field="situacao">Situação</th></tr></thead>
+        <thead><tr><th data-field="pasta">Pasta</th><th data-field="frequencia">Quando</th><th data-field="ultimo_arquivo">Último arquivo</th><th class="r" data-field="arquivos_mes">No mês</th><th data-field="situacao">Situação</th></tr></thead>
         <tbody data-draw="t_rotina"></tbody>
       </table>
     </div>
   </section>
 
-  <section class="cj-sec" id="saude">
-    <header><h2>Saúde do mês</h2><p class="cj-sub" data-draw="mesref">—</p></header>
+  <!-- ================= SAÚDE DO MÊS ================= -->
+  <section class="cj-page" id="saude" role="tabpanel" aria-labelledby="tab-saude" hidden>
+    <header class="cj-sec"><h2>Saúde do mês</h2><p class="cj-sub" data-draw="mesref">—</p></header>
     <div class="cj-kpis">
-      <div class="cj-card" id="k-vendido">
-        <span class="cj-lbl">Vendido na loja</span>
-        <span class="cj-big" data-draw="k_vendido" data-source="mes_atual" data-field="vendido" data-row="0">—</span>
-        <div class="cj-bar" data-draw="k_bar"></div>
-        <span class="cj-note">de <b data-draw="k_meta" data-source="mes_atual" data-field="meta" data-row="0">—</b> de meta · <b data-draw="k_pct" data-source="mes_atual" data-field="pct_meta" data-row="0">—</b></span>
-      </div>
-      <div class="cj-card" id="k-falta">
-        <span class="cj-lbl">Falta pra meta</span>
-        <span class="cj-big" data-draw="k_falta" data-source="mes_atual" data-field="falta" data-row="0">—</span>
-        <span class="cj-note"><b data-draw="k_porDia" data-source="mes_atual" data-field="falta_por_dia" data-row="0">—</b> por dia em <b data-draw="k_dias" data-source="mes_atual" data-field="dias_restantes" data-row="0">—</b> dias de loja aberta</span>
-      </div>
-      <div class="cj-card" id="k-proj">
-        <span class="cj-lbl">Projeção do mês no ritmo atual</span>
-        <span class="cj-big" data-draw="k_proj" data-source="mes_atual" data-field="projecao" data-row="0">—</span>
-        <span class="cj-note">mesmo mês de 2025: <b data-draw="k_2025" data-source="mes_atual" data-field="vendas_2025" data-row="0">—</b></span>
-      </div>
-      <div class="cj-card" id="k-afiacao">
-        <span class="cj-lbl">Afiação no mês</span>
-        <span class="cj-big" data-draw="k_afi" data-source="mes_atual" data-field="afiacao" data-row="0">—</span>
-        <span class="cj-note"><b data-draw="k_afiN" data-source="mes_atual" data-field="servicos" data-row="0">—</b> serviços · ticket médio <b data-draw="k_afiT" data-source="mes_atual" data-field="ticket_afiacao" data-row="0">—</b></span>
-      </div>
-      <div class="cj-card" id="k-compra">
-        <span class="cj-lbl">Ainda cabe comprar (vencendo neste mês)</span>
-        <span class="cj-big" data-draw="k_compra" data-source="poder_compra" data-field="disponivel" data-row="0">—</span>
-        <span class="cj-note">a planilha antiga mostrava <b data-draw="k_compraOld" data-source="poder_compra" data-field="disponivel_formula_antiga" data-row="0">—</b></span>
-      </div>
-      <div class="cj-card" id="k-vencidas">
-        <span class="cj-lbl">Contas vencidas sem baixa</span>
-        <span class="cj-big" data-draw="k_venc" data-source="contas_resumo" data-field="vencidas_valor" data-row="0">—</span>
-        <span class="cj-note"><b data-draw="k_vencN" data-source="contas_resumo" data-field="vencidas_qtd" data-row="0">—</b> contas · provavelmente pagas no DDA, falta dar baixa</span>
-      </div>
+      <div class="cj-card" id="k-vendido"><span class="cj-lbl">Vendido na loja</span><span class="cj-big" data-draw="k_vendido" data-source="mes_atual" data-field="vendido" data-row="0">—</span><div class="cj-bar" data-draw="k_bar"></div><span class="cj-note">de <b data-draw="k_meta" data-source="mes_atual" data-field="meta" data-row="0">—</b> · <b data-draw="k_pct" data-source="mes_atual" data-field="pct_meta" data-row="0">—</b></span></div>
+      <div class="cj-card" id="k-falta"><span class="cj-lbl">Falta pra meta</span><span class="cj-big" data-draw="k_falta" data-source="mes_atual" data-field="falta" data-row="0">—</span><span class="cj-note"><b data-draw="k_porDia" data-source="mes_atual" data-field="falta_por_dia" data-row="0">—</b> por dia em <b data-draw="k_dias" data-source="mes_atual" data-field="dias_restantes" data-row="0">—</b> dias de loja aberta</span></div>
+      <div class="cj-card" id="k-proj"><span class="cj-lbl">Projeção no ritmo atual</span><span class="cj-big" data-draw="k_proj" data-source="mes_atual" data-field="projecao" data-row="0">—</span><span class="cj-note">mesmo mês de 2025: <b data-draw="k_2025" data-source="mes_atual" data-field="vendas_2025" data-row="0">—</b></span></div>
+      <div class="cj-card" id="k-afiacao"><span class="cj-lbl">Afiação no mês</span><span class="cj-big" data-draw="k_afi" data-source="mes_atual" data-field="afiacao" data-row="0">—</span><span class="cj-note"><b data-draw="k_afiN" data-source="mes_atual" data-field="servicos" data-row="0">—</b> serviços · ticket <b data-draw="k_afiT" data-source="mes_atual" data-field="ticket_afiacao" data-row="0">—</b></span></div>
     </div>
-  </section>
-
-  <section class="cj-sec" id="vendas">
-    <header><h2>Vendas da loja</h2><p class="cj-sub">Venda bruta registrada no caixa (sem afiação), por mês, contra a meta e contra 2025.</p></header>
     <div class="cj-two">
-      <div class="cj-card" id="ch-mensal">
-        <h2>Mês a mês em 2026</h2>
-        <div class="cj-legend"><span><i style="background:var(--cj-c0)" data-draw="sw0"></i>Vendido 2026</span><span><i style="background:var(--color-fg)"></i>Meta</span><span><i style="background:var(--cds-chart-muted)"></i>2025</span></div>
-        <div class="cj-chart" data-draw="ch_mensal" data-source="vendas_mes"></div>
-      </div>
-      <div class="cj-card" id="ch-acum">
-        <h2>Acumulado do mês atual × meta</h2>
-        <div class="cj-legend"><span><i data-draw="sw1"></i>Acumulado</span><span><i style="background:var(--cds-chart-reference)"></i>Ritmo necessário pra meta</span></div>
-        <div class="cj-chart" data-draw="ch_acum" data-source="acumulado_mes"></div>
-      </div>
+      <div class="cj-card" id="ch-acum"><h2>Acumulado do mês × ritmo da meta</h2><div class="cj-legend"><span><i data-draw="sw2"></i>Acumulado</span><span><i style="background:var(--cds-chart-reference)"></i>Ritmo da meta</span></div><div class="cj-chart" data-draw="ch_acum" data-source="acumulado_mes"></div></div>
+      <div class="cj-card" id="ch-mensal"><h2>Mês a mês em 2026</h2><div class="cj-legend"><span><i data-draw="sw3"></i>Vendido</span><span><i style="background:var(--color-fg)"></i>Meta</span><span><i style="background:var(--cds-chart-muted)"></i>2025</span></div><div class="cj-chart" data-draw="ch_mensal" data-source="vendas_mes"></div></div>
     </div>
-    <div class="cj-card" id="t-vendedoras">
-      <h2>Vendas por vendedora · mês atual</h2>
-      <div class="cj-tw"><table data-source="vendedoras_mes" data-row-key="vendedora">
+    <div class="cj-card cj-tw" id="t-vendedoras">
+      <h2>Vendas por vendedora no mês</h2>
+      <table data-source="vendedoras_mes" data-row-key="vendedora">
         <thead><tr><th data-field="vendedora">Vendedora</th><th class="r" data-field="valor">Vendido</th><th class="r" data-field="participacao">Participação</th><th class="r" data-field="media_dia">Média por dia</th></tr></thead>
         <tbody data-draw="t_vend"></tbody>
-      </table></div>
+      </table>
     </div>
+    <div class="cj-kpis">
+      <div class="cj-card"><span class="cj-lbl">Resultado no ano (após pró-labore)</span><span class="cj-big" data-draw="r_res" data-source="dre_ano" data-field="resultado" data-row="0">—</span></div>
+      <div class="cj-card"><span class="cj-lbl">Pró-labore no ano</span><span class="cj-big" data-draw="r_prl" data-source="dre_ano" data-field="pro_labore" data-row="0">—</span><span class="cj-note">plano: <b data-draw="r_prlPlano" data-source="dre_ano" data-field="pro_labore_plano" data-row="0">—</b></span></div>
+      <div class="cj-card"><span class="cj-lbl">Gerado antes das retiradas</span><span class="cj-big" data-draw="r_ger" data-source="dre_ano" data-field="geracao" data-row="0">—</span><span class="cj-note">média <b data-draw="r_gerM" data-source="dre_ano" data-field="geracao_media_mes" data-row="0">—</b> por mês</span></div>
+    </div>
+    <div class="cj-card" id="ch-dre"><h2>Resultado e pró-labore por mês</h2><div class="cj-legend"><span><i style="background:var(--color-ok)"></i>Resultado +</span><span><i style="background:var(--color-bad)"></i>Resultado −</span><span><i data-draw="sw4"></i>Pró-labore</span></div><div class="cj-chart" data-draw="ch_dre" data-source="dre"></div></div>
   </section>
 
-  <section class="cj-sec" id="afiacao">
-    <header><h2>Afiação de alicates</h2><p class="cj-sub">Serviço do Jonas, registrado na parte verde do caixa. Entregas ficam fora.</p></header>
-    <div class="cj-two">
-      <div class="cj-card" id="ch-afi">
-        <h2>Faturamento de afiação por mês</h2>
-        <div class="cj-chart" data-draw="ch_afi" data-source="afiacao_mes"></div>
-      </div>
-      <div class="cj-card" id="t-afi-forma">
-        <h2>Como pagaram · mês atual</h2>
-        <div class="cj-tw"><table data-source="afiacao_forma" data-row-key="forma">
-          <thead><tr><th data-field="forma">Forma</th><th class="r" data-field="valor">Valor</th><th class="r" data-field="servicos">Serviços</th><th class="r" data-field="participacao">Participação</th></tr></thead>
-          <tbody data-draw="t_afi"></tbody>
-        </table></div>
-        <p class="cj-note">Hoje a afiação não aparece no DRE do financeiro (linha "Afiação Jonas" zerada).</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="cj-sec" id="compras">
-    <header><h2>Poder de compra</h2><p class="cj-sub">Regra da Aline: boletos de fornecedor que vencem no mês ≤ 45% da meta. Conta todos os boletos do mês, pagos ou não.</p></header>
-    <div class="cj-tw cj-card" id="t-compra">
+  <!-- ================= COMPRAS ================= -->
+  <section class="cj-page" id="compras" role="tabpanel" aria-labelledby="tab-compras" hidden>
+    <header class="cj-sec"><h2>Compras</h2><p class="cj-sub">Regra da Aline: boletos de fornecedor que vencem no mês ≤ 45% da meta. Pedidos em aberto já entram na conta, pelas datas de vencimento previstas.</p></header>
+    <div class="cj-card cj-tw" id="t-compra">
+      <h2>Poder de compra por mês de vencimento</h2>
       <table data-source="poder_compra" data-row-key="mes">
-        <thead><tr><th data-field="mes">Mês de vencimento</th><th class="r" data-field="meta">Meta</th><th class="r" data-field="teto">Teto (45%)</th><th class="r" data-field="fornecedores">Fornecedores no mês</th><th class="r" data-field="pagos">Já pagos</th><th class="r" data-field="disponivel">Ainda cabe</th><th class="r" data-field="disponivel_formula_antiga">Planilha antiga</th></tr></thead>
+        <thead><tr><th data-field="mes">Mês</th><th class="r" data-field="meta">Meta</th><th class="r" data-field="teto">Teto 45%</th><th class="r" data-field="fornecedores">Boletos lançados</th><th class="r" data-field="pedidos">Pedidos em aberto</th><th class="r" data-field="disponivel">Ainda cabe</th></tr></thead>
         <tbody data-draw="t_compra"></tbody>
       </table>
     </div>
-    <p class="cj-note">A fórmula antiga só descontava boletos ainda não pagos. Cada baixa fazia o "posso comprar" subir. Aqui a conta usa todos os boletos do mês.</p>
-  </section>
 
-  <section class="cj-sec" id="contas">
-    <header><h2>Contas a pagar</h2><p class="cj-sub" data-draw="contasSub">—</p></header>
+    <div class="cj-card" id="f-pedido">
+      <h2>Registrar pedido</h2>
+      <p class="cj-note">Antes de fechar com o fornecedor, registre aqui e veja na tabela acima se cabe. Quando a nota chegar, marque como recebido: os boletos passam a vir do XML.</p>
+      <form class="cj-form" id="form-pedido">
+        <label>Fornecedor<input id="p-forn" required maxlength="80"></label>
+        <label>Valor total (R$)<input id="p-valor" type="number" min="1" step="0.01" required></label>
+        <label>Parcelas<input id="p-parc" type="number" min="1" max="12" value="3" required></label>
+        <label>1º vencimento<input id="p-venc" type="date" min="2026-01-01" max="2028-12-31" required></label>
+        <label>Intervalo (dias)<input id="p-int" type="number" min="7" max="90" value="30" required></label>
+        <label class="full">Observação<input id="p-obs" maxlength="200"></label>
+        <button class="cj-btn" type="submit">Salvar pedido</button>
+      </form>
+      <p class="cj-msg" id="p-msg" hidden></p>
+    </div>
+
+    <div class="cj-card cj-tw" id="t-pedidos">
+      <h2>Pedidos</h2>
+      <table data-source="pedidos_lista" data-row-key="id">
+        <thead><tr><th data-field="criado_em">Registrado</th><th data-field="fornecedor">Fornecedor</th><th class="r" data-field="valor">Valor</th><th data-field="parcelas_txt">Parcelas</th><th data-field="status">Situação</th><th>Ações</th></tr></thead>
+        <tbody data-draw="t_pedidos"></tbody>
+      </table>
+    </div>
+
     <div class="cj-kpis">
+      <div class="cj-card"><span class="cj-lbl">Vencidas sem baixa</span><span class="cj-big cj-bad" data-draw="c_v" data-source="contas_resumo" data-field="vencidas_valor" data-row="0">—</span></div>
       <div class="cj-card"><span class="cj-lbl">Próximos 7 dias</span><span class="cj-big" data-draw="c7" data-source="contas_resumo" data-field="prox7" data-row="0">—</span></div>
       <div class="cj-card"><span class="cj-lbl">Próximos 30 dias</span><span class="cj-big" data-draw="c30" data-source="contas_resumo" data-field="prox30" data-row="0">—</span></div>
-      <div class="cj-card"><span class="cj-lbl">Fixos nos próximos 30 dias</span><span class="cj-big" data-draw="c30f" data-source="contas_resumo" data-field="prox30_fixos" data-row="0">—</span></div>
+      <div class="cj-card"><span class="cj-lbl">Fixos em 30 dias</span><span class="cj-big" data-draw="c30f" data-source="contas_resumo" data-field="prox30_fixos" data-row="0">—</span></div>
     </div>
     <div class="cj-card cj-tw" id="t-contas">
+      <h2>Contas em aberto (vencidas e próximos 30 dias)</h2>
       <table data-source="contas_lista" data-row-key="id">
         <thead><tr><th data-field="vencimento">Vencimento</th><th data-field="descricao">Descrição</th><th data-field="nota">Nota</th><th data-field="tipo">Tipo</th><th class="r" data-field="valor">Valor</th><th data-field="status">Situação</th></tr></thead>
         <tbody data-draw="t_contas"></tbody>
@@ -170,91 +200,101 @@
     </div>
   </section>
 
-  <section class="cj-sec" id="resultado">
-    <header><h2>Resultado e retiradas</h2><p class="cj-sub">Do DRE 2026 do financeiro. Resultado já descontado o pró-labore.</p></header>
+  <!-- ================= CAIXA DIÁRIO ================= -->
+  <section class="cj-page" id="caixa" role="tabpanel" aria-labelledby="tab-caixa" hidden>
+    <header class="cj-sec"><h2>Caixa diário</h2><p class="cj-sub">Da planilha de caixa da Thay: venda bruta por vendedora, meta do dia, afiação e retiradas.</p></header>
+    <div class="cj-filter"><label>Mês <select class="dash-select" data-draw="sel_mes_caixa" aria-label="Mês do caixa" data-source="meses"></select></label></div>
     <div class="cj-kpis">
-      <div class="cj-card"><span class="cj-lbl">Resultado no ano</span><span class="cj-big" data-draw="r_res" data-source="dre_ano" data-field="resultado" data-row="0">—</span></div>
-      <div class="cj-card"><span class="cj-lbl">Pró-labore no ano</span><span class="cj-big" data-draw="r_prl" data-source="dre_ano" data-field="pro_labore" data-row="0">—</span><span class="cj-note">plano: <b data-draw="r_prlPlano" data-source="dre_ano" data-field="pro_labore_plano" data-row="0">—</b></span></div>
-      <div class="cj-card"><span class="cj-lbl">O que a loja gerou antes das retiradas</span><span class="cj-big" data-draw="r_ger" data-source="dre_ano" data-field="geracao" data-row="0">—</span><span class="cj-note">média de <b data-draw="r_gerM" data-source="dre_ano" data-field="geracao_media_mes" data-row="0">—</b> por mês fechado</span></div>
+      <div class="cj-card"><span class="cj-lbl">Loja no mês</span><span class="cj-big" data-draw="cx_loja" data-source="caixa_total" data-field="loja" data-row="0">—</span><span class="cj-note">meta <b data-draw="cx_meta" data-source="caixa_total" data-field="meta" data-row="0">—</b></span></div>
+      <div class="cj-card"><span class="cj-lbl">Afiação no mês</span><span class="cj-big" data-draw="cx_afi" data-source="caixa_total" data-field="afiacao" data-row="0">—</span><span class="cj-note"><b data-draw="cx_afiN" data-source="caixa_total" data-field="servicos" data-row="0">—</b> serviços</span></div>
+      <div class="cj-card"><span class="cj-lbl">Dias acima da meta</span><span class="cj-big" data-draw="cx_bat" data-source="caixa_total" data-field="dias_meta_batida" data-row="0">—</span><span class="cj-note">de <b data-draw="cx_dias" data-source="caixa_total" data-field="dias" data-row="0">—</b> dias com venda</span></div>
+      <div class="cj-card"><span class="cj-lbl">Retiradas do caixa</span><span class="cj-big" data-draw="cx_ret" data-source="caixa_total" data-field="retiradas" data-row="0">—</span></div>
     </div>
-    <div class="cj-card" id="ch-dre">
-      <h2>Resultado e pró-labore por mês</h2>
-      <div class="cj-legend"><span><i style="background:var(--color-ok)"></i>Resultado positivo</span><span><i style="background:var(--color-bad)"></i>Resultado negativo</span><span><i data-draw="sw2"></i>Pró-labore</span></div>
-      <div class="cj-chart" data-draw="ch_dre" data-source="dre"></div>
+    <div class="cj-card cj-tw" id="t-caixa">
+      <table data-source="caixa_mes" data-row-key="data">
+        <thead><tr><th data-field="data">Dia</th><th data-field="dia_semana"></th><th class="r" data-field="meta">Meta</th><th class="r" data-field="aline">Aline</th><th class="r" data-field="tainara">Tainara</th><th class="r" data-field="thayna">Thayna</th><th class="r" data-field="outras">Outras</th><th class="r" data-field="loja">Loja</th><th class="r" data-field="dif_meta">× Meta</th><th class="r" data-field="afi_dinheiro">Afiação din.</th><th class="r" data-field="afi_pix">Afiação Pix</th><th class="r" data-field="afi_cartao">Afiação cartão</th><th class="r" data-field="afiacao">Afiação total</th><th class="r" data-field="entregas">Entregas</th><th class="r" data-field="retiradas">Retiradas</th></tr></thead>
+        <tbody data-draw="t_caixa"></tbody>
+        <tfoot data-draw="t_caixa_tot"></tfoot>
+      </table>
+    </div>
+    <div class="cj-two">
+      <div class="cj-card" id="ch-afi"><h2>Afiação por mês</h2><div class="cj-chart" data-draw="ch_afi" data-source="afiacao_mes"></div></div>
+      <div class="cj-card cj-tw" id="t-afi-forma"><h2>Afiação por forma de pagamento · mês escolhido</h2>
+        <table data-source="afiacao_forma" data-row-key="forma"><thead><tr><th data-field="forma">Forma</th><th class="r" data-field="valor">Valor</th><th class="r" data-field="servicos">Serviços</th><th class="r" data-field="participacao">Participação</th></tr></thead><tbody data-draw="t_afi"></tbody></table>
+      </div>
     </div>
   </section>
 
-  <section class="cj-sec" id="equipe">
-    <header><h2>Equipe e ponto</h2><p class="cj-sub">Seg–sex 08:30–18:00 com 1h30 de almoço; sábado 08:30–12:30. Tolerância de 10 min por dia (CLT). Atraso conta acima de 5 min.</p></header>
-    <div class="cj-people" data-draw="pessoas" data-source="ponto_resumo"></div>
-    <div class="cj-card" id="ch-chegada">
-      <h2>Horário de chegada · últimos 30 dias</h2>
-      <div class="cj-legend" data-draw="legPonto"></div>
-      <div class="cj-chart" data-draw="ch_chegada" data-source="ponto"></div>
+  <!-- ================= EQUIPE ================= -->
+  <section class="cj-page" id="equipe" role="tabpanel" aria-labelledby="tab-equipe" hidden>
+    <header class="cj-sec"><h2>Equipe</h2><p class="cj-sub">Jornada: seg–sex 08:30–18:00 com 1h30 de almoço; sábado 08:30–12:30. Tolerância de 10 min por dia (CLT). Atraso conta acima de 5 min.</p></header>
+    <div class="cj-filter">
+      <label>Funcionária <select class="dash-select" data-draw="sel_pessoa" aria-label="Funcionária" data-source="equipe"></select></label>
+      <label>Mês <select class="dash-select" data-draw="sel_mes_ponto" aria-label="Mês do ponto" data-source="meses_ponto"></select></label>
     </div>
-    <div class="cj-card cj-tw" id="t-ponto">
-      <h2>Últimos dias</h2>
-      <table data-source="ponto_recente" data-row-key="id">
-        <thead><tr><th data-field="data">Data</th><th data-field="funcionaria">Funcionária</th><th data-field="chegada">Chegada</th><th data-field="almoco">Almoço</th><th data-field="saida">Saída</th><th class="r" data-field="horas">Trabalhou</th><th class="r" data-field="atraso_min">Atraso</th><th class="r" data-field="saldo_min">Saldo do dia</th><th data-field="status">Obs.</th></tr></thead>
-        <tbody data-draw="t_ponto"></tbody>
+    <div class="cj-people" data-draw="pessoas" data-source="ponto_resumo"></div>
+
+    <div class="cj-card cj-tw" id="t-folha">
+      <h2 data-draw="folhaTit">—</h2>
+      <table data-source="folha" data-row-key="data">
+        <thead><tr><th data-field="data">Dia</th><th data-field="dia">Sem.</th><th data-field="chegada">Chegada</th><th data-field="saida_almoco">Saída almoço</th><th data-field="retorno_almoco">Volta almoço</th><th data-field="saida">Saída</th><th class="r" data-field="min_trabalhados">Trabalhou</th><th class="r" data-field="jornada_min">Jornada</th><th class="r" data-field="atraso_min">Atraso</th><th class="r" data-field="saldo_min">Saldo</th><th data-field="obs">Obs.</th></tr></thead>
+        <tbody data-draw="t_folha"></tbody>
+        <tfoot data-draw="t_folha_tot"></tfoot>
       </table>
     </div>
+
+    <div class="cj-two">
+      <div class="cj-card" id="f-cargo">
+        <h2>Cargo e responsabilidades</h2>
+        <form class="cj-form" id="form-cargo">
+          <label>Funcionária<input id="cg-nome" list="cj-nomes" required maxlength="40"></label>
+          <label>Cargo<input id="cg-cargo" required maxlength="60"></label>
+          <label class="full">Responsabilidades e tarefas fixas<textarea id="cg-resp" maxlength="1500" placeholder="Ex.: abrir caixa; entrada de notas no mesmo dia; 10 follow-ups no WhatsApp por dia"></textarea></label>
+          <button class="cj-btn" type="submit">Salvar cargo</button>
+        </form>
+        <datalist id="cj-nomes"><option value="Tainara"></option><option value="Thayna"></option></datalist>
+        <p class="cj-msg" id="cg-msg" hidden></p>
+      </div>
+      <div class="cj-card" id="f-ocorr">
+        <h2>Registrar ocorrência</h2>
+        <form class="cj-form" id="form-ocorr">
+          <label>Data<input id="oc-data" type="date" min="2026-01-01" max="2028-12-31" required></label>
+          <label>Funcionária<input id="oc-nome" list="cj-nomes" required maxlength="40"></label>
+          <label>Tipo<select class="dash-select" id="oc-tipo"><option>Elogio</option><option>Combinado / tarefa</option><option>Comportamento / reação</option><option>Advertência verbal</option><option>Advertência escrita</option><option>Atraso / falta justificada</option><option>Outro</option></select></label>
+          <label class="full">O que aconteceu (fatos)<textarea id="oc-desc" required maxlength="2000"></textarea></label>
+          <label class="full">Providência / combinado<input id="oc-prov" maxlength="300"></label>
+          <button class="cj-btn" type="submit">Registrar</button>
+        </form>
+        <p class="cj-msg" id="oc-msg" hidden></p>
+      </div>
+    </div>
+
+    <div class="cj-card cj-tw" id="t-ocorr">
+      <h2>Histórico de ocorrências</h2>
+      <table data-source="ocorrencias_lista" data-row-key="id">
+        <thead><tr><th data-field="data">Data</th><th data-field="funcionaria">Funcionária</th><th data-field="tipo">Tipo</th><th data-field="descricao">O que aconteceu</th><th data-field="providencia">Providência</th><th>Ações</th></tr></thead>
+        <tbody data-draw="t_ocorr"></tbody>
+      </table>
+    </div>
+
+    <div class="cj-card" id="ch-chegada"><h2>Horário de chegada · últimos 30 dias</h2><div class="cj-legend" data-draw="legPonto"></div><div class="cj-chart" data-draw="ch_chegada" data-source="ponto"></div></div>
   </section>
 
   <details id="notas">
     <summary>Como os números são calculados</summary>
     <ul>
-      <li>Vendas: soma dos lançamentos por vendedora nas planilhas de caixa (valor bruto do dia).</li>
-      <li>Projeção: média por dia com venda × (dias com venda + dias de loja aberta que faltam, seg a sáb).</li>
-      <li>Poder de compra: meta do mês × 45% menos todos os boletos de fornecedor que vencem no mês.</li>
-      <li>Saldo de ponto: minutos trabalhados (saída − chegada − almoço) menos a jornada do dia. Diferenças de até 10 min contam como zero.</li>
-      <li>Fonte única: planilha "BASE GESTÃO 2026 · Cutelaria Jonas", na pasta Dashboard 2026 do Drive.</li>
+      <li>Vendas: lançamentos por vendedora nas planilhas de caixa (venda bruta). "Último dia" é o último dia com venda registrada.</li>
+      <li>Meta do dia: meta oficial do mês (aba METAS) distribuída pelo peso que a Aline dá a cada dia no RESUMO do caixa.</li>
+      <li>Poder de compra: meta × 45% menos todos os boletos de fornecedor do mês (pagos ou não) e menos as parcelas previstas dos pedidos em aberto.</li>
+      <li>Ponto: trabalhado = saída − chegada − almoço; saldo = trabalhado − jornada, com tolerância de 10 min.</li>
+      <li>Pedidos, cargos e ocorrências ficam salvos no próprio painel: quem pode editar o painel registra; quem só visualiza, só lê.</li>
     </ul>
   </details>
 </div>
 
 <script>
 const SHEET = '13-_lZHKaE7HQ_lArBHCxuV1bjt03EFuCMSNfoAvGLAQ';
-dash.loader('entradas', {
-  description: 'Lista os arquivos que estão nas pastas de ENTRADAS DA ALINE: pasta, nome e quando entrou.',
-  fn: ({answer}) => {
-    const a = typeof answer === 'string' ? JSON.parse(answer) : (answer || {});
-    if (a.error) throw new Error(a.error.message || String(a.error));
-    const files = a.files || [];
-    return {columns: ['pasta_id', 'arquivo', 'recebido'], rows: files.map((f) => ({pasta_id: f.parentId || null, arquivo: f.title || '', recebido: (f.createdTime || f.modifiedTime || '').slice(0, 10) || null})), truncated: Boolean(a.nextPageToken)};
-  }
-});
-
-dash.calc('entradas_status', {
-  title: 'Situação de cada pasta de entrada',
-  description: 'Compara o último arquivo de cada pasta com o prazo da aba ROTINA. Hoje = data do computador de quem abre.',
-  inputs: ['rotina', 'entradas'],
-  fn: (rotina, entradas) => {
-    const hoje = new Date().toISOString().slice(0, 10);
-    const mes = hoje.slice(0, 7);
-    const dias = (iso) => Math.round((new Date(hoje + 'T00:00:00Z') - new Date(iso + 'T00:00:00Z')) / 86400000);
-    return rotina.filter((r) => r.pasta).map((r) => {
-      const fs = entradas.filter((f) => f.pasta_id === r.pasta_id && f.recebido);
-      const ultimo = fs.map((f) => f.recebido).sort().pop() || null;
-      const auto = r.ordem > 6;
-      let situacao;
-      if (auto) situacao = 'automático';
-      else if (!ultimo) situacao = 'aguardando 1º envio';
-      else situacao = dias(ultimo) > r.prazo_dias ? 'atrasada' : 'em dia';
-      return {pasta: r.pasta, o_que_colocar: r.o_que_colocar, frequencia: r.frequencia, ultimo_arquivo: auto ? null : ultimo, arquivos_mes: auto ? null : fs.filter((f) => f.recebido.startsWith(mes)).length, ultimos_7: fs.filter((f) => dias(f.recebido) <= 7).length, situacao, automatica: auto};
-    });
-  }
-});
-
-dash.calc('entradas_status_resumo', {
-  title: 'Resumo das pastas de entrada', inputs: ['entradas_status'],
-  fn: (st) => {
-    const a = st.filter((r) => !r.automatica);
-    return [{total: a.length, em_dia: a.filter((r) => r.situacao === 'em dia').length, atrasadas: a.filter((r) => r.situacao === 'atrasada').length, ultimos_7_dias: d3.sum(a, (r) => r.ultimos_7)}];
-  }
-});
-
-['vendas','afiacao','metas','config','contas','dre','ponto','equipe','rotina'].forEach((id) => dash.loader(id, {
+['vendas','afiacao','metas','config','contas','dre','ponto','equipe','rotina','meta_dia','retiradas_d'].forEach((id) => dash.loader(id, {
   description: 'Lê a aba da planilha: a primeira linha dá os nomes das colunas; datas dd/mm/aaaa viram aaaa-mm-dd e números viram números.',
   fn: ({answer}) => {
     const a = typeof answer === 'string' ? JSON.parse(answer) : answer;
@@ -262,7 +302,7 @@ dash.calc('entradas_status_resumo', {
     const v = (a && a.values) || [];
     if (!v.length) return {columns: [], rows: []};
     const cols = v[0].map(String);
-    const keepText = new Set(['nota', 'mes', 'codigo_caixa', 'chegada', 'saida_almoco', 'retorno_almoco', 'saida', 'valor_texto']);
+    const keepText = new Set(['nota', 'mes', 'codigo_caixa', 'chegada', 'saida_almoco', 'retorno_almoco', 'saida']);
     const conv = (c, x) => {
       if (x === undefined || x === null || x === '') return null;
       const s = String(x);
@@ -275,296 +315,439 @@ dash.calc('entradas_status_resumo', {
   }
 }));
 
-/* ---- cálculos ---- */
-dash.calc('mes_atual', {
-  title: 'Mês atual: vendas, meta, ritmo e afiação',
-  description: 'Mês da última venda registrada. Dias restantes contam seg a sáb depois da última data.',
-  inputs: ['vendas', 'metas', 'afiacao'],
-  fn: (vendas, metas, afiacao) => {
-    if (!vendas.length) return [];
-    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop();
-    const mes = last.slice(0, 7);
-    const doMes = vendas.filter((r) => r.data && r.data.startsWith(mes));
-    const vendido = doMes.reduce((s, r) => s + (r.valor || 0), 0);
-    const dias = new Set(doMes.map((r) => r.data)).size;
-    const m = metas.find((r) => r.mes === mes) || {};
-    const meta = m.meta_loja || 0;
-    const [y, mo] = mes.split('-').map(Number);
-    const fim = new Date(Date.UTC(y, mo, 0));
-    let rest = 0;
-    for (let d = new Date(Date.UTC(y, mo - 1, Number(last.slice(8, 10)) + 1)); d <= fim; d.setUTCDate(d.getUTCDate() + 1)) if (d.getUTCDay() !== 0) rest++;
-    const falta = Math.max(0, meta - vendido);
-    const afi = afiacao.filter((r) => r.data && r.data.startsWith(mes) && r.tipo === 'afiação');
-    const afiV = afi.reduce((s, r) => s + (r.valor || 0), 0);
-    return [{mes, ultima_data: last, vendido, meta, pct_meta: meta ? vendido / meta : null, dias_com_venda: dias, dias_restantes: rest, falta, falta_por_dia: rest ? falta / rest : falta,
-      projecao: dias ? vendido / dias * (dias + rest) : 0, vendas_2025: m.vendas_2025 || null, afiacao: afiV, servicos: afi.length, ticket_afiacao: afi.length ? afiV / afi.length : null}];
+dash.loader('entradas', {
+  description: 'Lista os arquivos das pastas de ENTRADAS DA ALINE: pasta, nome e quando entrou.',
+  fn: ({answer}) => {
+    const a = typeof answer === 'string' ? JSON.parse(answer) : (answer || {});
+    if (a.error) throw new Error(a.error.message || String(a.error));
+    const files = a.files || [];
+    return {columns: ['pasta_id', 'arquivo', 'recebido'], rows: files.map((f) => ({pasta_id: f.parentId || null, arquivo: f.title || '', recebido: (f.createdTime || f.modifiedTime || '').slice(0, 10) || null})), truncated: Boolean(a.nextPageToken)};
   }
 });
 
-dash.calc('vendas_mes', {
-  title: 'Vendas por mês × meta × 2025', inputs: ['vendas', 'metas'],
-  fn: (vendas, metas) => metas.map((m) => ({mes: m.mes, vendido: vendas.filter((r) => r.data && r.data.startsWith(m.mes)).reduce((s, r) => s + (r.valor || 0), 0), meta: m.meta_loja, vendas_2025: m.vendas_2025}))
+/* ---------- datas de referência ---------- */
+dash.calc('ref', {
+  title: 'Data de referência', description: 'Último dia com venda registrada no caixa.', inputs: ['vendas'],
+  fn: (vendas) => { const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); return last ? [{ultima: last, mes: last.slice(0, 7)}] : []; }
 });
 
-dash.calc('acumulado_mes', {
-  title: 'Acumulado diário do mês atual', inputs: ['vendas', 'metas'],
-  fn: (vendas, metas) => {
-    if (!vendas.length) return [];
-    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); const mes = last.slice(0, 7);
-    const meta = (metas.find((r) => r.mes === mes) || {}).meta_loja || 0;
-    const by = d3.rollup(vendas.filter((r) => r.data && r.data.startsWith(mes)), (v) => d3.sum(v, (r) => r.valor), (r) => r.data);
-    const [y, mo] = mes.split('-').map(Number); const nd = new Date(Date.UTC(y, mo, 0)).getUTCDate();
-    let aberto = 0; for (let d = 1; d <= nd; d++) if (new Date(Date.UTC(y, mo - 1, d)).getUTCDay() !== 0) aberto++;
-    let acc = 0, ab = 0; const out = [];
-    for (let d = 1; d <= nd; d++) {
-      const iso = `${mes}-${String(d).padStart(2, '0')}`;
-      if (new Date(Date.UTC(y, mo - 1, d)).getUTCDay() !== 0) ab++;
-      const has = iso <= last; if (has) acc += by.get(iso) || 0;
-      out.push({data: iso, acumulado: has ? acc : null, meta_ritmo: meta * ab / aberto});
-    }
+dash.calc('periodo_dias', {
+  title: 'Vendas, afiação e meta por dia no período escolhido',
+  description: 'Período dos botões (último dia, 7 dias, mês, ano) ou das datas de/até.',
+  inputs: ['vendas', 'afiacao', 'meta_dia'],
+  fn: (vendas, afiacao, metaDia) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
+    const p = dash.params(); const add = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+    let de, ate = last;
+    if (p.de && p.ate) { de = p.de; ate = p.ate; }
+    else if (p.periodo === 'dia') de = last;
+    else if (p.periodo === 'semana') de = add(last, -6);
+    else if (p.periodo === 'ano') de = last.slice(0, 4) + '-01-01';
+    else de = last.slice(0, 7) + '-01';
+    const loja = d3.rollup(vendas.filter((r) => r.data >= de && r.data <= ate), (v) => d3.sum(v, (r) => r.valor), (r) => r.data);
+    const afi = d3.rollup(afiacao.filter((r) => r.tipo === 'afiação' && r.data >= de && r.data <= ate), (v) => ({valor: d3.sum(v, (r) => r.valor), n: v.length}), (r) => r.data);
+    const meta = new Map(metaDia.map((r) => [r.data, r.meta_dia || 0]));
+    const out = [];
+    for (let d = de; d <= ate; d = add(d, 1)) out.push({data: d, de, ate, loja: loja.get(d) || 0, afiacao: (afi.get(d) || {}).valor || 0, servicos: (afi.get(d) || {}).n || 0, meta: meta.get(d) || 0});
     return out;
   }
 });
 
-dash.calc('vendedoras_mes', {
-  title: 'Vendas por vendedora no mês atual', inputs: ['vendas'],
-  fn: (vendas) => {
+dash.calc('periodo_resumo', {
+  title: 'Resumo do período escolhido', inputs: ['periodo_dias', 'contas'],
+  fn: (dias, contas) => {
+    if (!dias.length) return [];
+    const de = dias[0].de, ate = dias[0].ate;
+    const vendido = d3.sum(dias, (r) => r.loja), meta = d3.sum(dias, (r) => r.meta), comVenda = dias.filter((r) => r.loja > 0).length;
+    const forn = d3.sum(contas.filter((c) => c.tipo === 'fornecedor' && c.vencimento >= de && c.vencimento <= ate), (c) => c.valor);
+    return [{de, ate, vendido, meta, pct_meta: meta ? vendido / meta : null, afiacao: d3.sum(dias, (r) => r.afiacao), servicos: d3.sum(dias, (r) => r.servicos), dias: comVenda, media_dia: comVenda ? vendido / comVenda : 0, fornecedores: forn}];
+  }
+});
+
+dash.calc('ritmo', {
+  title: 'Último dia, semana e mês contra a meta', inputs: ['vendas', 'afiacao', 'meta_dia'],
+  fn: (vendas, afiacao, metaDia) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
+    const d = new Date(last + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 6); const sem = d.toISOString().slice(0, 10);
+    const win = [['Último dia', last], ['Últimos 7 dias', sem], ['Mês até agora', last.slice(0, 7) + '-01'], ['Ano até agora', last.slice(0, 4) + '-01-01']];
+    return win.map(([janela, de]) => {
+      const v = d3.sum(vendas.filter((r) => r.data >= de && r.data <= last), (r) => r.valor);
+      const m = d3.sum(metaDia.filter((r) => r.data >= de && r.data <= last), (r) => r.meta_dia || 0);
+      const a = d3.sum(afiacao.filter((r) => r.tipo === 'afiação' && r.data >= de && r.data <= last), (r) => r.valor);
+      return {janela, vendido: v, meta: m, pct: m ? v / m : null, afiacao: a};
+    });
+  }
+});
+
+/* ---------- mês atual ---------- */
+dash.calc('mes_atual', {
+  title: 'Mês atual: vendas, meta, ritmo e afiação', description: 'Mês da última venda. Dias restantes: dias com meta depois da última venda.',
+  inputs: ['vendas', 'metas', 'afiacao', 'meta_dia'],
+  fn: (vendas, metas, afiacao, metaDia) => {
     if (!vendas.length) return [];
     const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); const mes = last.slice(0, 7);
-    const doMes = vendas.filter((r) => r.data && r.data.startsWith(mes)); const tot = d3.sum(doMes, (r) => r.valor);
+    const doMes = vendas.filter((r) => r.data && r.data.startsWith(mes));
+    const vendido = d3.sum(doMes, (r) => r.valor); const dias = new Set(doMes.map((r) => r.data)).size;
+    const m = metas.find((r) => r.mes === mes) || {}; const meta = m.meta_loja || 0;
+    const rest = metaDia.filter((r) => r.data.startsWith(mes) && r.data > last && r.meta_dia > 0).length;
+    const falta = Math.max(0, meta - vendido);
+    const afi = afiacao.filter((r) => r.data && r.data.startsWith(mes) && r.tipo === 'afiação'); const afiV = d3.sum(afi, (r) => r.valor);
+    return [{mes, ultima_data: last, vendido, meta, pct_meta: meta ? vendido / meta : null, dias_com_venda: dias, dias_restantes: rest, falta, falta_por_dia: rest ? falta / rest : falta,
+      projecao: dias ? vendido / dias * (dias + rest) : 0, vendas_2025: m.vendas_2025 || null, afiacao: afiV, servicos: afi.length, ticket_afiacao: afi.length ? afiV / afi.length : null}];
+  }
+});
+dash.calc('vendas_mes', { title: 'Vendas por mês × meta × 2025', inputs: ['vendas', 'metas'],
+  fn: (vendas, metas) => metas.map((m) => ({mes: m.mes, vendido: d3.sum(vendas.filter((r) => r.data && r.data.startsWith(m.mes)), (r) => r.valor), meta: m.meta_loja, vendas_2025: m.vendas_2025})) });
+dash.calc('acumulado_mes', { title: 'Acumulado diário do mês atual × ritmo da meta', inputs: ['vendas', 'meta_dia'],
+  fn: (vendas, metaDia) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return []; const mes = last.slice(0, 7);
+    const by = d3.rollup(vendas.filter((r) => r.data.startsWith(mes)), (v) => d3.sum(v, (r) => r.valor), (r) => r.data);
+    let acc = 0, accM = 0;
+    return metaDia.filter((r) => r.data.startsWith(mes)).sort((a, b) => a.data < b.data ? -1 : 1).map((r) => { accM += r.meta_dia || 0; const has = r.data <= last; if (has) acc += by.get(r.data) || 0; return {data: r.data, acumulado: has ? acc : null, meta_ritmo: accM}; });
+  } });
+dash.calc('vendedoras_mes', { title: 'Vendas por vendedora no mês atual', inputs: ['vendas'],
+  fn: (vendas) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return []; const mes = last.slice(0, 7);
+    const doMes = vendas.filter((r) => r.data.startsWith(mes)); const tot = d3.sum(doMes, (r) => r.valor);
     return d3.rollups(doMes, (v) => ({valor: d3.sum(v, (r) => r.valor), dias: new Set(v.map((r) => r.data)).size}), (r) => r.vendedora)
-      .map(([vendedora, o]) => ({vendedora, valor: o.valor, participacao: tot ? o.valor / tot : 0, media_dia: o.dias ? o.valor / o.dias : 0}))
-      .sort((a, b) => b.valor - a.valor);
-  }
-});
-
-dash.calc('afiacao_mes', {
-  title: 'Afiação por mês', inputs: ['afiacao'],
-  fn: (afiacao) => d3.rollups(afiacao.filter((r) => r.tipo === 'afiação' && r.data), (v) => ({valor: d3.sum(v, (r) => r.valor), servicos: v.length}), (r) => r.data.slice(0, 7))
-    .map(([mes, o]) => ({mes, valor: o.valor, servicos: o.servicos})).sort((a, b) => a.mes < b.mes ? -1 : 1)
-});
-
-dash.calc('afiacao_forma', {
-  title: 'Afiação do mês atual por forma de pagamento', inputs: ['afiacao'],
-  fn: (afiacao) => {
-    const a = afiacao.filter((r) => r.tipo === 'afiação' && r.data); if (!a.length) return [];
-    const mes = a.map((r) => r.data).sort().pop().slice(0, 7);
-    const m = a.filter((r) => r.data.startsWith(mes)); const tot = d3.sum(m, (r) => r.valor);
-    return d3.rollups(m, (v) => ({valor: d3.sum(v, (r) => r.valor), servicos: v.length}), (r) => r.forma)
-      .map(([forma, o]) => ({forma, valor: o.valor, servicos: o.servicos, participacao: tot ? o.valor / tot : 0})).sort((x, y) => y.valor - x.valor);
-  }
-});
-
-dash.calc('poder_compra', {
-  title: 'Poder de compra por mês de vencimento',
-  description: 'Teto = meta × regra_compra_pct da aba CONFIG; desconta todos os boletos de fornecedor do mês.',
-  inputs: ['vendas', 'metas', 'contas', 'config'],
-  fn: (vendas, metas, contas, config) => {
-    if (!vendas.length) return [];
-    const pct = (config.find((r) => r.chave === 'regra_compra_pct') || {}).valor || 0.45;
-    const mes0 = vendas.map((r) => r.data).filter(Boolean).sort().pop().slice(0, 7);
-    return metas.filter((m) => m.mes >= mes0).map((m) => {
-      const f = contas.filter((c) => c.tipo === 'fornecedor' && c.vencimento && c.vencimento.startsWith(m.mes));
-      const total = d3.sum(f, (c) => c.valor), pagos = d3.sum(f.filter((c) => c.status === 'paga'), (c) => c.valor);
-      const teto = (m.meta_loja || 0) * pct;
-      return {mes: m.mes, meta: m.meta_loja, teto, fornecedores: total, pagos, disponivel: teto - total, disponivel_formula_antiga: teto - (total - pagos)};
-    });
-  }
-});
-
-dash.calc('contas_resumo', {
-  title: 'Resumo de contas a pagar', description: 'Hoje = data da última venda registrada.', inputs: ['contas', 'vendas'],
-  fn: (contas, vendas) => {
-    if (!vendas.length) return [];
-    const hoje = vendas.map((r) => r.data).filter(Boolean).sort().pop();
-    const add = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-    const abertas = contas.filter((c) => c.status !== 'paga' && c.vencimento);
-    const venc = abertas.filter((c) => c.vencimento < hoje);
-    const p = (n, f) => d3.sum(abertas.filter((c) => c.vencimento >= hoje && c.vencimento <= add(hoje, n) && (!f || f(c))), (c) => c.valor);
-    return [{hoje, vencidas_qtd: venc.length, vencidas_valor: d3.sum(venc, (c) => c.valor), prox7: p(7), prox30: p(30), prox30_fixos: p(30, (c) => c.tipo === 'fixo')}];
-  }
-});
-
-dash.calc('contas_lista', {
-  title: 'Contas vencidas sem baixa e dos próximos 30 dias', inputs: ['contas', 'vendas'],
-  fn: (contas, vendas) => {
-    if (!vendas.length) return [];
-    const hoje = vendas.map((r) => r.data).filter(Boolean).sort().pop();
-    const d = new Date(hoje + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 30); const lim = d.toISOString().slice(0, 10);
-    return contas.filter((c) => c.status !== 'paga' && c.vencimento && c.vencimento <= lim)
-      .map((c, i) => ({id: `${c.vencimento}|${c.descricao}|${c.nota || ''}|${c.valor}`, vencimento: c.vencimento, descricao: c.descricao, nota: c.nota || '', tipo: c.tipo, valor: c.valor, status: c.vencimento < hoje ? 'vencida sem baixa' : 'a pagar'}))
-      .sort((a, b) => a.vencimento < b.vencimento ? -1 : 1);
-  }
-});
-
-dash.calc('dre_ano', {
-  title: 'DRE acumulado do ano (meses fechados)', description: 'Soma dos meses com receita acima de R$ 20 mil, para não contar mês em aberto.', inputs: ['dre', 'config'],
+      .map(([vendedora, o]) => ({vendedora, valor: o.valor, participacao: tot ? o.valor / tot : 0, media_dia: o.dias ? o.valor / o.dias : 0})).sort((a, b) => b.valor - a.valor);
+  } });
+dash.calc('dre_ano', { title: 'DRE acumulado do ano (meses fechados)', description: 'Meses com receita acima de R$ 20 mil.', inputs: ['dre', 'config'],
   fn: (dre, config) => {
-    const fech = dre.filter((r) => (r.receita || 0) > 20000);
-    const plano = (config.find((r) => r.chave === 'pro_labore_plano') || {}).valor || 0;
+    const fech = dre.filter((r) => (r.receita || 0) > 20000); const plano = (config.find((r) => r.chave === 'pro_labore_plano') || {}).valor || 0;
     const res = d3.sum(fech, (r) => r.resultado), prl = d3.sum(fech, (r) => r.pro_labore);
     return [{meses: fech.length, resultado: res, pro_labore: prl, pro_labore_plano: plano * fech.length, geracao: res + prl, geracao_media_mes: fech.length ? (res + prl) / fech.length : 0}];
+  } });
+
+/* ---------- compras ---------- */
+dash.calc('pedidos_parcelas', {
+  title: 'Parcelas previstas dos pedidos em aberto', description: 'Valor dividido igualmente pelas parcelas, a partir do 1º vencimento e do intervalo informado.', inputs: ['pedidos'],
+  fn: (pedidos) => {
+    const out = [];
+    pedidos.filter((p) => p.status === 'em aberto').forEach((p) => {
+      const n = Math.max(1, Number(p.parcelas) || 1), v = (Number(p.valor) || 0) / n, step = Number(p.intervalo_dias) || 30;
+      for (let i = 0; i < n; i++) { const d = new Date((p.primeiro_venc || '2026-01-01') + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + i * step); out.push({pedido: p.id, fornecedor: p.fornecedor, vencimento: d.toISOString().slice(0, 10), valor: v}); }
+    });
+    return out;
   }
 });
-
-dash.calc('ponto_resumo', {
-  title: 'Ponto por funcionária ativa', description: 'Mês = mês do último registro de ponto. Atraso conta acima de 5 min.', inputs: ['ponto', 'equipe'],
-  fn: (ponto, equipe) => {
-    if (!ponto.length) return [];
-    const ativas = equipe.filter((e) => e.ativa === 'sim' && e.jornada !== '—').map((e) => e.nome);
-    const last = ponto.map((r) => r.data).filter(Boolean).sort().pop(); const mes = last.slice(0, 7);
-    const toMin = (s) => { const [h, m] = String(s).split(':').map(Number); return h * 60 + m; };
-    return ativas.map((nome) => {
-      const p = ponto.filter((r) => r.funcionaria === nome);
-      const pm = p.filter((r) => r.data.startsWith(mes));
-      const ch = pm.filter((r) => r.chegada).map((r) => toMin(r.chegada));
-      const med = ch.length ? d3.median(ch) : null;
-      return {funcionaria: nome, cargo: (equipe.find((e) => e.nome === nome) || {}).cargo, mes, dias_mes: pm.length,
-        atrasos_mes: pm.filter((r) => (r.atraso_min || 0) > 5).length, min_atraso_mes: d3.sum(pm.filter((r) => (r.atraso_min || 0) > 5), (r) => r.atraso_min),
-        saldo_mes_min: d3.sum(pm, (r) => r.saldo_min || 0), saldo_ano_min: d3.sum(p, (r) => r.saldo_min || 0),
-        incompletos_mes: pm.filter((r) => r.status && r.status !== 'ok').length,
-        chegada_mediana: med == null ? null : `${String(Math.floor(med / 60)).padStart(2, '0')}:${String(Math.round(med % 60)).padStart(2, '0')}`};
+dash.calc('poder_compra', {
+  title: 'Poder de compra por mês de vencimento', description: 'Teto = meta × regra_compra_pct (CONFIG) − boletos de fornecedor do mês − parcelas de pedidos em aberto.',
+  inputs: ['vendas', 'metas', 'contas', 'config', 'pedidos_parcelas'],
+  fn: (vendas, metas, contas, config, parcelas) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
+    const pct = (config.find((r) => r.chave === 'regra_compra_pct') || {}).valor || 0.45; const mes0 = last.slice(0, 7);
+    return metas.filter((m) => m.mes >= mes0).map((m) => {
+      const total = d3.sum(contas.filter((c) => c.tipo === 'fornecedor' && c.vencimento && c.vencimento.startsWith(m.mes)), (c) => c.valor);
+      const ped = d3.sum(parcelas.filter((p) => p.vencimento.startsWith(m.mes)), (p) => p.valor);
+      const teto = (m.meta_loja || 0) * pct;
+      return {mes: m.mes, meta: m.meta_loja, teto, fornecedores: total, pedidos: ped, disponivel: teto - total - ped};
     });
   }
 });
+dash.calc('pedidos_lista', { title: 'Pedidos registrados', inputs: ['pedidos'],
+  fn: (pedidos) => pedidos.map((p) => ({id: p.id, criado_em: p.criado_em || '', fornecedor: p.fornecedor, valor: Number(p.valor) || 0, parcelas_txt: `${p.parcelas}× a partir de ${p.primeiro_venc ? p.primeiro_venc.slice(8, 10) + '/' + p.primeiro_venc.slice(5, 7) : '—'}`, status: p.status || 'em aberto', obs: p.obs || ''}))
+    .sort((a, b) => (a.status === 'em aberto') === (b.status === 'em aberto') ? (a.criado_em < b.criado_em ? 1 : -1) : (a.status === 'em aberto' ? -1 : 1)) });
+dash.calc('contas_resumo', { title: 'Resumo de contas a pagar', description: 'Hoje = data da última venda registrada.', inputs: ['contas', 'vendas'],
+  fn: (contas, vendas) => {
+    const hoje = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!hoje) return [];
+    const add = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+    const ab = contas.filter((c) => c.status !== 'paga' && c.vencimento); const venc = ab.filter((c) => c.vencimento < hoje);
+    const p = (n, f) => d3.sum(ab.filter((c) => c.vencimento >= hoje && c.vencimento <= add(hoje, n) && (!f || f(c))), (c) => c.valor);
+    return [{hoje, vencidas_qtd: venc.length, vencidas_valor: d3.sum(venc, (c) => c.valor), prox7: p(7), prox30: p(30), prox30_fixos: p(30, (c) => c.tipo === 'fixo')}];
+  } });
+dash.calc('contas_lista', { title: 'Contas vencidas sem baixa e dos próximos 30 dias', inputs: ['contas', 'vendas'],
+  fn: (contas, vendas) => {
+    const hoje = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!hoje) return [];
+    const d = new Date(hoje + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 30); const lim = d.toISOString().slice(0, 10);
+    return contas.filter((c) => c.status !== 'paga' && c.vencimento && c.vencimento <= lim)
+      .map((c) => ({id: `${c.vencimento}|${c.descricao}|${c.nota || ''}|${c.valor}`, vencimento: c.vencimento, descricao: c.descricao, nota: c.nota || '', tipo: c.tipo, valor: c.valor, status: c.vencimento < hoje ? 'vencida sem baixa' : 'a pagar'}))
+      .sort((a, b) => a.vencimento < b.vencimento ? -1 : 1);
+  } });
 
-dash.calc('ponto_recente', {
-  title: 'Ponto dos últimos 14 dias', inputs: ['ponto', 'equipe'],
-  fn: (ponto, equipe) => {
-    const ativas = new Set(equipe.filter((e) => e.ativa === 'sim').map((e) => e.nome));
-    const dias = [...new Set(ponto.map((r) => r.data))].sort().slice(-14);
-    return ponto.filter((r) => dias.includes(r.data) && ativas.has(r.funcionaria))
-      .map((r) => ({id: `${r.data}|${r.funcionaria}`, data: r.data, funcionaria: r.funcionaria, chegada: r.chegada || '', almoco: r.saida_almoco && r.retorno_almoco ? `${r.saida_almoco}–${r.retorno_almoco}` : '', saida: r.saida || '',
-        horas: r.min_trabalhados, atraso_min: r.atraso_min, saldo_min: r.saldo_min, status: r.status === 'ok' ? (r.anotacao || '') : r.status}))
-      .sort((a, b) => a.data < b.data ? 1 : a.data > b.data ? -1 : a.funcionaria < b.funcionaria ? -1 : 1);
+/* ---------- caixa diário ---------- */
+dash.calc('meses', { title: 'Meses com venda', inputs: ['vendas'], fn: (vendas) => [...new Set(vendas.map((r) => r.data && r.data.slice(0, 7)).filter(Boolean))].sort().reverse().map((mes) => ({mes})) });
+dash.calc('caixa_mes', {
+  title: 'Caixa dia a dia do mês escolhido', inputs: ['vendas', 'afiacao', 'meta_dia', 'retiradas_d'],
+  fn: (vendas, afiacao, metaDia, ret) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
+    const mes = dash.params().mes_caixa || last.slice(0, 7);
+    const dias = new Set([...vendas, ...afiacao].filter((r) => r.data && r.data.startsWith(mes)).map((r) => r.data));
+    metaDia.filter((r) => r.data.startsWith(mes) && r.meta_dia > 0 && r.data <= last).forEach((r) => dias.add(r.data));
+    const sem = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    return [...dias].sort().map((d) => {
+      const v = vendas.filter((r) => r.data === d); const by = (n) => d3.sum(v.filter((r) => r.vendedora === n), (r) => r.valor);
+      const a = afiacao.filter((r) => r.data === d); const af = (f) => d3.sum(a.filter((r) => r.tipo === 'afiação' && f(r.forma)), (r) => r.valor);
+      const loja = d3.sum(v, (r) => r.valor); const meta = (metaDia.find((r) => r.data === d) || {}).meta_dia || 0;
+      const afiT = d3.sum(a.filter((r) => r.tipo === 'afiação'), (r) => r.valor);
+      return {data: d, dia_semana: sem[new Date(d + 'T00:00:00Z').getUTCDay()], meta, aline: by('Aline'), tainara: by('Tainara'), thayna: by('Thayna'), outras: loja - by('Aline') - by('Tainara') - by('Thayna'), loja, dif_meta: meta ? loja - meta : null,
+        afi_dinheiro: af((f) => f === 'dinheiro'), afi_pix: af((f) => f === 'pix'), afi_cartao: af((f) => f === 'crédito' || f === 'débito'), afiacao: afiT, servicos: a.filter((r) => r.tipo === 'afiação').length,
+        entregas: d3.sum(a.filter((r) => r.tipo === 'entrega'), (r) => r.valor), retiradas: d3.sum(ret.filter((r) => r.data === d), (r) => r.valor)};
+    });
   }
 });
+dash.calc('caixa_total', { title: 'Totais do caixa no mês escolhido', inputs: ['caixa_mes'],
+  fn: (dias) => [{loja: d3.sum(dias, (r) => r.loja), meta: d3.sum(dias, (r) => r.meta), afiacao: d3.sum(dias, (r) => r.afiacao), servicos: d3.sum(dias, (r) => r.servicos), dias: dias.filter((r) => r.loja > 0).length, dias_meta_batida: dias.filter((r) => r.meta && r.loja >= r.meta).length, retiradas: d3.sum(dias, (r) => r.retiradas),
+    aline: d3.sum(dias, (r) => r.aline), tainara: d3.sum(dias, (r) => r.tainara), thayna: d3.sum(dias, (r) => r.thayna), outras: d3.sum(dias, (r) => r.outras), afi_dinheiro: d3.sum(dias, (r) => r.afi_dinheiro), afi_pix: d3.sum(dias, (r) => r.afi_pix), afi_cartao: d3.sum(dias, (r) => r.afi_cartao), entregas: d3.sum(dias, (r) => r.entregas)}] });
+dash.calc('afiacao_mes', { title: 'Afiação por mês', inputs: ['afiacao'],
+  fn: (afiacao) => d3.rollups(afiacao.filter((r) => r.tipo === 'afiação' && r.data), (v) => ({valor: d3.sum(v, (r) => r.valor), servicos: v.length}), (r) => r.data.slice(0, 7)).map(([mes, o]) => ({mes, valor: o.valor, servicos: o.servicos})).sort((a, b) => a.mes < b.mes ? -1 : 1) });
+dash.calc('afiacao_forma', { title: 'Afiação do mês escolhido por forma de pagamento', inputs: ['afiacao', 'vendas'],
+  fn: (afiacao, vendas) => {
+    const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
+    const mes = dash.params().mes_caixa || last.slice(0, 7);
+    const m = afiacao.filter((r) => r.tipo === 'afiação' && r.data && r.data.startsWith(mes)); const tot = d3.sum(m, (r) => r.valor);
+    return d3.rollups(m, (v) => ({valor: d3.sum(v, (r) => r.valor), servicos: v.length}), (r) => r.forma).map(([forma, o]) => ({forma, valor: o.valor, servicos: o.servicos, participacao: tot ? o.valor / tot : 0})).sort((x, y) => y.valor - x.valor);
+  } });
 
-/* ---- formatos ---- */
+/* ---------- pastas ---------- */
+dash.calc('entradas_status', { title: 'Situação de cada pasta de entrada', description: 'Último arquivo de cada pasta contra o prazo da aba ROTINA. Hoje = data do computador de quem abre.', inputs: ['rotina', 'entradas'],
+  fn: (rotina, entradas) => {
+    const hoje = new Date().toISOString().slice(0, 10); const mes = hoje.slice(0, 7);
+    const dias = (iso) => Math.round((new Date(hoje + 'T00:00:00Z') - new Date(iso + 'T00:00:00Z')) / 86400000);
+    return rotina.filter((r) => r.pasta).map((r) => {
+      const fs = entradas.filter((f) => f.pasta_id === r.pasta_id && f.recebido); const ultimo = fs.map((f) => f.recebido).sort().pop() || null; const auto = r.ordem > 6;
+      const situacao = auto ? 'automático' : !ultimo ? 'aguardando 1º envio' : dias(ultimo) > r.prazo_dias ? 'atrasada' : 'em dia';
+      return {pasta: r.pasta, frequencia: r.frequencia, ultimo_arquivo: auto ? null : ultimo, arquivos_mes: auto ? null : fs.filter((f) => f.recebido.startsWith(mes)).length, ultimos_7: fs.filter((f) => dias(f.recebido) <= 7).length, situacao, automatica: auto};
+    });
+  } });
+dash.calc('entradas_status_resumo', { title: 'Resumo das pastas de entrada', inputs: ['entradas_status'],
+  fn: (st) => { const a = st.filter((r) => !r.automatica); return [{total: a.length, em_dia: a.filter((r) => r.situacao === 'em dia').length, atrasadas: a.filter((r) => r.situacao === 'atrasada').length, ultimos_7_dias: d3.sum(a, (r) => r.ultimos_7)}]; } });
+
+/* ---------- equipe ---------- */
+dash.calc('meses_ponto', { title: 'Meses com ponto', inputs: ['ponto'], fn: (ponto) => [...new Set(ponto.map((r) => r.data && r.data.slice(0, 7)).filter(Boolean))].sort().reverse().map((mes) => ({mes})) });
+dash.calc('ponto_resumo', { title: 'Ponto e cargo por funcionária ativa', description: 'Mês = escolhido no filtro (ou o último com ponto). Atraso conta acima de 5 min.', inputs: ['ponto', 'equipe', 'cargos', 'ocorrencias'],
+  fn: (ponto, equipe, cargos, ocorr) => {
+    if (!ponto.length) return [];
+    const ativas = equipe.filter((e) => e.ativa === 'sim' && e.jornada !== '—').map((e) => e.nome);
+    const mes = dash.params().mes_ponto || ponto.map((r) => r.data).filter(Boolean).sort().pop().slice(0, 7);
+    const toMin = (s) => { const [h, m] = String(s).split(':').map(Number); return h * 60 + m; };
+    return ativas.map((nome) => {
+      const p = ponto.filter((r) => r.funcionaria === nome); const pm = p.filter((r) => r.data.startsWith(mes));
+      const ch = pm.filter((r) => r.chegada).map((r) => toMin(r.chegada)); const med = ch.length ? d3.median(ch) : null;
+      const cg = cargos.find((c) => c.id === nome) || {}; const eq = equipe.find((e) => e.nome === nome) || {};
+      return {funcionaria: nome, cargo: cg.cargo || eq.cargo || '', responsabilidades: cg.responsabilidades || '', mes, dias_mes: pm.length,
+        atrasos_mes: pm.filter((r) => (r.atraso_min || 0) > 5).length, min_atraso_mes: d3.sum(pm.filter((r) => (r.atraso_min || 0) > 5), (r) => r.atraso_min),
+        saldo_mes_min: d3.sum(pm, (r) => r.saldo_min || 0), saldo_ano_min: d3.sum(p, (r) => r.saldo_min || 0), incompletos_mes: pm.filter((r) => r.status && r.status !== 'ok').length,
+        ocorrencias: ocorr.filter((o) => o.funcionaria === nome).length,
+        chegada_mediana: med == null ? null : `${String(Math.floor(med / 60)).padStart(2, '0')}:${String(Math.round(med % 60)).padStart(2, '0')}`};
+    });
+  } });
+dash.calc('folha', { title: 'Folha de ponto da funcionária e mês escolhidos', inputs: ['ponto', 'equipe'],
+  fn: (ponto, equipe) => {
+    if (!ponto.length) return [];
+    const p = dash.params(); const nome = p.pessoa || (equipe.find((e) => e.ativa === 'sim' && e.jornada !== '—') || {}).nome;
+    const mes = p.mes_ponto || ponto.map((r) => r.data).filter(Boolean).sort().pop().slice(0, 7);
+    return ponto.filter((r) => r.funcionaria === nome && r.data.startsWith(mes)).sort((a, b) => a.data < b.data ? -1 : 1)
+      .map((r) => ({data: r.data, funcionaria: nome, mes, dia: r.dia, chegada: r.chegada || '', saida_almoco: r.saida_almoco || '', retorno_almoco: r.retorno_almoco || '', saida: r.saida || '', min_trabalhados: r.min_trabalhados, jornada_min: r.jornada_min, atraso_min: r.atraso_min, saldo_min: r.saldo_min, obs: r.status === 'ok' ? (r.anotacao || '') : [r.status, r.anotacao].filter(Boolean).join(' · ')}));
+  } });
+dash.calc('ocorrencias_lista', { title: 'Ocorrências registradas', description: 'Filtradas pela funcionária escolhida.', inputs: ['ocorrencias'],
+  fn: (ocorr) => { const n = dash.params().pessoa; return ocorr.filter((o) => !n || o.funcionaria === n).map((o) => ({id: o.id, data: o.data, funcionaria: o.funcionaria, tipo: o.tipo, descricao: o.descricao, providencia: o.providencia || ''})).sort((a, b) => a.data < b.data ? 1 : -1); } });
+
 window.cjFmt = {
   brl: (v) => v == null || isNaN(v) ? '—' : (v < -0.5 ? '−R$ ' : 'R$ ') + Math.abs(Math.round(v)).toLocaleString('pt-BR'),
-  brlK: (v) => v == null ? '—' : 'R$ ' + (Math.abs(v) >= 1000 ? (v / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' mil' : Math.round(v)),
   pct: (v) => v == null ? '—' : (v * 100).toLocaleString('pt-BR', {maximumFractionDigits: 0}) + '%',
-  hm: (m) => { if (m == null || isNaN(m)) return '—'; const s = m < 0 ? '−' : m > 0 ? '+' : ''; const a = Math.abs(Math.round(m)); return `${s}${Math.floor(a / 60)}h${String(a % 60).padStart(2, '0')}`; },
+  hm: (m) => { if (m == null || m === '' || isNaN(m)) return '—'; const s = m < 0 ? '−' : m > 0 ? '+' : ''; const a = Math.abs(Math.round(m)); return `${s}${Math.floor(a / 60)}h${String(a % 60).padStart(2, '0')}`; },
   dia: (iso) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '—',
+  diaAno: (iso) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '—',
   mes: (ym) => { const n = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return ym ? n[Number(ym.slice(5, 7)) - 1] : '—'; },
   mesLongo: (ym) => { const n = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']; return ym ? `${n[Number(ym.slice(5, 7)) - 1]} de ${ym.slice(0, 4)}` : '—'; }
 };
-document.querySelectorAll('.cj').forEach((el) => el.style.setProperty('--cj-c0', dash.colors[0]));
 </script>
 
 <script>
 const F = window.cjFmt;
 const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data && d.data[0] ? d.data[0] : null; };
 const txt = (name, id, f) => dash.draw(name, (el) => { const r = one(id); el.textContent = r ? f(r) : '—'; });
+const pill = (t, c) => { const s = document.createElement('span'); s.className = 'cj-pill ' + (c || ''); s.textContent = t; return s; };
 
-txt('k_vendido', 'mes_atual', (r) => F.brl(r.vendido));
-txt('k_meta', 'mes_atual', (r) => F.brl(r.meta));
-txt('k_pct', 'mes_atual', (r) => F.pct(r.pct_meta));
-txt('k_falta', 'mes_atual', (r) => F.brl(r.falta));
-txt('k_porDia', 'mes_atual', (r) => F.brl(r.falta_por_dia));
-txt('k_dias', 'mes_atual', (r) => String(r.dias_restantes));
-txt('k_proj', 'mes_atual', (r) => F.brl(r.projecao));
-txt('k_2025', 'mes_atual', (r) => F.brl(r.vendas_2025));
-txt('k_afi', 'mes_atual', (r) => F.brl(r.afiacao));
-txt('k_afiN', 'mes_atual', (r) => String(r.servicos));
-txt('k_afiT', 'mes_atual', (r) => F.brl(r.ticket_afiacao));
-txt('k_compra', 'poder_compra', (r) => F.brl(r.disponivel));
-txt('k_compraOld', 'poder_compra', (r) => F.brl(r.disponivel_formula_antiga));
-txt('k_venc', 'contas_resumo', (r) => F.brl(r.vencidas_valor));
-txt('k_vencN', 'contas_resumo', (r) => String(r.vencidas_qtd));
-txt('c7', 'contas_resumo', (r) => F.brl(r.prox7));
-txt('c30', 'contas_resumo', (r) => F.brl(r.prox30));
-txt('c30f', 'contas_resumo', (r) => F.brl(r.prox30_fixos));
-txt('r_res', 'dre_ano', (r) => F.brl(r.resultado));
-txt('r_prl', 'dre_ano', (r) => F.brl(r.pro_labore));
-txt('r_prlPlano', 'dre_ano', (r) => F.brl(r.pro_labore_plano));
-txt('r_ger', 'dre_ano', (r) => F.brl(r.geracao));
-txt('r_gerM', 'dre_ano', (r) => F.brl(r.geracao_media_mes));
-txt('mesref', 'mes_atual', (r) => `${F.mesLongo(r.mes)} · dados até ${F.dia(r.ultima_data)}`);
-txt('contasSub', 'contas_resumo', (r) => `Em aberto: vencidas sem baixa e as que vencem até 30 dias depois de ${F.dia(r.hoje)}.`);
+/* ---------- abas ---------- */
+const TABS = ['geral', 'saude', 'compras', 'caixa', 'equipe'];
+function abrir(id) {
+  if (!TABS.includes(id)) id = 'geral';
+  document.querySelectorAll('.cj-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+  document.querySelectorAll('.cj-page').forEach((s) => { s.hidden = s.id !== id; });
+  dash.setLink(id);
+}
+document.querySelectorAll('.cj-tab').forEach((b) => b.addEventListener('click', () => abrir(b.dataset.tab)));
+abrir((location.hash || '').slice(1));
 
-dash.draw('k_bar', (el) => { const r = one('mes_atual'); el.replaceChildren(); if (!r) return; const i = document.createElement('i'); i.style.width = Math.min(100, (r.pct_meta || 0) * 100) + '%'; i.style.background = (r.projecao >= r.meta) ? 'var(--color-ok)' : 'var(--color-warn)'; el.append(i); });
-['sw0', 'sw1', 'sw2'].forEach((n, k) => dash.draw(n, (el) => { el.style.background = dash.colors[k === 2 ? 1 : 0]; }));
+/* ---------- filtro de período ---------- */
+document.querySelectorAll('[data-periodo]').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-periodo]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  document.querySelectorAll('#f-de, #f-ate').forEach((i) => { i.value = ''; });
+  dash.setParams({periodo: b.dataset.periodo, de: null, ate: null});
+}));
+document.querySelectorAll('#f-de, #f-ate').forEach((inp) => inp.addEventListener('change', () => {
+  const de = document.getElementById('f-de'), ate = document.getElementById('f-ate');
+  if (!(de && ate && de.value && ate.value && de.validity.valid && ate.validity.valid)) return;
+  const [a, b] = de.value <= ate.value ? [de.value, ate.value] : [ate.value, de.value];
+  document.querySelectorAll('[data-periodo]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+  dash.setParams({periodo: 'custom', de: a, ate: b});
+}));
+dash.draw('periodoTxt', (el) => { const r = one('periodo_resumo'); el.textContent = r ? `Mostrando de ${F.diaAno(r.de)} a ${F.diaAno(r.ate)}. Dados de caixa até o último fechamento registrado.` : '—'; });
+
+/* ---------- textos ---------- */
+[['g_v','periodo_resumo',(r)=>F.brl(r.vendido)],['g_m','periodo_resumo',(r)=>F.brl(r.meta)],['g_p','periodo_resumo',(r)=>F.pct(r.pct_meta)],['g_a','periodo_resumo',(r)=>F.brl(r.afiacao)],['g_an','periodo_resumo',(r)=>String(r.servicos)],
+ ['g_md','periodo_resumo',(r)=>F.brl(r.media_dia)],['g_d','periodo_resumo',(r)=>String(r.dias)],['g_c','periodo_resumo',(r)=>F.brl(r.fornecedores)],
+ ['g_vv','contas_resumo',(r)=>F.brl(r.vencidas_valor)],['g_vn','contas_resumo',(r)=>String(r.vencidas_qtd)],['g_7','contas_resumo',(r)=>F.brl(r.prox7)],['g_pc','poder_compra',(r)=>F.brl(r.disponivel)],
+ ['g_pa','entradas_status_resumo',(r)=>String(r.atrasadas)],['g_pe','entradas_status_resumo',(r)=>String(r.em_dia)],
+ ['k_vendido','mes_atual',(r)=>F.brl(r.vendido)],['k_meta','mes_atual',(r)=>F.brl(r.meta)],['k_pct','mes_atual',(r)=>F.pct(r.pct_meta)],['k_falta','mes_atual',(r)=>F.brl(r.falta)],['k_porDia','mes_atual',(r)=>F.brl(r.falta_por_dia)],
+ ['k_dias','mes_atual',(r)=>String(r.dias_restantes)],['k_proj','mes_atual',(r)=>F.brl(r.projecao)],['k_2025','mes_atual',(r)=>F.brl(r.vendas_2025)],['k_afi','mes_atual',(r)=>F.brl(r.afiacao)],['k_afiN','mes_atual',(r)=>String(r.servicos)],['k_afiT','mes_atual',(r)=>F.brl(r.ticket_afiacao)],
+ ['mesref','mes_atual',(r)=>`${F.mesLongo(r.mes)} · dados até ${F.dia(r.ultima_data)}`],
+ ['r_res','dre_ano',(r)=>F.brl(r.resultado)],['r_prl','dre_ano',(r)=>F.brl(r.pro_labore)],['r_prlPlano','dre_ano',(r)=>F.brl(r.pro_labore_plano)],['r_ger','dre_ano',(r)=>F.brl(r.geracao)],['r_gerM','dre_ano',(r)=>F.brl(r.geracao_media_mes)],
+ ['c_v','contas_resumo',(r)=>F.brl(r.vencidas_valor)],['c7','contas_resumo',(r)=>F.brl(r.prox7)],['c30','contas_resumo',(r)=>F.brl(r.prox30)],['c30f','contas_resumo',(r)=>F.brl(r.prox30_fixos)],
+ ['cx_loja','caixa_total',(r)=>F.brl(r.loja)],['cx_meta','caixa_total',(r)=>F.brl(r.meta)],['cx_afi','caixa_total',(r)=>F.brl(r.afiacao)],['cx_afiN','caixa_total',(r)=>String(r.servicos)],['cx_bat','caixa_total',(r)=>String(r.dias_meta_batida)],['cx_dias','caixa_total',(r)=>String(r.dias)],['cx_ret','caixa_total',(r)=>F.brl(r.retiradas)]
+].forEach(([n, id, f]) => txt(n, id, f));
+
+const barTo = (name, id, pctF, okF) => dash.draw(name, (el) => { const r = one(id); el.replaceChildren(); if (!r) return; const i = document.createElement('i'); i.style.width = Math.min(100, (pctF(r) || 0) * 100) + '%'; i.style.background = okF(r) ? 'var(--color-ok)' : 'var(--color-warn)'; el.append(i); });
+barTo('g_bar', 'periodo_resumo', (r) => r.pct_meta, (r) => r.pct_meta >= 1);
+barTo('k_bar', 'mes_atual', (r) => r.pct_meta, (r) => r.projecao >= r.meta);
+['sw0', 'sw1', 'sw2', 'sw3', 'sw4'].forEach((n, k) => dash.draw(n, (el) => { el.style.background = dash.colors[[0, 1, 0, 0, 1][k]]; }));
 
 dash.draw('lede', (el) => {
   const r = one('mes_atual'), c = one('poder_compra'), v = one('contas_resumo');
   if (!r) { el.textContent = '—'; return; }
-  const ok = r.projecao >= r.meta;
-  const parts = [
-    ['Em ', ''], [F.mesLongo(r.mes), 'b'], [' a loja vendeu ', ''], [F.brl(r.vendido), 'b'], [` (${F.pct(r.pct_meta)} da meta). `, ''],
-    [ok ? 'No ritmo atual o mês fecha acima da meta. ' : `Faltam ${F.brl(r.falta)}, ${F.brl(r.falta_por_dia)} por dia de loja aberta. `, ''],
-    ['A afiação somou ', ''], [F.brl(r.afiacao), 'b'], ['. ', '']
-  ];
-  if (c) parts.push([c.disponivel >= 0 ? `Ainda cabem ${F.brl(c.disponivel)} em boletos de fornecedor vencendo neste mês. ` : `As compras do mês já passaram ${F.brl(-c.disponivel)} do teto de 45%. `, '']);
-  if (v && v.vencidas_qtd) parts.push([`${v.vencidas_qtd} contas vencidas estão sem baixa.`, '']);
+  const parts = [['Em ', ''], [F.mesLongo(r.mes), 'b'], [' a loja vendeu ', ''], [F.brl(r.vendido), 'b'], [` (${F.pct(r.pct_meta)} da meta). `, ''],
+    [r.projecao >= r.meta ? 'No ritmo atual o mês fecha acima da meta. ' : `Faltam ${F.brl(r.falta)}, ${F.brl(r.falta_por_dia)} por dia de loja aberta. `, ''], ['Afiação: ', ''], [F.brl(r.afiacao), 'b'], ['. ', '']];
+  if (c) parts.push([c.disponivel >= 0 ? `Ainda cabem ${F.brl(c.disponivel)} em compras vencendo neste mês. ` : `As compras do mês passaram ${F.brl(-c.disponivel)} do teto. `, '']);
+  if (v && v.vencidas_qtd) parts.push([`${v.vencidas_qtd} boletos vencidos sem baixa.`, '']);
   el.replaceChildren(...parts.map(([t, tag]) => { const n = document.createElement(tag || 'span'); n.textContent = t; return n; }));
 });
 
-function rowsTable(name, id, cols) {
+/* ---------- tabelas ---------- */
+function rowsTable(name, id, cols, empty) {
   dash.draw(name, (tb) => {
     const d = dash.data(id); tb.replaceChildren();
-    if (d.status === 'error') { const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = cols.length; td.textContent = 'Não carregou.'; return; }
+    const msg = (t) => { const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = cols.length; td.textContent = t; };
+    if (d.status === 'error') return msg('Não carregou.');
     if (d.status !== 'ok') return;
-    if (!d.data.length) { const tr = tb.insertRow(); const td = tr.insertCell(); td.colSpan = cols.length; td.textContent = 'Nada por aqui.'; return; }
+    if (!d.data.length) return msg(empty || 'Nada por aqui.');
     d.data.forEach((r) => { const tr = tb.insertRow(); if (r.id) tr.dataset.key = encodeURIComponent(r.id); cols.forEach(([f, cls, fmt]) => { const td = tr.insertCell(); if (cls) td.className = cls; const out = fmt(r[f], r); if (out instanceof Node) td.append(out); else td.textContent = out; }); });
   });
 }
-const pill = (t, c) => { const s = document.createElement('span'); s.className = 'cj-pill ' + c; s.textContent = t; return s; };
-txt('e_ok', 'entradas_status_resumo', (r) => String(r.em_dia));
-txt('e_tot', 'entradas_status_resumo', (r) => String(r.total));
-txt('e_late', 'entradas_status_resumo', (r) => String(r.atrasadas));
-txt('e_7d', 'entradas_status_resumo', (r) => String(r.ultimos_7_dias));
-rowsTable('t_rotina', 'entradas_status', [['pasta', '', (v) => v], ['o_que_colocar', '', (v) => v], ['frequencia', '', (v) => v], ['ultimo_arquivo', '', (v) => v ? F.dia(v) : '—'], ['arquivos_mes', 'r', (v) => v == null ? '—' : String(v)],
-  ['situacao', '', (v) => pill(v, v === 'em dia' ? 'cj-ok' : v === 'atrasada' ? 'cj-bad' : v === 'automático' ? '' : 'cj-warn')]]);
-rowsTable('t_vend','vendedoras_mes', [['vendedora', '', (v) => v], ['valor', 'r', F.brl], ['participacao', 'r', F.pct], ['media_dia', 'r', F.brl]]);
-rowsTable('t_afi', 'afiacao_forma', [['forma', '', (v) => v], ['valor', 'r', F.brl], ['servicos', 'r', (v) => String(v)], ['participacao', 'r', F.pct]]);
-rowsTable('t_compra', 'poder_compra', [['mes', '', F.mesLongo], ['meta', 'r', F.brl], ['teto', 'r', F.brl], ['fornecedores', 'r', F.brl], ['pagos', 'r', F.brl], ['disponivel', 'r', (v) => pill(F.brl(v), v >= 0 ? 'cj-ok' : 'cj-bad')], ['disponivel_formula_antiga', 'r', F.brl]]);
+function footRow(name, id, cols) {
+  dash.draw(name, (tf) => { tf.replaceChildren(); const r = one(id); if (!r) return; const tr = tf.insertRow(); cols.forEach(([v, cls]) => { const td = tr.insertCell(); if (cls) td.className = cls; td.textContent = typeof v === 'function' ? v(r) : v; }); });
+}
+const signed = (v) => v == null ? '' : pill((v >= 0 ? '+' : '') + F.brl(v).replace('−', '−'), v >= 0 ? 'cj-ok' : 'cj-bad');
+rowsTable('t_ritmo', 'ritmo', [['janela', '', (v) => v], ['vendido', 'r', F.brl], ['meta', 'r', F.brl], ['pct', 'r', (v) => pill(F.pct(v), v >= 1 ? 'cj-ok' : v >= 0.85 ? 'cj-warn' : 'cj-bad')], ['afiacao', 'r', F.brl]]);
+rowsTable('t_rotina', 'entradas_status', [['pasta', '', (v) => v], ['frequencia', 'wrap', (v) => v], ['ultimo_arquivo', '', (v) => v ? F.dia(v) : '—'], ['arquivos_mes', 'r', (v) => v == null ? '—' : String(v)], ['situacao', '', (v) => pill(v, v === 'em dia' ? 'cj-ok' : v === 'atrasada' ? 'cj-bad' : v === 'automático' ? '' : 'cj-warn')]]);
+rowsTable('t_vend', 'vendedoras_mes', [['vendedora', '', (v) => v], ['valor', 'r', F.brl], ['participacao', 'r', F.pct], ['media_dia', 'r', F.brl]]);
+rowsTable('t_compra', 'poder_compra', [['mes', '', F.mesLongo], ['meta', 'r', F.brl], ['teto', 'r', F.brl], ['fornecedores', 'r', F.brl], ['pedidos', 'r', F.brl], ['disponivel', 'r', (v) => pill(F.brl(v), v >= 0 ? 'cj-ok' : 'cj-bad')]]);
 rowsTable('t_contas', 'contas_lista', [['vencimento', '', F.dia], ['descricao', '', (v) => v], ['nota', '', (v) => v || ''], ['tipo', '', (v) => v], ['valor', 'r', F.brl], ['status', '', (v) => pill(v, v === 'a pagar' ? '' : 'cj-warn')]]);
-rowsTable('t_ponto', 'ponto_recente', [['data', '', F.dia], ['funcionaria', '', (v) => v], ['chegada', '', (v) => v], ['almoco', '', (v) => v], ['saida', '', (v) => v], ['horas', 'r', (v) => v == null ? '' : F.hm(v).replace('+', '')],
-  ['atraso_min', 'r', (v) => v > 5 ? pill(`${v} min`, 'cj-warn') : ''], ['saldo_min', 'r', (v) => v == null ? '' : v === 0 ? '0' : F.hm(v)], ['status', '', (v) => v || '']]);
+rowsTable('t_afi', 'afiacao_forma', [['forma', '', (v) => v], ['valor', 'r', F.brl], ['servicos', 'r', (v) => String(v)], ['participacao', 'r', F.pct]]);
+const z = (v) => v ? F.brl(v) : '';
+rowsTable('t_caixa', 'caixa_mes', [['data', '', F.dia], ['dia_semana', '', (v) => v], ['meta', 'r', z], ['aline', 'r', z], ['tainara', 'r', z], ['thayna', 'r', z], ['outras', 'r', z], ['loja', 'r', F.brl], ['dif_meta', 'r', signed],
+  ['afi_dinheiro', 'r', z], ['afi_pix', 'r', z], ['afi_cartao', 'r', z], ['afiacao', 'r', F.brl], ['entregas', 'r', z], ['retiradas', 'r', z]], 'Sem movimento neste mês.');
+footRow('t_caixa_tot', 'caixa_total', [['Total'], [''], [(r) => F.brl(r.meta), 'r'], [(r) => F.brl(r.aline), 'r'], [(r) => F.brl(r.tainara), 'r'], [(r) => F.brl(r.thayna), 'r'], [(r) => r.outras ? F.brl(r.outras) : '', 'r'], [(r) => F.brl(r.loja), 'r'], [(r) => F.brl(r.loja - r.meta), 'r'],
+  [(r) => F.brl(r.afi_dinheiro), 'r'], [(r) => F.brl(r.afi_pix), 'r'], [(r) => F.brl(r.afi_cartao), 'r'], [(r) => F.brl(r.afiacao), 'r'], [(r) => F.brl(r.entregas), 'r'], [(r) => F.brl(r.retiradas), 'r']]);
+rowsTable('t_folha', 'folha', [['data', '', F.dia], ['dia', '', (v) => v || ''], ['chegada', '', (v) => v], ['saida_almoco', '', (v) => v], ['retorno_almoco', '', (v) => v], ['saida', '', (v) => v], ['min_trabalhados', 'r', (v) => v == null ? '' : F.hm(v).replace('+', '')],
+  ['jornada_min', 'r', (v) => v ? F.hm(v).replace('+', '') : ''], ['atraso_min', 'r', (v) => v > 5 ? pill(`${v} min`, 'cj-warn') : ''], ['saldo_min', 'r', (v) => v == null ? '' : v === 0 ? '0' : F.hm(v)], ['obs', 'wrap', (v) => v || '']], 'Sem registros de ponto neste mês.');
+dash.draw('t_folha_tot', (tf) => {
+  tf.replaceChildren(); const d = dash.data('folha'); if (d.status !== 'ok' || !d.data.length) return;
+  const s = (f) => d3.sum(d.data, (r) => r[f] || 0); const tr = tf.insertRow();
+  [['Total do mês'], [`${d.data.length} dias`], [''], [''], [''], [''], [F.hm(s('min_trabalhados')).replace('+', ''), 'r'], [F.hm(s('jornada_min')).replace('+', ''), 'r'], [`${d.data.filter((r) => r.atraso_min > 5).length}×`, 'r'], [F.hm(s('saldo_min')), 'r'], ['']]
+    .forEach(([v, c]) => { const td = tr.insertCell(); if (c) td.className = c; td.textContent = v; });
+});
+dash.draw('folhaTit', (el) => { const d = dash.data('folha'); const r = d.status === 'ok' && d.data[0]; el.textContent = r ? `Folha de ponto · ${r.funcionaria} · ${F.mesLongo(r.mes)}` : 'Folha de ponto'; });
 
+/* ---------- registros salvos (pedidos, cargos, ocorrências) ---------- */
+async function db() { return claude.use('db'); }
+function aviso(id, ok, t) { document.querySelectorAll('#' + id).forEach((p) => { p.hidden = false; p.className = 'cj-msg ' + (ok ? 'cj-ok' : 'cj-bad'); p.textContent = t; }); }
+const btn = (t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'cj-btn ghost'; b.textContent = t; b.addEventListener('click', fn); return b; };
+async function salvarDoc(path, data, msgId, okTxt) { try { await (await db()).doc(path).update(data); if (msgId) aviso(msgId, true, okTxt); } catch { aviso(msgId || 'p-msg', false, 'Não foi salvo. Só quem pode editar o painel consegue registrar.'); } }
+
+document.querySelectorAll('#form-pedido').forEach((f) => f.addEventListener('submit', async (e) => {
+  e.preventDefault(); const g = (id) => document.getElementById(id).value;
+  const row = {fornecedor: g('p-forn').trim(), valor: Number(g('p-valor')), parcelas: Number(g('p-parc')), primeiro_venc: g('p-venc'), intervalo_dias: Number(g('p-int')), obs: g('p-obs').trim(), status: 'em aberto', criado_em: new Date().toISOString().slice(0, 10)};
+  try { await (await db()).collection('data/loja/pedidos').add(row); f.reset(); aviso('p-msg', true, 'Pedido salvo. Veja na tabela de poder de compra se cabe.'); }
+  catch { aviso('p-msg', false, 'Não foi salvo. Só quem pode editar o painel consegue registrar.'); }
+}));
+rowsTable('t_pedidos', 'pedidos_lista', [['criado_em', '', F.dia], ['fornecedor', '', (v) => v], ['valor', 'r', F.brl], ['parcelas_txt', '', (v) => v], ['status', '', (v) => pill(v, v === 'em aberto' ? 'cj-warn' : v === 'recebido' ? 'cj-ok' : '')],
+  ['id', '', (id, r) => { const s = document.createElement('span'); s.style.display = 'flex'; s.style.gap = '6px';
+    if (r.status === 'em aberto') { s.append(btn('Recebido', () => salvarDoc(`data/loja/pedidos/${id}`, {status: 'recebido'})), btn('Cancelar', () => salvarDoc(`data/loja/pedidos/${id}`, {status: 'cancelado'}))); }
+    return s; }]], 'Nenhum pedido registrado ainda.');
+
+document.querySelectorAll('#form-cargo').forEach((f) => f.addEventListener('submit', async (e) => {
+  e.preventDefault(); const nome = document.getElementById('cg-nome').value.trim().replace(/[^\p{L}\p{N}_-]/gu, '');
+  if (!nome) return aviso('cg-msg', false, 'Escreva o nome da funcionária.');
+  try { await (await db()).doc(`data/loja/cargos/${nome}`).set({cargo: document.getElementById('cg-cargo').value.trim(), responsabilidades: document.getElementById('cg-resp').value.trim(), atualizado_em: new Date().toISOString().slice(0, 10)}); aviso('cg-msg', true, `Cargo de ${nome} salvo.`); }
+  catch { aviso('cg-msg', false, 'Não foi salvo. Só quem pode editar o painel consegue registrar.'); }
+}));
+document.querySelectorAll('#form-ocorr').forEach((f) => f.addEventListener('submit', async (e) => {
+  e.preventDefault(); const g = (id) => document.getElementById(id).value;
+  const row = {data: g('oc-data'), funcionaria: g('oc-nome').trim(), tipo: g('oc-tipo'), descricao: g('oc-desc').trim(), providencia: g('oc-prov').trim(), registrado_em: new Date().toISOString().slice(0, 10)};
+  try { await (await db()).collection('data/loja/ocorrencias').add(row); f.reset(); aviso('oc-msg', true, 'Ocorrência registrada.'); }
+  catch { aviso('oc-msg', false, 'Não foi salvo. Só quem pode editar o painel consegue registrar.'); }
+}));
+rowsTable('t_ocorr', 'ocorrencias_lista', [['data', '', F.diaAno], ['funcionaria', '', (v) => v], ['tipo', '', (v) => pill(v, /advert/i.test(v) ? 'cj-bad' : /elogio/i.test(v) ? 'cj-ok' : /comport|atraso/i.test(v) ? 'cj-warn' : '')], ['descricao', 'wrap', (v) => v], ['providencia', 'wrap', (v) => v],
+  ['id', '', (id) => btn('Excluir', async () => { try { await (await db()).doc(`data/loja/ocorrencias/${id}`).delete(); } catch { aviso('oc-msg', false, 'Não foi excluído.'); } })]], 'Nenhuma ocorrência registrada.');
+
+/* ---------- seletores ---------- */
+function selectDraw(name, id, field, param, label, fmt) {
+  dash.draw(name, (sel) => {
+    const d = dash.data(id); const opts = d.status === 'ok' ? d.data : [];
+    sel.replaceChildren(...(label ? [new Option(label, '')] : []), ...opts.map((r) => new Option(fmt(r[field]), r[field])));
+    sel.value = dash.params()[param] || (label ? '' : (opts[0] || {})[field] || '');
+    sel.onchange = () => dash.setParams({[param]: sel.value || null});
+  });
+}
+selectDraw('sel_mes_caixa', 'meses', 'mes', 'mes_caixa', null, F.mesLongo);
+selectDraw('sel_mes_ponto', 'meses_ponto', 'mes', 'mes_ponto', null, F.mesLongo);
+dash.draw('sel_pessoa', (sel) => {
+  const d = dash.data('equipe'); const nomes = d.status === 'ok' ? d.data.filter((e) => e.ativa === 'sim' && e.jornada !== '—').map((e) => e.nome) : [];
+  sel.replaceChildren(...nomes.map((n) => new Option(n, n))); sel.value = dash.params().pessoa || nomes[0] || '';
+  sel.onchange = () => dash.setParams({pessoa: sel.value || null});
+});
+
+/* ---------- cards da equipe ---------- */
 dash.draw('pessoas', (el) => {
   const d = dash.data('ponto_resumo'); el.replaceChildren();
   if (d.status !== 'ok') { el.textContent = d.status === 'error' ? 'O ponto não carregou.' : '—'; return; }
   d.data.forEach((p, i) => {
     const card = document.createElement('div'); card.className = 'cj-card'; card.id = 'p-' + p.funcionaria.toLowerCase();
-    const h = document.createElement('h2'); h.textContent = p.funcionaria; const sub = document.createElement('span'); sub.className = 'cj-lbl'; sub.textContent = `${p.cargo} · ${F.mesLongo(p.mes)}`;
+    const h = document.createElement('h2'); h.textContent = p.funcionaria; const sub = document.createElement('span'); sub.className = 'cj-lbl'; sub.textContent = `${p.cargo || 'cargo não definido'} · ${F.mesLongo(p.mes)}`;
     card.append(h, sub);
+    if (p.responsabilidades) { const r = document.createElement('p'); r.className = 'cj-note'; r.textContent = p.responsabilidades; card.append(r); }
     [['Dias trabalhados', String(p.dias_mes), 'dias_mes'], ['Chegada típica', p.chegada_mediana || '—', 'chegada_mediana'], ['Atrasos acima de 5 min', `${p.atrasos_mes} (${p.min_atraso_mes} min)`, 'atrasos_mes'],
-     ['Saldo de horas no mês', F.hm(p.saldo_mes_min), 'saldo_mes_min'], ['Saldo de horas em 2026', F.hm(p.saldo_ano_min), 'saldo_ano_min'], ['Dias com batida faltando', String(p.incompletos_mes), 'incompletos_mes']].forEach(([l, v, f]) => {
+     ['Saldo de horas no mês', F.hm(p.saldo_mes_min), 'saldo_mes_min'], ['Saldo de horas em 2026', F.hm(p.saldo_ano_min), 'saldo_ano_min'], ['Dias com batida faltando', String(p.incompletos_mes), 'incompletos_mes'], ['Ocorrências registradas', String(p.ocorrencias), 'ocorrencias']].forEach(([l, v, f]) => {
       const row = document.createElement('div'); row.className = 'cj-row'; const a = document.createElement('span'); a.textContent = l; const b = document.createElement('b'); b.textContent = v;
-      b.dataset.source = 'ponto_resumo'; b.dataset.field = f; b.dataset.row = String(i);
-      if (f === 'atrasos_mes' && p.atrasos_mes >= 3) b.className = 'cj-warn';
+      b.dataset.source = 'ponto_resumo'; b.dataset.field = f; b.dataset.row = String(i); if (f === 'atrasos_mes' && p.atrasos_mes >= 3) b.className = 'cj-warn';
       row.append(a, b); card.append(row);
     });
     el.append(card);
   });
 });
 
-/* ---- gráficos ---- */
+/* ---------- gráficos ---------- */
 function tipFor(box) { let t = box.querySelector('.cj-tip'); if (!t) { t = document.createElement('div'); t.className = 'cj-tip'; t.hidden = true; box.append(t); } return t; }
 function showTip(box, t, ev, lines) {
   t.replaceChildren(...lines.map(([a, b]) => { const d = document.createElement('div'); if (b != null) { const s = document.createElement('span'); s.textContent = a + ' '; d.append(s, document.createTextNode(b)); } else d.textContent = a; return d; }));
   t.hidden = false; const r = box.getBoundingClientRect(); const x = ev.clientX - r.left, y = ev.clientY - r.top;
   t.style.left = Math.min(Math.max(0, x + 12), r.width - t.offsetWidth) + 'px'; t.style.top = Math.max(0, y - t.offsetHeight - 8) + 'px';
 }
-function frame(el, h, label) {
-  el.querySelectorAll('svg').forEach((s) => s.remove());
-  const w = Math.max(280, el.clientWidth);
-  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${w} ${h}`).attr('role', 'img').attr('aria-label', label);
-  return {svg, w};
-}
-function yAxis(g, y, w, m, fmt) {
-  g.selectAll('line.grid').data(y.ticks(4)).join('line').attr('class', 'grid').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y).attr('y2', y).style('stroke', 'var(--cds-chart-grid)');
-  g.selectAll('text.yt').data(y.ticks(4)).join('text').attr('class', 'yt').attr('x', m.l - 6).attr('y', (d) => y(d) + 4).attr('text-anchor', 'end').text(fmt);
-}
+function frame(el, h, label) { el.querySelectorAll('svg').forEach((s) => s.remove()); const w = Math.max(280, el.clientWidth); const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${w} ${h}`).attr('role', 'img').attr('aria-label', label); return {svg, w}; }
+function yAxis(g, y, w, m, fmt) { g.selectAll('line.grid').data(y.ticks(4)).join('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y).attr('y2', y).style('stroke', 'var(--cds-chart-grid)'); g.selectAll('text.yt').data(y.ticks(4)).join('text').attr('x', m.l - 6).attr('y', (d) => y(d) + 4).attr('text-anchor', 'end').text(fmt); }
 const kfmt = (v) => v === 0 ? '0' : (v / 1000).toLocaleString('pt-BR') + 'k';
+const clear = (el) => el.querySelectorAll('svg').forEach((s) => s.remove());
+const hover = (svg, el, data, xk, x, bw, h, m, lines) => { const tip = tipFor(el); svg.append('g').selectAll('rect').data(data).join('rect').attr('x', (r) => xk(r)).attr('width', bw).attr('y', m.t).attr('height', h - m.b - m.t).style('fill', 'transparent').on('pointermove', (ev, r) => showTip(el, tip, ev, lines(r))).on('pointerleave', () => { tip.hidden = true; }); };
 
+dash.draw('ch_periodo', (el) => {
+  const d = dash.data('periodo_dias'); if (d.status !== 'ok' || !d.data.length) return clear(el);
+  let rows = d.data; const byMonth = rows.length > 62;
+  if (byMonth) rows = d3.rollups(rows, (v) => ({loja: d3.sum(v, (r) => r.loja), afiacao: d3.sum(v, (r) => r.afiacao), meta: d3.sum(v, (r) => r.meta)}), (r) => r.data.slice(0, 7)).map(([k, o]) => ({data: k, ...o}));
+  const h = 250, m = {l: 44, r: 8, t: 10, b: 24}; const {svg, w} = frame(el, h, 'Vendas da loja e afiação por dia no período, com a meta');
+  const x = d3.scaleBand().domain(rows.map((r) => r.data)).range([m.l, w - m.r]).padding(0.2);
+  const y = d3.scaleLinear().domain([0, (d3.max(rows, (r) => Math.max(r.loja + r.afiacao, r.meta)) || 1) * 1.08]).nice().range([h - m.b, m.t]);
+  yAxis(svg.append('g'), y, w, m, kfmt);
+  const step = Math.ceil(rows.length / 10); svg.append('g').selectAll('text').data(rows.filter((r, i) => i % step === 0)).join('text').attr('x', (r) => x(r.data) + x.bandwidth() / 2).attr('y', h - 6).attr('text-anchor', 'middle').text((r) => byMonth ? F.mes(r.data) : F.dia(r.data));
+  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', (r) => y(r.loja)).attr('height', (r) => y(0) - y(r.loja)).style('fill', dash.colors[0]);
+  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data)).attr('width', x.bandwidth()).attr('y', (r) => y(r.loja + r.afiacao)).attr('height', (r) => y(r.loja) - y(r.loja + r.afiacao)).style('fill', dash.colors[1]);
+  svg.append('g').selectAll('line').data(rows.filter((r) => r.meta)).join('line').attr('x1', (r) => x(r.data) - 1).attr('x2', (r) => x(r.data) + x.bandwidth() + 1).attr('y1', (r) => y(r.meta)).attr('y2', (r) => y(r.meta)).style('stroke', 'var(--color-fg)').style('stroke-width', 2);
+  hover(svg, el, rows, (r) => x(r.data), x, x.bandwidth(), h, m, (r) => [[byMonth ? F.mesLongo(r.data) : F.diaAno(r.data)], ['Loja', F.brl(r.loja)], ['Afiação', F.brl(r.afiacao)], ['Meta', F.brl(r.meta)]]);
+});
 dash.draw('ch_mensal', (el) => {
-  const d = dash.data('vendas_mes'); if (d.status !== 'ok') { el.querySelectorAll('svg').forEach((s) => s.remove()); return; }
-  const rows = d.data, h = 250, m = {l: 44, r: 8, t: 10, b: 24};
-  const {svg, w} = frame(el, h, 'Vendas mensais de 2026 contra meta e 2025');
+  const d = dash.data('vendas_mes'); if (d.status !== 'ok') return clear(el);
+  const rows = d.data, h = 250, m = {l: 44, r: 8, t: 10, b: 24}; const {svg, w} = frame(el, h, 'Vendas mensais de 2026 contra meta e 2025');
   const x = d3.scaleBand().domain(rows.map((r) => r.mes)).range([m.l, w - m.r]).padding(0.25);
   const y = d3.scaleLinear().domain([0, d3.max(rows, (r) => Math.max(r.vendido || 0, r.meta || 0, r.vendas_2025 || 0)) * 1.08]).nice().range([h - m.b, m.t]);
   yAxis(svg.append('g'), y, w, m, kfmt);
@@ -572,91 +755,65 @@ dash.draw('ch_mensal', (el) => {
   svg.append('g').selectAll('rect').data(rows.filter((r) => r.vendido)).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', (r) => y(r.vendido)).attr('height', (r) => y(0) - y(r.vendido)).attr('rx', 2).style('fill', dash.colors[0]);
   svg.append('g').selectAll('line').data(rows.filter((r) => r.meta)).join('line').attr('x1', (r) => x(r.mes) - 3).attr('x2', (r) => x(r.mes) + x.bandwidth() + 3).attr('y1', (r) => y(r.meta)).attr('y2', (r) => y(r.meta)).style('stroke', 'var(--color-fg)').style('stroke-width', 2);
   svg.append('g').selectAll('circle').data(rows.filter((r) => r.vendas_2025)).join('circle').attr('cx', (r) => x(r.mes) + x.bandwidth() / 2).attr('cy', (r) => y(r.vendas_2025)).attr('r', 3.5).style('fill', 'var(--cds-chart-muted)').style('stroke', 'var(--color-bg)');
-  const tip = tipFor(el);
-  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', h - m.b - m.t).style('fill', 'transparent')
-    .on('pointermove', (ev, r) => showTip(el, tip, ev, [[F.mesLongo(r.mes)], ['Vendido', F.brl(r.vendido)], ['Meta', F.brl(r.meta)], ['2025', F.brl(r.vendas_2025)]])).on('pointerleave', () => { tip.hidden = true; });
+  hover(svg, el, rows, (r) => x(r.mes), x, x.bandwidth(), h, m, (r) => [[F.mesLongo(r.mes)], ['Vendido', F.brl(r.vendido)], ['Meta', F.brl(r.meta)], ['2025', F.brl(r.vendas_2025)]]);
 });
-
 dash.draw('ch_acum', (el) => {
-  const d = dash.data('acumulado_mes'); if (d.status !== 'ok' || !d.data.length) { el.querySelectorAll('svg').forEach((s) => s.remove()); return; }
-  const rows = d.data, h = 250, m = {l: 44, r: 12, t: 12, b: 24};
-  const {svg, w} = frame(el, h, 'Venda acumulada do mês atual contra o ritmo necessário para bater a meta');
+  const d = dash.data('acumulado_mes'); if (d.status !== 'ok' || !d.data.length) return clear(el);
+  const rows = d.data, h = 250, m = {l: 44, r: 12, t: 12, b: 24}; const {svg, w} = frame(el, h, 'Venda acumulada do mês contra o ritmo da meta');
   const x = d3.scalePoint().domain(rows.map((r) => r.data)).range([m.l, w - m.r]);
   const y = d3.scaleLinear().domain([0, d3.max(rows, (r) => Math.max(r.acumulado || 0, r.meta_ritmo)) * 1.05]).nice().range([h - m.b, m.t]);
   yAxis(svg.append('g'), y, w, m, kfmt);
-  const ticks = rows.filter((r, i) => i % 5 === 0 || i === rows.length - 1);
-  svg.append('g').selectAll('text').data(ticks).join('text').attr('x', (r) => x(r.data)).attr('y', h - 6).attr('text-anchor', 'middle').text((r) => r.data.slice(8, 10));
+  svg.append('g').selectAll('text').data(rows.filter((r, i) => i % 5 === 0 || i === rows.length - 1)).join('text').attr('x', (r) => x(r.data)).attr('y', h - 6).attr('text-anchor', 'middle').text((r) => r.data.slice(8, 10));
   svg.append('path').datum(rows).attr('d', d3.line().x((r) => x(r.data)).y((r) => y(r.meta_ritmo))).style('fill', 'none').style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 4').style('stroke-width', 1.5);
   const got = rows.filter((r) => r.acumulado != null);
   svg.append('path').datum(got).attr('d', d3.area().x((r) => x(r.data)).y0(y(0)).y1((r) => y(r.acumulado))).style('fill', dash.colors[0]).style('opacity', 0.12);
   svg.append('path').datum(got).attr('d', d3.line().x((r) => x(r.data)).y((r) => y(r.acumulado))).style('fill', 'none').style('stroke', dash.colors[0]).style('stroke-width', 2.5);
-  const lp = got[got.length - 1];
-  if (lp) svg.append('circle').attr('cx', x(lp.data)).attr('cy', y(lp.acumulado)).attr('r', 4.5).style('fill', dash.colors[0]).style('stroke', 'var(--color-bg)').style('stroke-width', 2);
-  const tip = tipFor(el); const step = x.step();
-  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.data) - step / 2).attr('width', step).attr('y', m.t).attr('height', h - m.b - m.t).style('fill', 'transparent')
-    .on('pointermove', (ev, r) => showTip(el, tip, ev, [[F.dia(r.data)], ['Acumulado', r.acumulado == null ? '—' : F.brl(r.acumulado)], ['Ritmo da meta', F.brl(r.meta_ritmo)]])).on('pointerleave', () => { tip.hidden = true; });
+  const lp = got[got.length - 1]; if (lp) svg.append('circle').attr('cx', x(lp.data)).attr('cy', y(lp.acumulado)).attr('r', 4.5).style('fill', dash.colors[0]).style('stroke', 'var(--color-bg)').style('stroke-width', 2);
+  hover(svg, el, rows, (r) => x(r.data) - x.step() / 2, x, x.step(), h, m, (r) => [[F.dia(r.data)], ['Acumulado', r.acumulado == null ? '—' : F.brl(r.acumulado)], ['Ritmo da meta', F.brl(r.meta_ritmo)]]);
 });
-
 dash.draw('ch_afi', (el) => {
-  const d = dash.data('afiacao_mes'); if (d.status !== 'ok') { el.querySelectorAll('svg').forEach((s) => s.remove()); return; }
-  const rows = d.data, h = 240, m = {l: 44, r: 8, t: 18, b: 24};
-  const {svg, w} = frame(el, h, 'Faturamento mensal da afiação de alicates');
+  const d = dash.data('afiacao_mes'); if (d.status !== 'ok') return clear(el);
+  const rows = d.data, h = 240, m = {l: 44, r: 8, t: 18, b: 24}; const {svg, w} = frame(el, h, 'Faturamento mensal da afiação');
   const x = d3.scaleBand().domain(rows.map((r) => r.mes)).range([m.l, w - m.r]).padding(0.25);
   const y = d3.scaleLinear().domain([0, d3.max(rows, (r) => r.valor) * 1.1]).nice().range([h - m.b, m.t]);
   yAxis(svg.append('g'), y, w, m, kfmt);
   svg.append('g').selectAll('text').data(rows).join('text').attr('x', (r) => x(r.mes) + x.bandwidth() / 2).attr('y', h - 6).attr('text-anchor', 'middle').text((r) => F.mes(r.mes));
   svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', (r) => y(r.valor)).attr('height', (r) => y(0) - y(r.valor)).attr('rx', 2).style('fill', dash.colors[1]);
   if (x.bandwidth() > 26) svg.append('g').selectAll('text').data(rows).join('text').attr('x', (r) => x(r.mes) + x.bandwidth() / 2).attr('y', (r) => y(r.valor) - 4).attr('text-anchor', 'middle').text((r) => (r.valor / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + 'k');
-  const tip = tipFor(el);
-  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', h - m.b - m.t).style('fill', 'transparent')
-    .on('pointermove', (ev, r) => showTip(el, tip, ev, [[F.mesLongo(r.mes)], ['Afiação', F.brl(r.valor)], ['Serviços', String(r.servicos)], ['Ticket médio', F.brl(r.valor / r.servicos)]])).on('pointerleave', () => { tip.hidden = true; });
+  hover(svg, el, rows, (r) => x(r.mes), x, x.bandwidth(), h, m, (r) => [[F.mesLongo(r.mes)], ['Afiação', F.brl(r.valor)], ['Serviços', String(r.servicos)], ['Ticket médio', F.brl(r.valor / r.servicos)]]);
 });
-
 dash.draw('ch_dre', (el) => {
-  const d = dash.data('dre'); if (d.status !== 'ok') { el.querySelectorAll('svg').forEach((s) => s.remove()); return; }
-  const rows = d.data.filter((r) => (r.receita || 0) > 0), h = 250, m = {l: 48, r: 8, t: 10, b: 24};
-  const {svg, w} = frame(el, h, 'Resultado mensal e pró-labore de 2026');
+  const d = dash.data('dre'); if (d.status !== 'ok') return clear(el);
+  const rows = d.data.filter((r) => (r.receita || 0) > 0), h = 250, m = {l: 48, r: 8, t: 10, b: 24}; const {svg, w} = frame(el, h, 'Resultado mensal e pró-labore');
   const x = d3.scaleBand().domain(rows.map((r) => r.mes)).range([m.l, w - m.r]).padding(0.3);
   const lo = d3.min(rows, (r) => Math.min(0, r.resultado)), hi = d3.max(rows, (r) => Math.max(r.resultado, r.pro_labore));
   const y = d3.scaleLinear().domain([lo * 1.1, hi * 1.08]).nice().range([h - m.b, m.t]);
   yAxis(svg.append('g'), y, w, m, kfmt);
   svg.append('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-axis)');
   svg.append('g').selectAll('text').data(rows).join('text').attr('x', (r) => x(r.mes) + x.bandwidth() / 2).attr('y', h - 6).attr('text-anchor', 'middle').text((r) => F.mes(r.mes));
-  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', (r) => y(Math.max(0, r.resultado))).attr('height', (r) => Math.abs(y(r.resultado) - y(0))).attr('rx', 2)
-    .style('fill', (r) => r.resultado >= 0 ? 'var(--color-ok)' : 'var(--color-bad)');
+  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', (r) => y(Math.max(0, r.resultado))).attr('height', (r) => Math.abs(y(r.resultado) - y(0))).attr('rx', 2).style('fill', (r) => r.resultado >= 0 ? 'var(--color-ok)' : 'var(--color-bad)');
   svg.append('path').datum(rows).attr('d', d3.line().x((r) => x(r.mes) + x.bandwidth() / 2).y((r) => y(r.pro_labore))).style('fill', 'none').style('stroke', dash.colors[1]).style('stroke-width', 2);
-  svg.append('g').selectAll('circle').data(rows).join('circle').attr('cx', (r) => x(r.mes) + x.bandwidth() / 2).attr('cy', (r) => y(r.pro_labore)).attr('r', 3).style('fill', dash.colors[1]);
-  const tip = tipFor(el);
-  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', m.t).attr('height', h - m.b - m.t).style('fill', 'transparent')
-    .on('pointermove', (ev, r) => showTip(el, tip, ev, [[F.mesLongo(r.mes)], ['Receita', F.brl(r.receita)], ['Resultado', F.brl(r.resultado)], ['Pró-labore', F.brl(r.pro_labore)]])).on('pointerleave', () => { tip.hidden = true; });
+  hover(svg, el, rows, (r) => x(r.mes), x, x.bandwidth(), h, m, (r) => [[F.mesLongo(r.mes)], ['Receita', F.brl(r.receita)], ['Resultado', F.brl(r.resultado)], ['Pró-labore', F.brl(r.pro_labore)]]);
 });
-
 dash.draw('legPonto', (el) => {
   const d = dash.data('ponto_resumo'); el.replaceChildren(); if (d.status !== 'ok') return;
   d.data.forEach((p, i) => { const s = document.createElement('span'); const sw = document.createElement('i'); sw.style.background = dash.colors[i % dash.colors.length]; s.append(sw, document.createTextNode(p.funcionaria)); el.append(s); });
   const s = document.createElement('span'); const sw = document.createElement('i'); sw.style.background = 'var(--cds-chart-reference)'; s.append(sw, document.createTextNode('08:30')); el.append(s);
 });
-
 dash.draw('ch_chegada', (el) => {
-  const d = dash.data('ponto'), e = dash.data('ponto_resumo');
-  if (d.status !== 'ok' || e.status !== 'ok') { el.querySelectorAll('svg').forEach((s) => s.remove()); return; }
-  const nomes = e.data.map((p) => p.funcionaria);
-  const dias = [...new Set(d.data.map((r) => r.data))].sort().slice(-30);
-  const toMin = (s) => { const [h, m] = String(s).split(':').map(Number); return h * 60 + m; };
+  const d = dash.data('ponto'), e = dash.data('ponto_resumo'); if (d.status !== 'ok' || e.status !== 'ok') return clear(el);
+  const nomes = e.data.map((p) => p.funcionaria); const dias = [...new Set(d.data.map((r) => r.data))].sort().slice(-30);
+  const toMin = (s) => { const [hh, mm] = String(s).split(':').map(Number); return hh * 60 + mm; };
   const pts = d.data.filter((r) => dias.includes(r.data) && nomes.includes(r.funcionaria) && r.chegada).map((r) => ({...r, min: toMin(r.chegada)}));
-  const h = 230, m = {l: 44, r: 10, t: 10, b: 24};
-  const {svg, w} = frame(el, h, 'Horário de chegada de cada funcionária nos últimos 30 dias, com a linha das 08:30');
+  const h = 230, m = {l: 44, r: 10, t: 10, b: 24}; const {svg, w} = frame(el, h, 'Horário de chegada nos últimos 30 dias, com a linha das 08:30');
   const x = d3.scalePoint().domain(dias).range([m.l, w - m.r]).padding(0.5);
-  const lo = Math.min(495, d3.min(pts, (p) => p.min) || 495), hi = Math.max(540, d3.max(pts, (p) => p.min) || 540);
-  const y = d3.scaleLinear().domain([lo - 5, hi + 5]).range([h - m.b, m.t]);
+  const lo = Math.min(495, d3.min(pts, (p) => p.min) || 495), hi = Math.max(540, d3.max(pts, (p) => p.min) || 540); const y = d3.scaleLinear().domain([lo - 5, hi + 5]).range([h - m.b, m.t]);
   const tk = d3.range(Math.ceil(lo / 15) * 15, hi + 1, 15);
   svg.append('g').selectAll('line').data(tk).join('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y).attr('y2', y).style('stroke', 'var(--cds-chart-grid)');
   svg.append('g').selectAll('text').data(tk).join('text').attr('x', m.l - 6).attr('y', (v) => y(v) + 4).attr('text-anchor', 'end').text((v) => `${String(Math.floor(v / 60)).padStart(2, '0')}:${String(v % 60).padStart(2, '0')}`);
   svg.append('line').attr('x1', m.l).attr('x2', w - m.r).attr('y1', y(510)).attr('y2', y(510)).style('stroke', 'var(--cds-chart-reference)').style('stroke-dasharray', '4 3');
-  const tks = dias.filter((v, i) => i % 5 === 0 || i === dias.length - 1);
-  svg.append('g').selectAll('text').data(tks).join('text').attr('x', x).attr('y', h - 6).attr('text-anchor', 'middle').text((v) => F.dia(v));
-  const off = (n) => (nomes.indexOf(n) - (nomes.length - 1) / 2) * 4;
-  const tip = tipFor(el);
+  svg.append('g').selectAll('text').data(dias.filter((v, i) => i % 5 === 0 || i === dias.length - 1)).join('text').attr('x', x).attr('y', h - 6).attr('text-anchor', 'middle').text((v) => F.dia(v));
+  const off = (n) => (nomes.indexOf(n) - (nomes.length - 1) / 2) * 4; const tip = tipFor(el);
   svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', (p) => x(p.data) + off(p.funcionaria)).attr('cy', (p) => y(p.min)).attr('r', 4)
     .style('fill', (p) => dash.colors[nomes.indexOf(p.funcionaria) % dash.colors.length]).style('stroke', (p) => p.atraso_min > 5 ? 'var(--color-bad)' : 'var(--color-bg)').style('stroke-width', (p) => p.atraso_min > 5 ? 2 : 1)
     .on('pointermove', (ev, p) => showTip(el, tip, ev, [[`${p.funcionaria} · ${F.dia(p.data)}`], ['Chegou', p.chegada], ['Atraso', p.atraso_min > 5 ? `${p.atraso_min} min` : 'não']])).on('pointerleave', () => { tip.hidden = true; });
