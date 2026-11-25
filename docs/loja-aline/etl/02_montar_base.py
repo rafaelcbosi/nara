@@ -113,6 +113,11 @@ for rr in pt.iter_rows(min_row=2, values_only=True):
     ev[(t.date(),nome)][e].append(t)
     for x in (rr[1],rr[3]):
         if x not in (None,""): notas[(t.date(),nome)].append(x.strftime("%H:%M") if isinstance(x,(dt.time,dt.datetime)) else str(x))
+# Batidas feitas no Mural da Equipe (a rotina salva a lista em ponto_mural.json: funcionaria, evento, data, hora)
+if os.path.exists(f"{S}/ponto_mural.json"):
+    for b in json.load(open(f"{S}/ponto_mural.json")):
+        t=dt.datetime.strptime(f'{b["data"]} {b["hora"]}',"%Y-%m-%d %H:%M:%S")
+        ev[(t.date(),b["funcionaria"].strip().title())][b["evento"].strip().upper()].append(t)
 hm=lambda t: t.strftime("%H:%M") if t else ""
 rows=[]
 for (day,nome),k in sorted(ev.items()):
