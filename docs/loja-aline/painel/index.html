@@ -194,7 +194,7 @@
     <div class="cj-card cj-tw" id="t-contas">
       <h2>Contas em aberto (vencidas e próximos 30 dias)</h2>
       <table data-source="contas_lista" data-row-key="id">
-        <thead><tr><th data-field="vencimento">Vencimento</th><th data-field="descricao">Descrição</th><th data-field="nota">Nota</th><th data-field="tipo">Tipo</th><th class="r" data-field="valor">Valor</th><th data-field="status">Situação</th></tr></thead>
+        <thead><tr><th data-field="vencimento">Vencimento</th><th data-field="descricao">Descrição</th><th data-field="nota">Nota</th><th data-field="tipo">Tipo</th><th data-field="origem">Origem</th><th class="r" data-field="valor">Valor</th><th data-field="status">Situação</th></tr></thead>
         <tbody data-draw="t_contas"></tbody>
       </table>
     </div>
@@ -294,7 +294,7 @@
 
 <script>
 const SHEET = '13-_lZHKaE7HQ_lArBHCxuV1bjt03EFuCMSNfoAvGLAQ';
-['vendas','afiacao','metas','config','contas','dre','ponto','equipe','rotina','meta_dia','retiradas_d'].forEach((id) => dash.loader(id, {
+['vendas','afiacao','metas','config','contas','dre','ponto','equipe','rotina','meta_dia','retiradas_d','contas_aline','contas_xml'].forEach((id) => dash.loader(id, {
   description: 'Lê a aba da planilha: a primeira linha dá os nomes das colunas; datas dd/mm/aaaa viram aaaa-mm-dd e números viram números.',
   fn: ({answer}) => {
     const a = typeof answer === 'string' ? JSON.parse(answer) : answer;
@@ -309,6 +309,8 @@ const SHEET = '13-_lZHKaE7HQ_lArBHCxuV1bjt03EFuCMSNfoAvGLAQ';
       const d = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
       if (d) return `${d[3]}-${d[2]}-${d[1]}`;
       if (!keepText.has(c) && /^-?\d+(\.\d+)?$/.test(s)) return Number(s);
+      const br = s.replace(/^R\$\s*/, '');
+      if (!keepText.has(c) && /^-?\d{1,3}(\.\d{3})*(,\d+)?$|^-?\d+,\d+$/.test(br)) return Number(br.replace(/\./g, '').replace(',', '.'));
       return s;
     };
     return {columns: cols, rows: v.slice(1).filter((r) => r.some((x) => x !== '' && x != null)).map((r) => Object.fromEntries(cols.map((c, i) => [c, conv(c, r[i])])))};
@@ -354,7 +356,7 @@ dash.calc('periodo_dias', {
 });
 
 dash.calc('periodo_resumo', {
-  title: 'Resumo do período escolhido', inputs: ['periodo_dias', 'contas'],
+  title: 'Resumo do período escolhido', inputs: ['periodo_dias', 'contas_all'],
   fn: (dias, contas) => {
     if (!dias.length) return [];
     const de = dias[0].de, ate = dias[0].ate;
@@ -419,6 +421,15 @@ dash.calc('dre_ano', { title: 'DRE acumulado do ano (meses fechados)', descripti
     return [{meses: fech.length, resultado: res, pro_labore: prl, pro_labore_plano: plano * fech.length, geracao: res + prl, geracao_media_mes: fech.length ? (res + prl) / fech.length : 0}];
   } });
 
+dash.calc('contas_all', {
+  title: 'Todas as contas', description: 'CONTAS (do financeiro) + CONTAS_ALINE (lançadas na mão) + CONTAS_XML (lidas dos XMLs). Situação: paga se tem data de pagamento.',
+  inputs: ['contas', 'contas_aline', 'contas_xml'],
+  fn: (contas, manual, xml) => {
+    const norm = (c, origem) => ({...c, origem, tipo: String(c.tipo || 'fornecedor').toLowerCase(), valor: Number(c.valor) || 0, status: c.pago_em ? 'paga' : (c.status === 'paga' ? 'paga' : 'em aberto')});
+    return [...contas.map((c) => ({...c, origem: 'financeiro'})), ...manual.filter((c) => c.vencimento && c.valor).map((c) => norm(c, 'Aline')), ...xml.filter((c) => c.vencimento && c.valor).map((c) => norm(c, 'XML'))];
+  }
+});
+
 /* ---------- compras ---------- */
 dash.calc('pedidos_parcelas', {
   title: 'Parcelas previstas dos pedidos em aberto', description: 'Valor dividido igualmente pelas parcelas, a partir do 1º vencimento e do intervalo informado.', inputs: ['pedidos'],
@@ -433,7 +444,7 @@ dash.calc('pedidos_parcelas', {
 });
 dash.calc('poder_compra', {
   title: 'Poder de compra por mês de vencimento', description: 'Teto = meta × regra_compra_pct (CONFIG) − boletos de fornecedor do mês − parcelas de pedidos em aberto.',
-  inputs: ['vendas', 'metas', 'contas', 'config', 'pedidos_parcelas'],
+  inputs: ['vendas', 'metas', 'contas_all', 'config', 'pedidos_parcelas'],
   fn: (vendas, metas, contas, config, parcelas) => {
     const last = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!last) return [];
     const pct = (config.find((r) => r.chave === 'regra_compra_pct') || {}).valor || 0.45; const mes0 = last.slice(0, 7);
@@ -448,7 +459,7 @@ dash.calc('poder_compra', {
 dash.calc('pedidos_lista', { title: 'Pedidos registrados', inputs: ['pedidos'],
   fn: (pedidos) => pedidos.map((p) => ({id: p.id, criado_em: p.criado_em || '', fornecedor: p.fornecedor, valor: Number(p.valor) || 0, parcelas_txt: `${p.parcelas}× a partir de ${p.primeiro_venc ? p.primeiro_venc.slice(8, 10) + '/' + p.primeiro_venc.slice(5, 7) : '—'}`, status: p.status || 'em aberto', obs: p.obs || ''}))
     .sort((a, b) => (a.status === 'em aberto') === (b.status === 'em aberto') ? (a.criado_em < b.criado_em ? 1 : -1) : (a.status === 'em aberto' ? -1 : 1)) });
-dash.calc('contas_resumo', { title: 'Resumo de contas a pagar', description: 'Hoje = data da última venda registrada.', inputs: ['contas', 'vendas'],
+dash.calc('contas_resumo', { title: 'Resumo de contas a pagar', description: 'Hoje = data da última venda registrada.', inputs: ['contas_all', 'vendas'],
   fn: (contas, vendas) => {
     const hoje = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!hoje) return [];
     const add = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
@@ -456,12 +467,12 @@ dash.calc('contas_resumo', { title: 'Resumo de contas a pagar', description: 'Ho
     const p = (n, f) => d3.sum(ab.filter((c) => c.vencimento >= hoje && c.vencimento <= add(hoje, n) && (!f || f(c))), (c) => c.valor);
     return [{hoje, vencidas_qtd: venc.length, vencidas_valor: d3.sum(venc, (c) => c.valor), prox7: p(7), prox30: p(30), prox30_fixos: p(30, (c) => c.tipo === 'fixo')}];
   } });
-dash.calc('contas_lista', { title: 'Contas vencidas sem baixa e dos próximos 30 dias', inputs: ['contas', 'vendas'],
+dash.calc('contas_lista', { title: 'Contas vencidas sem baixa e dos próximos 30 dias', inputs: ['contas_all', 'vendas'],
   fn: (contas, vendas) => {
     const hoje = vendas.map((r) => r.data).filter(Boolean).sort().pop(); if (!hoje) return [];
     const d = new Date(hoje + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 30); const lim = d.toISOString().slice(0, 10);
     return contas.filter((c) => c.status !== 'paga' && c.vencimento && c.vencimento <= lim)
-      .map((c) => ({id: `${c.vencimento}|${c.descricao}|${c.nota || ''}|${c.valor}`, vencimento: c.vencimento, descricao: c.descricao, nota: c.nota || '', tipo: c.tipo, valor: c.valor, status: c.vencimento < hoje ? 'vencida sem baixa' : 'a pagar'}))
+      .map((c) => ({id: `${c.vencimento}|${c.descricao}|${c.nota || ''}|${c.valor}`, vencimento: c.vencimento, descricao: c.descricao, nota: c.nota || '', tipo: c.tipo, origem: c.origem, valor: c.valor, status: c.vencimento < hoje ? 'vencida sem baixa' : 'a pagar'}))
       .sort((a, b) => a.vencimento < b.vencimento ? -1 : 1);
   } });
 
@@ -633,7 +644,7 @@ rowsTable('t_ritmo', 'ritmo', [['janela', '', (v) => v], ['vendido', 'r', F.brl]
 rowsTable('t_rotina', 'entradas_status', [['pasta', '', (v) => v], ['frequencia', 'wrap', (v) => v], ['ultimo_arquivo', '', (v) => v ? F.dia(v) : '—'], ['arquivos_mes', 'r', (v) => v == null ? '—' : String(v)], ['situacao', '', (v) => pill(v, v === 'em dia' ? 'cj-ok' : v === 'atrasada' ? 'cj-bad' : v === 'automático' ? '' : 'cj-warn')]]);
 rowsTable('t_vend', 'vendedoras_mes', [['vendedora', '', (v) => v], ['valor', 'r', F.brl], ['participacao', 'r', F.pct], ['media_dia', 'r', F.brl]]);
 rowsTable('t_compra', 'poder_compra', [['mes', '', F.mesLongo], ['meta', 'r', F.brl], ['teto', 'r', F.brl], ['fornecedores', 'r', F.brl], ['pedidos', 'r', F.brl], ['disponivel', 'r', (v) => pill(F.brl(v), v >= 0 ? 'cj-ok' : 'cj-bad')]]);
-rowsTable('t_contas', 'contas_lista', [['vencimento', '', F.dia], ['descricao', '', (v) => v], ['nota', '', (v) => v || ''], ['tipo', '', (v) => v], ['valor', 'r', F.brl], ['status', '', (v) => pill(v, v === 'a pagar' ? '' : 'cj-warn')]]);
+rowsTable('t_contas', 'contas_lista', [['vencimento', '', F.dia], ['descricao', '', (v) => v], ['nota', '', (v) => v || ''], ['tipo', '', (v) => v], ['origem', '', (v) => v], ['valor', 'r', F.brl], ['status', '', (v) => pill(v, v === 'a pagar' ? '' : 'cj-warn')]]);
 rowsTable('t_afi', 'afiacao_forma', [['forma', '', (v) => v], ['valor', 'r', F.brl], ['servicos', 'r', (v) => String(v)], ['participacao', 'r', F.pct]]);
 const z = (v) => v ? F.brl(v) : '';
 rowsTable('t_caixa', 'caixa_mes', [['data', '', F.dia], ['dia_semana', '', (v) => v], ['meta', 'r', z], ['aline', 'r', z], ['tainara', 'r', z], ['thayna', 'r', z], ['outras', 'r', z], ['loja', 'r', F.brl], ['dif_meta', 'r', signed],

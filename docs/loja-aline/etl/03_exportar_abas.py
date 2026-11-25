@@ -6,7 +6,7 @@ src, out = sys.argv[1], sys.argv[2]
 os.makedirs(out, exist_ok=True)
 wb = openpyxl.load_workbook(src)
 for ws in wb.worksheets:
-    if ws.title in ("LEIA-ME", "ROTINA"):  # ROTINA é editada direto na planilha
+    if ws.title in ("LEIA-ME", "ROTINA", "CONFIG", "METAS", "EQUIPE"):  # abas verdes: a Aline edita direto na planilha
         continue
     rows = []
     for r in ws.iter_rows(values_only=True):

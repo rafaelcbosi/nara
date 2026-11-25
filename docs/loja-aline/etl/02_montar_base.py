@@ -46,6 +46,11 @@ metas=[]
 for i,m in enumerate(range(5,17)):
     metas.append([f"2026-{i+1:02d}", v.cell(m,7).value or 0, v.cell(m,6).value or 0])
 metas[10][1]=79000  # meta oficial de novembro (Aline, 24/11)
+# Se a rotina baixou a aba METAS da base (editada pela Aline), ela manda.
+import os
+if os.path.exists(f"{S}/metas_base.json"):
+    mb={r[0]:r for r in json.load(open(f"{S}/metas_base.json"))[1:] if r and r[0]}
+    metas=[[m, float(str(mb[m][1]).replace(".","").replace(",",".")) if m in mb and mb[m][1] not in ("",None) else v, r25] for m,v,r25 in metas]
 sheet("CONFIG",["chave","valor","descrição"],[
  ["regra_compra_pct",0.45,"Fornecedores que vencem no mês ≤ 45% da meta de receita"],
  ["jornada_semana_min",480,"Seg–sex: 08:30–18:00 com 1h30 de almoço"],
