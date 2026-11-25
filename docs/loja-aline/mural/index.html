@@ -44,7 +44,7 @@
   </header>
 
   <div class="mu-card mu-ponto" id="ponto">
-    <div style="display:grid;gap:4px"><h2>Ponto</h2><p class="mu-note">Chegada, almoço, lanche e saída. Cada uma vê o próprio extrato de horas com a Aline.</p></div>
+    <div style="display:grid;gap:4px"><span class="mu-big" style="font-size:44px" data-draw="relogio">—</span><span class="mu-note" style="font-size:var(--cds-font-size-body)" data-draw="data_hoje">—</span><p class="mu-note">Chegada, almoço, lanche e saída: bata o ponto no botão ao lado.</p></div>
     <a class="mu-btn" href="https://docs.google.com/forms/d/1s5-EpVhKuzdTuEyehsA2Mk0_AaY2QwehJD7YLzEke0g/viewform" target="_blank" rel="noopener">Bater ponto</a>
   </div>
 
@@ -118,7 +118,7 @@ dash.calc('metas_loja', {
 });
 dash.calc('meta_hoje', {
   title: 'Meta do dia de hoje', description: 'Primeiro dia com meta a partir de hoje (data do aparelho de quem abre).', inputs: ['meta_dia'],
-  fn: (metaDia) => { const hoje = new Date().toISOString().slice(0, 10); const r = metaDia.filter((x) => x.data >= hoje && x.meta_dia > 0).sort((a, b) => a.data < b.data ? -1 : 1)[0]; return r ? [{data: r.data, meta: r.meta_dia}] : []; }
+  fn: (metaDia) => { const hoje = new Intl.DateTimeFormat('en-CA', {timeZone: 'America/Sao_Paulo'}).format(new Date()); const r = metaDia.filter((x) => x.data >= hoje && x.meta_dia > 0).sort((a, b) => a.data < b.data ? -1 : 1)[0]; return r ? [{data: r.data, meta: r.meta_dia}] : []; }
 });
 dash.calc('vendedoras_mes', {
   title: 'Vendas por vendedora no mês', inputs: ['vendas'],
@@ -130,7 +130,7 @@ dash.calc('vendedoras_mes', {
 });
 dash.calc('mural_ativo', {
   title: 'Itens do mural em vigor', description: 'Itens sem data de fim ou com fim a partir de hoje.', inputs: ['mural'],
-  fn: (mural) => { const hoje = new Date().toISOString().slice(0, 10); return mural.filter((m) => !m.ate || m.ate >= hoje).map((m) => ({id: m.id, secao: m.secao, titulo: m.titulo, texto: m.texto || '', premio: m.premio || '', ate: m.ate || '', criado_em: m.criado_em || ''})).sort((a, b) => a.criado_em < b.criado_em ? 1 : -1); }
+  fn: (mural) => { const hoje = new Intl.DateTimeFormat('en-CA', {timeZone: 'America/Sao_Paulo'}).format(new Date()); return mural.filter((m) => !m.ate || m.ate >= hoje).map((m) => ({id: m.id, secao: m.secao, titulo: m.titulo, texto: m.texto || '', premio: m.premio || '', ate: m.ate || '', criado_em: m.criado_em || ''})).sort((a, b) => a.criado_em < b.criado_em ? 1 : -1); }
 });
 window.muFmt = {
   brl: (v) => v == null || isNaN(v) ? '—' : 'R$ ' + Math.round(v).toLocaleString('pt-BR'),
@@ -143,6 +143,19 @@ window.muFmt = {
 const F = window.muFmt;
 const one = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data && d.data[0] ? d.data[0] : null; };
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+
+const tz = 'America/Sao_Paulo';
+const tick = (el, fmt) => { el.textContent = new Intl.DateTimeFormat('pt-BR', {timeZone: tz, ...fmt}).format(new Date()); };
+dash.draw('relogio', {
+  mount: (el) => { tick(el, {hour: '2-digit', minute: '2-digit', second: '2-digit'}); return setInterval(() => tick(el, {hour: '2-digit', minute: '2-digit', second: '2-digit'}), 1000); },
+  update: (el) => tick(el, {hour: '2-digit', minute: '2-digit', second: '2-digit'}),
+  unmount: (el, id) => clearInterval(id)
+});
+dash.draw('data_hoje', {
+  mount: (el) => { const f = () => { const t = new Intl.DateTimeFormat('pt-BR', {timeZone: tz, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'}).format(new Date()); el.textContent = t.charAt(0).toUpperCase() + t.slice(1); }; f(); return setInterval(f, 60000); },
+  update: () => {},
+  unmount: (el, id) => clearInterval(id)
+});
 
 dash.draw('lede', (p) => {
   const d = dash.data('metas_loja'); if (d.status !== 'ok' || !d.data.length) { p.textContent = '—'; return; }
